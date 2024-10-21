@@ -1,57 +1,14 @@
-from pynput import keyboard, mouse
+from input_controller import main_loop, Key, KeyCode
+from adb_controller import try_connect, key_event_map
 
-is_redirecting = False
-keyboard_listener = None
-to_toggle_flag = False
-to_exit_flag = False
+client = try_connect("192.168.119.84:33761")
+device = client.device()
 
-def schedule_toggle():
-    global to_toggle_flag
-    to_toggle_flag = True
+def keyboard_callback(k: Key | KeyCode, is_redirecting: bool):
+    if not is_redirecting:
+        return
+    if k not in key_event_map:
+        return
+    # device.keyevent(key_event_map[k])
 
-def schedule_exit():
-    global to_exit_flag
-    schedule_toggle()
-    to_exit_flag = True
-
-switch_key_combination = '<ctrl>+<alt>+s'
-exit_key_combination = '<ctrl>+<alt>+q'
-switch_hotkey = keyboard.HotKey(keyboard.HotKey.parse(switch_key_combination), schedule_toggle)
-exit_hotkey = keyboard.HotKey(keyboard.HotKey.parse(exit_key_combination), schedule_exit)
-
-def keyboard_press_handler(k):
-    global to_toggle_flag, is_redirecting
-    print(k)
-    canonical_k = keyboard_listener.canonical(k)
-    switch_hotkey.press(canonical_k)
-    exit_hotkey.press(canonical_k)
-
-    if to_toggle_flag == True:
-        to_toggle_flag = False
-        is_redirecting = not is_redirecting
-        return False
-
-def keyboard_release_handler(k):
-    canonical_k = keyboard_listener.canonical(k)
-    switch_hotkey.release(canonical_k)
-    exit_hotkey.release(canonical_k)
-
-def show_function_message():
-    print(f'''\
-Push {switch_key_combination} to enable/disable redirecting mouse and keyboard input.
-Push {exit_key_combination} to exit.\
-    ''')
-
-show_function_message()
-while not to_exit_flag:
-    if is_redirecting:
-        print("Input redirecting enabled.")
-    else:
-        print("Input redirecting disabled.")
-
-    with keyboard.Listener(
-            suppress=is_redirecting,
-            on_press=keyboard_press_handler, # type: ignore
-            on_release=keyboard_release_handler,
-        ) as keyboard_listener:
-        keyboard_listener.join()
+main_loop(keyboard_callback)
