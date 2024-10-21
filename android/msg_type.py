@@ -4,7 +4,7 @@ class ControlMsgType(Enum):
     """
     Represents the types of control messages.
     """
-    MSG_TYPE_INJECT_KEYCODE = auto()
+    MSG_TYPE_INJECT_KEYCODE = 0
     MSG_TYPE_INJECT_TEXT = auto()
     MSG_TYPE_INJECT_TOUCH_EVENT = auto()
     MSG_TYPE_INJECT_SCROLL_EVENT = auto()
