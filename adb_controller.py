@@ -1,51 +1,83 @@
 import adbutils
+from android import AKeyCode
 from input_controller import Key, KeyCode
 
 def try_connect(addr: str, timeout: float=4.0) -> adbutils.AdbClient:
     client = adbutils.AdbClient()
     try:
         output = client.connect(addr, timeout)
-        print(output)
+        print("[ADB] ", output)
     except adbutils.AdbTimeout as e:
-        print("Connect failed: ", e)
-        exit()
+        print("[Error] Connect failed: ", e)
+        exit(1)
     return client
 
 key_event_map = {
-    KeyCode.from_char("a"): 29, # A
-    KeyCode.from_char("b"): 30, # B
-    KeyCode.from_char("c"): 31, # C
-    KeyCode.from_char("d"): 32, # D
-    KeyCode.from_char("e"): 33, # E
-    KeyCode.from_char("f"): 34, # F
-    KeyCode.from_char("g"): 35, # G
-    KeyCode.from_char("h"): 36, # H
-    KeyCode.from_char("i"): 37, # I
-    KeyCode.from_char("j"): 38, # J
-    KeyCode.from_char("k"): 39, # K
-    KeyCode.from_char("l"): 40, # L
-    KeyCode.from_char("m"): 41, # M
-    KeyCode.from_char("n"): 42, # N
-    KeyCode.from_char("o"): 43, # O
-    KeyCode.from_char("p"): 44, # P
-    KeyCode.from_char("q"): 45, # Q
-    KeyCode.from_char("r"): 46, # R
-    KeyCode.from_char("s"): 47, # S
-    KeyCode.from_char("t"): 48, # T
-    KeyCode.from_char("u"): 49, # U
-    KeyCode.from_char("v"): 50, # V
-    KeyCode.from_char("w"): 51, # W
-    KeyCode.from_char("x"): 52, # X
-    KeyCode.from_char("y"): 53, # Y
-    KeyCode.from_char("z"): 54, # Z
+    KeyCode.from_char("0"): AKeyCode.AKEYCODE_0,
+    KeyCode.from_char("1"): AKeyCode.AKEYCODE_1,
+    KeyCode.from_char("2"): AKeyCode.AKEYCODE_2,
+    KeyCode.from_char("3"): AKeyCode.AKEYCODE_3,
+    KeyCode.from_char("4"): AKeyCode.AKEYCODE_4,
+    KeyCode.from_char("5"): AKeyCode.AKEYCODE_5,
+    KeyCode.from_char("6"): AKeyCode.AKEYCODE_6,
+    KeyCode.from_char("7"): AKeyCode.AKEYCODE_7,
+    KeyCode.from_char("8"): AKeyCode.AKEYCODE_8,
+    KeyCode.from_char("9"): AKeyCode.AKEYCODE_9,
 
-    Key.alt_l: 57,
-    Key.alt_l: 58,
-    Key.shift_l: 59,
-    Key.shift_r: 60,
-    Key.tab: 61,
-    KeyCode.from_vk(32): 62, # space
-    KeyCode.from_vk(13): 66, # enter
-    KeyCode.from_vk(8 ): 67, # backspace
-    # KeyCode.from_vk(Key.enter): 66,
+    KeyCode.from_char("a"): AKeyCode.AKEYCODE_A,
+    KeyCode.from_char("b"): AKeyCode.AKEYCODE_B,
+    KeyCode.from_char("c"): AKeyCode.AKEYCODE_C,
+    KeyCode.from_char("d"): AKeyCode.AKEYCODE_D,
+    KeyCode.from_char("e"): AKeyCode.AKEYCODE_E,
+    KeyCode.from_char("f"): AKeyCode.AKEYCODE_F,
+    KeyCode.from_char("g"): AKeyCode.AKEYCODE_G,
+    KeyCode.from_char("h"): AKeyCode.AKEYCODE_H,
+    KeyCode.from_char("i"): AKeyCode.AKEYCODE_I,
+    KeyCode.from_char("j"): AKeyCode.AKEYCODE_J,
+    KeyCode.from_char("k"): AKeyCode.AKEYCODE_K,
+    KeyCode.from_char("l"): AKeyCode.AKEYCODE_L,
+    KeyCode.from_char("m"): AKeyCode.AKEYCODE_M,
+    KeyCode.from_char("n"): AKeyCode.AKEYCODE_N,
+    KeyCode.from_char("o"): AKeyCode.AKEYCODE_O,
+    KeyCode.from_char("p"): AKeyCode.AKEYCODE_P,
+    KeyCode.from_char("q"): AKeyCode.AKEYCODE_Q,
+    KeyCode.from_char("r"): AKeyCode.AKEYCODE_R,
+    KeyCode.from_char("s"): AKeyCode.AKEYCODE_S,
+    KeyCode.from_char("t"): AKeyCode.AKEYCODE_T,
+    KeyCode.from_char("u"): AKeyCode.AKEYCODE_U,
+    KeyCode.from_char("v"): AKeyCode.AKEYCODE_V,
+    KeyCode.from_char("w"): AKeyCode.AKEYCODE_W,
+    KeyCode.from_char("x"): AKeyCode.AKEYCODE_X,
+    KeyCode.from_char("y"): AKeyCode.AKEYCODE_Y,
+    KeyCode.from_char("z"): AKeyCode.AKEYCODE_Z,
+
+    KeyCode.from_char(","): AKeyCode.AKEYCODE_COMMA,
+    KeyCode.from_char("."): AKeyCode.AKEYCODE_PERIOD,
+    KeyCode.from_char("`"): AKeyCode.AKEYCODE_GRAVE,
+    KeyCode.from_char("-"): AKeyCode.AKEYCODE_MINUS,
+    KeyCode.from_char("="): AKeyCode.AKEYCODE_EQUALS,
+    KeyCode.from_char("["): AKeyCode.AKEYCODE_LEFT_BRACKET,
+    KeyCode.from_char("]"): AKeyCode.AKEYCODE_RIGHT_BRACKET,
+    KeyCode.from_char("\\"): AKeyCode.AKEYCODE_BACKSLASH,
+    KeyCode.from_char(";"): AKeyCode.AKEYCODE_SEMICOLON,
+    KeyCode.from_char("'"): AKeyCode.AKEYCODE_APOSTROPHE,
+    KeyCode.from_char("/"): AKeyCode.AKEYCODE_SLASH,
+    KeyCode.from_char("@"): AKeyCode.AKEYCODE_AT,
+
+    Key.alt_l:   AKeyCode.AKEYCODE_ALT_LEFT,
+    Key.alt_r:   AKeyCode.AKEYCODE_ALT_RIGHT,
+    Key.shift_l: AKeyCode.AKEYCODE_SHIFT_LEFT,
+    Key.shift_r: AKeyCode.AKEYCODE_SHIFT_RIGHT,
+
+    KeyCode.from_vk(8 ): AKeyCode.AKEYCODE_DEL, # backspace
+    KeyCode.from_vk(9 ): AKeyCode.AKEYCODE_TAB,
+    KeyCode.from_vk(13): AKeyCode.AKEYCODE_ENTER,
+    KeyCode.from_vk(20): AKeyCode.AKEYCODE_CAPS_LOCK,
+    KeyCode.from_vk(32): AKeyCode.AKEYCODE_SPACE,
+    KeyCode.from_vk(37): AKeyCode.AKEYCODE_DPAD_LEFT,
+    KeyCode.from_vk(38): AKeyCode.AKEYCODE_DPAD_UP,
+    KeyCode.from_vk(39): AKeyCode.AKEYCODE_DPAD_RIGHT,
+    KeyCode.from_vk(40): AKeyCode.AKEYCODE_DPAD_DOWN,
+    KeyCode.from_vk(45): AKeyCode.AKEYCODE_INSERT,
+    KeyCode.from_vk(46): AKeyCode.AKEYCODE_FORWARD_DEL,
 }
