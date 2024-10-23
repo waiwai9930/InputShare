@@ -1,5 +1,8 @@
 import re
 
+def CLAMP(v: int, x: int, y: int) -> int:
+    return min(max(v, x), y)
+
 def is_valid_ipv4_addr(ipv4_addr: str) -> bool:
     pattern = r'^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(:[0-9]{1,5})$'
     return re.match(pattern, ipv4_addr) is not None

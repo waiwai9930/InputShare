@@ -1,3 +1,4 @@
+import re
 import adbutils
 from android import AKeyCode
 from input_controller import Key, KeyCode
@@ -8,6 +9,9 @@ def try_connect(addr: str, timeout: float=4.0) -> adbutils.AdbClient:
         output = client.connect(addr, timeout)
         print("[ADB] ", output)
     except adbutils.AdbTimeout as e:
+        print("[Error] Connect timeout: ", e)
+        exit(1)
+    except Exception as e:
         print("[Error] Connect failed: ", e)
         exit(1)
     return client
@@ -81,3 +85,17 @@ key_event_map = {
     KeyCode.from_vk(45): AKeyCode.AKEYCODE_INSERT,
     KeyCode.from_vk(46): AKeyCode.AKEYCODE_FORWARD_DEL,
 }
+
+def get_display_size(adb_client: adbutils.AdbClient) -> tuple[int, int]:
+    device = adb_client.device_list()[0]
+    output = str(device.shell("dumpsys window displays"))
+
+    size_pattern = re.compile(r'cur=\d+x\d+')
+    size_match = size_pattern.search(output)
+
+    if size_match is None:
+        print("[Error] Get device size failed.")
+        exit(1)
+    size = size_match.group(0).split('=')[1]
+    width, height = map(int, size.split('x'))
+    return (width, height)

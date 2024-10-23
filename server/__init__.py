@@ -1,11 +1,18 @@
 import subprocess
 import time
-from adb_controller import try_connect
+from pathlib import Path
+from adbutils import AdbClient, AdbDevice
 
-def server_process_factory(addr: str):
-    adb_client = try_connect(addr)
+def push_server(device: AdbDevice):
+    server_relative_path = "scrcpy-server"
+    target_path = "/data/local/tmp/scrcpy-server-manual.jar"
+    script_path = Path(__file__).resolve().parent
+    sever_binary_path = Path.joinpath(script_path, server_relative_path)
+    device.push(str(sever_binary_path), target_path)
+
+def server_process_factory(adb_client: AdbClient):
     device = adb_client.device_list()[0]
-    device.push("scrcpy-server", "/data/local/tmp/scrcpy-server-manual.jar")
+    push_server(device)
     device.forward("tcp:1234", "localabstract:scrcpy")
 
     command = "CLASSPATH=/data/local/tmp/scrcpy-server-manual.jar app_process / com.genymobile.scrcpy.Server 2.7 tunnel_forward=true video=false audio=false control=true cleanup=false raw_stream=true max_size=1920"
