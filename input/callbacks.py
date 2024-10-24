@@ -6,8 +6,9 @@ from adbutils import AdbClient
 from android import InjectKeyCode, AKeyEventAction, InjectTouchEvent, MouseClickEvent, MouseMoveEvent, UHIDCreateEvent
 from android.coords import ScreenPoint, ScreenPosition, ScreenSize
 from android.motion_event import AMotionEventAction, AMotionEventButtons
-from input_controller import Key, KeyCode, KeyEventCallback, MouseClickCallback, MouseMoveCallback, StopException
 from adb_controller import get_display_size, key_event_map
+from input.edge_portal import edge_portal_passing_event
+from input.controller import Key, KeyCode, KeyEventCallback, MouseClickCallback, MouseMoveCallback, StopException
 
 def callback_context_wrapper(
     adb_client: AdbClient,
@@ -50,8 +51,8 @@ def callback_context_wrapper(
 
     mouse_init = UHIDCreateEvent()
     send_data(mouse_init.serialize())
-
     last_mouse_point: tuple[int, int] | None = None
+
     def compute_mouse_pointer_diff(cur_x: int, cur_y: int) -> tuple[int, int] | None:
         nonlocal last_mouse_point
         if last_mouse_point is None:
@@ -59,12 +60,18 @@ def callback_context_wrapper(
             return None
         diff_x = cur_x - last_mouse_point[0]
         diff_y = cur_y - last_mouse_point[1]
+        # print("current position: ", cur_x, cur_y, " | last position: ", last_mouse_point[0], last_mouse_point[1])
         last_mouse_point = (cur_x, cur_y)
         return (diff_x, diff_y)
-    
+
     def mouse_move_callback(cur_x: int, cur_y: int, is_redirecting: bool):
-        nonlocal last_mouse_point #, device_mouse_point
+        nonlocal last_mouse_point
         if not is_redirecting:
+            return
+    
+        if edge_portal_passing_event.is_set():
+            last_mouse_point = None
+            edge_portal_passing_event.clear()
             return
         res = compute_mouse_pointer_diff(cur_x, cur_y)
         if res is None:
@@ -72,7 +79,7 @@ def callback_context_wrapper(
         diff_x, diff_y = res
         mouse_move_event = MouseMoveEvent(diff_x, diff_y, AMotionEventButtons.AMOTION_EVENT_BUTTON_NONE)
         send_data(mouse_move_event.serialize())
-    
+
     def mouse_click_callback(_cur_x: int, _cur_y: int, button: mouse.Button, _pressed: bool, is_redirecting: bool):
         nonlocal last_mouse_point #, device_mouse_point
         if not is_redirecting:

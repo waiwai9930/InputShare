@@ -1,16 +1,16 @@
 import socket
 from multiprocessing import freeze_support
 from adb_controller import try_connect
-from input_controller import main_loop
+from input.controller import main_loop
 from server import server_process_factory
-from callbacks import callback_context_wrapper
+from input.callbacks import callback_context_wrapper
 from utils import is_valid_ipv4_addr, is_valid_ipv6_addr
 
 # adb_addr = input("Please input the wireless debugging address here\n=> ")
 # if not is_valid_ipv4_addr(adb_addr) and not is_valid_ipv6_addr(adb_addr):
 #     print("[Error] Invalid wireless debugging address: ", adb_addr)
 #     exit(1)
-adb_addr = "192.168.119.84:46875"
+adb_addr = "192.168.119.84:38811"
 
 if __name__ == "__main__":
     freeze_support()

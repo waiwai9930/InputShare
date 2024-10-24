@@ -1,4 +1,5 @@
 import re
+import screeninfo
 
 def CLAMP(v: int, x: int, y: int) -> int:
     return min(max(v, x), y)
@@ -31,25 +32,12 @@ def is_valid_ipv6_addr(ip_str):
     # Test the input string against the compiled regex pattern
     return bool(ipv6_regex.match(ip_str))
 
-if __name__ == "__main__":
-    test_ips = [
-        "192.168.1.1:8080",      # Valid
-        "10.0.0.1",              # Invalid (no port)
-        "255.255.255.255:65535", # Valid
-        "256.256.256.256",       # Invalid
-        "192.168.1.1:80",        # Valid
-        "192.168.1.1.1:70000",   # Invalid
-        "192.168.1.1.1:80",      # Valid
-    ]
-    for ip in test_ips:
-        print(f"{ip}: {is_valid_ipv4_addr(ip)}")
+def screen_size() -> tuple[int, int]:
+    monitor = screeninfo.get_monitors()[0]
+    return monitor.width, monitor.height
 
-    test_ips = [
-        "2001:0db8:85a3:0000:0000:8a2e:0370:7334", # Valid
-        "::1",                                     # Valid (loopback address)
-        "192.168.1.1",                             # Invalid (not a valid IPv6 address)
-        "2001:db8::ff00:42:8329",                  # Valid
-        "2001:db8:1234:5678:90ab:cdef:ghij:klmn",  # Invalid (invalid hexadecimal digits)
-    ]
-    for ip in test_ips:
-        print(f"{ip}: {is_valid_ipv6_addr(ip)}")
+class StopException(Exception):
+    """If an event listener callback raises this exception, the current
+    listener is stopped.
+    """
+    pass

@@ -1,25 +1,23 @@
+import screeninfo
 from typing import Callable
 from pynput import keyboard, mouse
 
+from input.edge_portal import edge_portal_thread_factory
 from ui import mask_thread_factory
+from utils import StopException
 
 is_redirecting = False
-keyboard_listener = None
-mouse_listener = None
 to_toggle_flag = False
 to_exit_flag = False
+to_program_move_mouse_flag = False
+keyboard_listener = None
+mouse_listener = None
 
 Key = keyboard.Key
 KeyCode = keyboard.KeyCode
 KeyEventCallback = Callable[[Key | KeyCode, bool], None]
 MouseMoveCallback = Callable[[int, int, bool], None]
 MouseClickCallback = Callable[[int, int, mouse.Button, bool, bool], None]
-
-class StopException(Exception):
-    """If an event listener callback raises this exception, the current
-    listener is stopped.
-    """
-    pass
 
 def schedule_toggle():
     global to_toggle_flag
@@ -76,7 +74,7 @@ def keyboard_release_handler_factory(
 def mouse_move_handler_factory(
     callback: MouseMoveCallback | None
 ):
-    def mouse_move_release_handler(x: int, y: int):
+    def mouse_move_handler(x: int, y: int):
         global to_exit_flag, is_redirecting
         if callback is not None:
             try:
@@ -84,12 +82,12 @@ def mouse_move_handler_factory(
             except StopException:
                 to_exit_flag = True
                 return False
-    return mouse_move_release_handler
+    return mouse_move_handler
 
 def mouse_click_handler_factory(
     callback: MouseClickCallback | None
 ):
-    def mouse_click_release_handler(x: int, y: int, button: mouse.Button, pressed: bool):
+    def mouse_click_handler(x: int, y: int, button: mouse.Button, pressed: bool):
         global to_exit_flag, is_redirecting
         if callback is not None:
             try:
@@ -97,7 +95,7 @@ def mouse_click_handler_factory(
             except StopException:
                 to_exit_flag = True
                 return False
-    return mouse_click_release_handler
+    return mouse_click_handler
 
 def show_function_message():
     print(f'''\
@@ -112,21 +110,32 @@ def main_loop(
 ):
     global keyboard_listener, to_toggle_flag
 
-    show_function_message()
-    mask_closer = None
-
-    while not to_exit_flag:
+    def toggle_redirecting_state():
+        nonlocal mask_closer, edge_portal_closer
         if is_redirecting:
             mask_closer = mask_thread_factory()
+            edge_portal_closer = edge_portal_thread_factory()
             print("[Info] Input redirecting enabled.")
         else:
-            if mask_closer is not None: mask_closer()
+            if mask_closer is not None:
+                mask_closer()
+                mask_closer = None
+            if edge_portal_closer is not None:
+                edge_portal_closer()
+                edge_portal_closer = None
             print("[Info] Input redirecting disabled.")
+
+    show_function_message()
+    mask_closer = None
+    edge_portal_closer = None
+
+    while not to_exit_flag:
+        toggle_redirecting_state()
 
         with keyboard.Listener(
                 suppress=is_redirecting,
-                on_press=keyboard_press_handler_factory(keyboard_press_callback),
-                on_release=keyboard_release_handler_factory(keyboard_release_callback),
+                on_press=keyboard_press_handler_factory(keyboard_press_callback), # type: ignore
+                on_release=keyboard_release_handler_factory(keyboard_release_callback), # type: ignore
             ) as keyboard_listener,\
             mouse.Listener(
                 on_move=mouse_move_handler_factory(mouse_move_callback),
@@ -139,3 +148,4 @@ def main_loop(
             mouse_listener.join()
 
     if mask_closer is not None: mask_closer()
+    if edge_portal_closer is not None: edge_portal_closer()

@@ -1,7 +1,7 @@
 import re
 import adbutils
 from android import AKeyCode
-from input_controller import Key, KeyCode
+from input.controller import Key, KeyCode
 
 def try_connect(addr: str, timeout: float=4.0) -> adbutils.AdbClient:
     client = adbutils.AdbClient()
