@@ -1,12 +1,11 @@
 import socket
-from subprocess import Popen
 
+from subprocess import Popen
 from pynput import mouse
 from adbutils import AdbClient
-from android import InjectKeyCode, AKeyEventAction, InjectTouchEvent, MouseClickEvent, MouseMoveEvent, UHIDCreateEvent
-from android.coords import ScreenPoint, ScreenPosition, ScreenSize
-from android.motion_event import AMotionEventAction, AMotionEventButtons
-from adb_controller import get_display_size, key_event_map
+from android import InjectKeyCode, AKeyEventAction, MouseClickEvent, MouseMoveEvent, UHIDCreateEvent
+from android.motion_event import AMotionEventButtons
+from adb_controller import key_event_map
 from input.edge_portal import edge_portal_passing_event
 from input.controller import Key, KeyCode, KeyEventCallback, MouseClickCallback, MouseMoveCallback, StopException
 
@@ -60,7 +59,6 @@ def callback_context_wrapper(
             return None
         diff_x = cur_x - last_mouse_point[0]
         diff_y = cur_y - last_mouse_point[1]
-        # print("current position: ", cur_x, cur_y, " | last position: ", last_mouse_point[0], last_mouse_point[1])
         last_mouse_point = (cur_x, cur_y)
         return (diff_x, diff_y)
 

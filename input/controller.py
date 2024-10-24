@@ -1,9 +1,9 @@
-import screeninfo
+import time
+
 from typing import Callable
 from pynput import keyboard, mouse
-
 from input.edge_portal import edge_portal_thread_factory
-from ui import mask_thread_factory
+from ui.fullscreen_mask import mask_thread_factory
 from utils import StopException
 
 is_redirecting = False
@@ -74,8 +74,18 @@ def keyboard_release_handler_factory(
 def mouse_move_handler_factory(
     callback: MouseMoveCallback | None
 ):
+    last_move_time = time.time()
+    move_interval = 1 / 120
     def mouse_move_handler(x: int, y: int):
         global to_exit_flag, is_redirecting
+        nonlocal last_move_time
+
+        cur_time = time.time()
+        if cur_time - last_move_time > move_interval:
+            last_move_time = cur_time
+        else:
+            return
+
         if callback is not None:
             try:
                 callback(x, y, is_redirecting)

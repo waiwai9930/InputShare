@@ -1,3 +1,4 @@
 adbutils==1.2.15
+customtkinter==5.2.2
 pynput==1.7.6
 screeninfo==0.8.1

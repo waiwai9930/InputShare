@@ -3,6 +3,8 @@ import time
 from pathlib import Path
 from adbutils import AdbClient, AdbDevice
 
+from adb_controller import ADB_BIN_PATH
+
 def push_server(device: AdbDevice):
     server_relative_path = "scrcpy-server"
     target_path = "/data/local/tmp/scrcpy-server-manual.jar"
@@ -18,7 +20,7 @@ def server_process_factory(adb_client: AdbClient):
     command = "CLASSPATH=/data/local/tmp/scrcpy-server-manual.jar app_process / com.genymobile.scrcpy.Server 2.7 tunnel_forward=true video=false audio=false control=true cleanup=false raw_stream=true max_size=1920"
     try:
         process = subprocess.Popen(
-            ['adb', 'shell', command],
+            [ADB_BIN_PATH, "shell", command],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
