@@ -18,7 +18,7 @@ def mount_pairing_view(tabview: ctk.CTkTabview):
             return
         tabview.set("Connecting")
 
-    def need_not_pair_callback():
+    def need_not_pairing_callback():
         nonlocal tabview
         tabview.set("Connecting")
 
@@ -59,7 +59,7 @@ def mount_pairing_view(tabview: ctk.CTkTabview):
         master=button_frame,
         text="Paired? Skip >",
         font=("Arial", 16),
-        command=need_not_pair_callback,
+        command=need_not_pairing_callback,
     )
     button2 = ctk.CTkButton(
         master=button_frame,
@@ -84,6 +84,9 @@ def mount_connecting_view(tabview: ctk.CTkTabview):
             error_label.configure(text="Connecting failed!")
             return
         connecting_window.destroy()
+    
+    def need_not_connection_callback():
+        connecting_window.destroy()
 
     frame = tabview.tab("Connecting")
     prompt_label = ctk.CTkLabel(
@@ -106,18 +109,28 @@ def mount_connecting_view(tabview: ctk.CTkTabview):
         text="",
         font=("Arial", 18),
     )
-    button = ctk.CTkButton(
-        master=frame,
-        text="Connect",
-        font=("Arial", 16),
-        command=connect_callback,
-    )
 
     prompt_label.grid(row=0, column=0, padx=20, pady=(10, 4), sticky="w")
     addr_textbox.grid(row=1, column=0, padx=20, sticky="we")
     error_label.grid(row=2, column=0, padx=20, pady=(10, 4), sticky="w")
     blank_label.grid(row=3, column=0, padx=20, pady=(10, 4), sticky="w")
-    button.grid(row=4, column=0, padx=20, pady=10, sticky="e")
+
+    button_frame = ctk.CTkFrame(master=frame)
+    button1 = ctk.CTkButton(
+        master=button_frame,
+        text="Wired? Skip >",
+        font=("Arial", 16),
+        command=need_not_connection_callback,
+    )
+    button2 = ctk.CTkButton(
+        master=button_frame,
+        text="Connect",
+        font=("Arial", 16),
+        command=connect_callback,
+    )
+    button_frame.grid(row=4, column=0, padx=20, pady=10, sticky="we")
+    button1.pack(side=ctk.LEFT)
+    button2.pack(side=ctk.RIGHT)
 
 def open_connecting_window():
     global connecting_window
