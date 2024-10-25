@@ -82,22 +82,21 @@ key_event_map = {
     KeyCode.from_vk(46): AKeyCode.AKEYCODE_FORWARD_DEL,
 }
 
-def try_connecting(addr: str, timeout: float=4.0) -> adbutils.AdbClient:
+def try_connecting(addr: str, timeout: float=4.0) -> adbutils.AdbClient | None:
     client = adbutils.AdbClient()
     try:
         output = client.connect(addr, timeout)
         print("[ADB] ", output)
     except adbutils.AdbTimeout as e:
         print("[Error] Connect timeout: ", e)
-        exit(1)
+        return None
     except Exception as e:
         print("[Error] Connect failed: ", e)
-        exit(1)
+        return None
     return client
 
 def try_pairing(addr: str, pairing_code: str) -> bool:
     command = f"{ADB_BIN_PATH} pair {addr} {pairing_code}"
-    print(command)
     try:
         process = subprocess.Popen(
             command,

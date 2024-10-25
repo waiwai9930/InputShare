@@ -19,7 +19,7 @@ def check_event(root: ctk.CTk):
 
 def open_mask_window():
     root = ctk.CTk()
-    root.wm_title("AIC Mask")
+    root.wm_title("InputShare Mask")
     root.wm_attributes("-alpha", 0.01)
     root.wm_attributes("-topmost", True)
     root.wm_attributes("-fullscreen", True)
@@ -27,11 +27,11 @@ def open_mask_window():
     root.geometry(f"{screen_width}x{screen_height}")
 
     label_toplevel = ctk.CTkToplevel(master=root)
-    label_toplevel.wm_title("AIC Prompt")
-    label_toplevel.overrideredirect(True)
     label_toplevel.geometry("+20+20")
-    label_toplevel.attributes('-alpha', 0.6)
+    label_toplevel.wm_title("InputShare Prompt")
+    label_toplevel.wm_attributes('-alpha', 0.6)
     label_toplevel.wm_attributes("-topmost", True)
+    label_toplevel.overrideredirect(True)
 
     label1 = ctk.CTkLabel(
         master=label_toplevel,
