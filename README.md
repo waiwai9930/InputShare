@@ -1,6 +1,6 @@
-# ADB Input Control
+# InputShare
 
-__ADB Input Control__ enables you share keyboard and mouse of your computer with an Android device via ADB.
+__InputShare__ enables you share keyboard and mouse of your computer with an Android device via ADB in wired / wireless way.
 
 ## Features
 
@@ -18,8 +18,28 @@ cd adb_input_control
 pip install -r requirements.txt
 ```
 
-Then you have to enable the USB Debugging / Wireless Debugging (depends on the wired / wireless you want), pair your device, and then,
+## Usage
 
-```bash
-python main.py
-```
+You firstly need to enable the __Developer Settings__ of your device.
+
+For wired connection:
+
+1. Enable the __USB Debugging__ in the __Developer Settings__ page
+2. Connect your device with computer via a USB cable
+3. Just run the script with `python main.py` and skip steps
+4. Enjoy your mouse and keyboard on Android device
+
+For wireless connection:
+
+1. Enable the __Wireless Debugging__ in the Developer Settings page
+2. Run the script with `python main.py`
+3. Open __Pair device with pairing code__ option and input the IP address and port and the pairing code into the pairing tab of connecting window
+4. Input the IP address and port in the main __Wireless Debugging__ into the connecting tab of connection window
+5. Enjoy your mouse and keyboard on Android device
+
+## Shortcuts
+
+The shortcuts following are available after connection
+
+`<Ctrl>+<Shift>+s`: toggle the control between your computer and your Android device
+`<Ctrl>+<Shift>+q`: quit the program
