@@ -13,7 +13,7 @@ def window_created(root: ctk.CTk, toplevel: ctk.CTkToplevel):
 def check_event(root: ctk.CTk):
     if stop_event.is_set():
         stop_event.clear()
-        root.quit()
+        root.destroy()
     else:
         root.after(33, check_event, root)
 
