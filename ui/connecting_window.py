@@ -20,7 +20,7 @@ def mount_pairing_view(tabview: ctk.CTkTabview):
 
     def need_not_pairing_callback():
         nonlocal tabview
-        tabview.set("Connecting")
+        tabview.set(i18n(["Connecting", "连接"]))
 
     frame = tabview.tab(i18n(["Pairing", "配对"]))
     prompt_label1 = ctk.CTkLabel(
