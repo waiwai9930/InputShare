@@ -10,13 +10,9 @@ __InputShare__ enables you share keyboard and mouse of your computer with an And
 
 ## Install
 
-Currently, this program is not completed, and there are some functions unavailable, so there is no pre-build binary and you have to clone and run with source code.
+Note: Currently, this program is not completed yet, and there are some functions unavailable.
 
-```bash
-git clone https://github.com/BHznJNs/adb_input_control
-cd adb_input_control
-pip install -r requirements.txt
-```
+Go to the [release page][https://github.com/BHznJNs/InputShare/releases] and download the latest compressed package, uncompress it and the executable is in it.
 
 ## Usage
 
