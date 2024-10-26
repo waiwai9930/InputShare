@@ -1,5 +1,7 @@
 import subprocess
+import sys
 import time
+
 from pathlib import Path
 from adbutils import AdbClient, AdbDevice
 
@@ -28,7 +30,7 @@ def server_process_factory(adb_client: AdbClient):
         )
     except Exception as e:
         print("[Error] Failed to start subprocess: ", e)
-        exit(1)
+        sys.exit(1)
 
     output = process.stdout.readline() # type: ignore
     print(output)

@@ -1,5 +1,6 @@
 import re
 import os
+import sys
 import subprocess
 import adbutils
 from pathlib import Path
@@ -121,7 +122,7 @@ def get_display_size(adb_client: adbutils.AdbClient) -> tuple[int, int]:
 
     if size_match is None:
         print("[Error] Get device size failed.")
-        exit(1)
+        sys.exit(1)
     size = size_match.group(0).split('=')[1]
     width, height = map(int, size.split('x'))
     return (width, height)

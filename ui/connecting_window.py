@@ -1,3 +1,4 @@
+import sys
 import customtkinter as ctk
 
 from adb_controller import try_connecting, try_pairing
@@ -134,6 +135,10 @@ def mount_connecting_view(tabview: ctk.CTkTabview):
 
 def open_connecting_window():
     global connecting_window, normal_font, larger_font
+    def delete_window_callback():
+        connecting_window.destroy()
+        sys.exit(0)
+
     connecting_window = ctk.CTk()
     connecting_window.wm_title(i18n(["InputShare Connection", "输入流转 —— 连接"]))
     connecting_window.geometry("500x320")
@@ -156,5 +161,5 @@ def open_connecting_window():
     mount_pairing_view(tabview)
     mount_connecting_view(tabview)
 
-    connecting_window.protocol("WM_DELETE_WINDOW", lambda: exit(0))
+    connecting_window.protocol("WM_DELETE_WINDOW", delete_window_callback)
     connecting_window.mainloop()
