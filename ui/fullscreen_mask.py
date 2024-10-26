@@ -4,6 +4,7 @@ from typing import Callable
 from utils import i18n, screen_size
 
 stop_event = threading.Event()
+exit_event = threading.Event()
 screen_width, screen_height = screen_size()
 
 def window_created(root: ctk.CTk, toplevel: ctk.CTkToplevel):
@@ -14,6 +15,8 @@ def check_event(root: ctk.CTk):
     if stop_event.is_set():
         stop_event.clear()
         root.destroy()
+    elif exit_event.is_set():
+        root.quit()
     else:
         root.after(33, check_event, root)
 
@@ -56,9 +59,13 @@ def open_mask_window():
     root.after(0, window_created, root, label_toplevel)
     root.mainloop()
 
-def mask_thread_factory() -> Callable[[], None]:
-    def close_mask():
-        stop_event.set()
+def mask_thread_factory() -> Callable[[bool], None]:
+    def close_mask(is_exit: bool=False):
+        if is_exit:
+            exit_event.set()
+        else:
+            stop_event.set()
 
-    threading.Thread(target=open_mask_window).start()
+    mask_thread = threading.Thread(target=open_mask_window)
+    mask_thread.start()
     return close_mask

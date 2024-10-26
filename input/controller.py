@@ -1,5 +1,3 @@
-import time
-
 from typing import Callable
 from pynput import keyboard, mouse
 from input.edge_portal import edge_portal_thread_factory
@@ -69,18 +67,8 @@ def keyboard_release_handler_factory(callback: KeyEventCallback | None):
     return keyboard_release_handler
 
 def mouse_move_handler_factory(callback: MouseMoveCallback | None):
-    last_move_time = time.time()
-    move_interval = 1 / 120
     def mouse_move_handler(x: int, y: int):
         global to_exit_flag, is_redirecting
-        nonlocal last_move_time
-
-        cur_time = time.time()
-        if cur_time - last_move_time > move_interval:
-            last_move_time = cur_time
-        else:
-            return
-
         if callback is not None:
             try:
                 callback(x, y, is_redirecting)
@@ -126,23 +114,23 @@ def main_loop(
     global keyboard_listener, to_toggle_flag
 
     def toggle_redirecting_state():
-        nonlocal mask_closer, edge_portal_closer
+        nonlocal close_mask, close_edge_portal
         if is_redirecting:
-            mask_closer = mask_thread_factory()
-            edge_portal_closer = edge_portal_thread_factory()
+            close_mask = mask_thread_factory()
+            close_edge_portal = edge_portal_thread_factory()
             print("[Info] Input redirecting enabled.")
         else:
-            if mask_closer is not None:
-                mask_closer()
-                mask_closer = None
-            if edge_portal_closer is not None:
-                edge_portal_closer()
-                edge_portal_closer = None
+            if close_mask is not None:
+                close_mask()
+                close_mask = None
+            if close_edge_portal is not None:
+                close_edge_portal()
+                close_edge_portal = None
             print("[Info] Input redirecting disabled.")
 
     show_function_message()
-    mask_closer = None
-    edge_portal_closer = None
+    close_mask = None
+    close_edge_portal = None
 
     while not to_exit_flag:
         toggle_redirecting_state()
@@ -163,5 +151,5 @@ def main_loop(
                 continue
             mouse_listener.join()
 
-    if mask_closer is not None: mask_closer()
-    if edge_portal_closer is not None: edge_portal_closer()
+    if close_mask is not None: close_mask(True)
+    if close_edge_portal is not None: close_edge_portal()
