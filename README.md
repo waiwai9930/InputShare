@@ -46,8 +46,35 @@ The shortcuts following are available after connection
 
 ## Development
 
-Build project:
+Clone this repo:
 
 ```bash
-pyinstaller --windowed --add-data "./adb-bin/;adb-bin/" --add-data "./server/scrcpy-server;server/" main.py
+git clone https://github.com/BHznJNs/InputShare
+cd InputShare
+```
+
+Install the requirements with:
+
+```bash
+pip install -r requirements.txt
+```
+
+Install the pyinstaller:
+
+```bash
+pip install pyinstaller
+```
+
+Get the `customtkinter` library path
+
+```bash
+pip show customtkinter
+```
+
+A Location will be shown, for example: `c:\users\<user_name>\appdata\local\programs\python\python310\lib\site-packages`
+
+Use this command to build (replace `<CustomTkinter Location>` with `customtkinter` library path got above):
+
+```bash
+pyinstaller --windowed --add-data "./adb-bin/;adb-bin/" --add-data "./server/scrcpy-server;server/" --add-data "<CustomTkinter Location>/customtkinter;customtkinter/" main.py
 ```
