@@ -2,20 +2,18 @@ import socket
 
 from subprocess import Popen
 from pynput import mouse
-from adbutils import AdbClient
-from android import InjectKeyCode, AKeyEventAction, MouseClickEvent, MouseMoveEvent, UHIDCreateEvent
+from android import InjectKeyCode, AKeyEventAction, MouseClickEvent, MouseMoveEvent, MouseScrollEvent, UHIDCreateEvent
 from android.motion_event import AMotionEventButtons
 from adb_controller import key_event_map
 from input.edge_portal import edge_portal_passing_event
-from input.controller import Key, KeyCode, KeyEventCallback, MouseClickCallback, MouseMoveCallback, StopException
+from input.controller import Key, KeyCode, KeyEventCallback, MouseClickCallback, MouseMoveCallback, MouseScrollCallback, StopException
 
 def callback_context_wrapper(
-    adb_client: AdbClient,
     client_socket: socket.socket,
     server_process: Popen[str],
 ) -> tuple[
     KeyEventCallback, KeyEventCallback,
-    MouseMoveCallback, MouseClickCallback,
+    MouseMoveCallback, MouseClickCallback, MouseScrollCallback,
 ]:
     def send_data(data: bytes):
         try:
@@ -78,24 +76,32 @@ def callback_context_wrapper(
         mouse_move_event = MouseMoveEvent(diff_x, diff_y, AMotionEventButtons.AMOTION_EVENT_BUTTON_NONE)
         send_data(mouse_move_event.serialize())
 
-    def mouse_click_callback(_cur_x: int, _cur_y: int, button: mouse.Button, _pressed: bool, is_redirecting: bool):
-        nonlocal last_mouse_point #, device_mouse_point
+    def mouse_click_callback(_cur_x: int, _cur_y: int, button: mouse.Button, pressed: bool, is_redirecting: bool):
+        nonlocal last_mouse_point
         if not is_redirecting:
             return
         abutton = AMotionEventButtons.AMOTION_EVENT_BUTTON_NONE
-        match button:
-            case mouse.Button.left:
-                abutton = AMotionEventButtons.AMOTION_EVENT_BUTTON_PRIMARY
-            case mouse.Button.right:
-                abutton = AMotionEventButtons.AMOTION_EVENT_BUTTON_SECONDARY
-            case mouse.Button.middle:
-                abutton = AMotionEventButtons.AMOTION_EVENT_BUTTON_TERTIARY
+        if pressed:
+            match button:
+                case mouse.Button.left:
+                    abutton = AMotionEventButtons.AMOTION_EVENT_BUTTON_PRIMARY
+                case mouse.Button.right:
+                    abutton = AMotionEventButtons.AMOTION_EVENT_BUTTON_SECONDARY
+                case mouse.Button.middle:
+                    abutton = AMotionEventButtons.AMOTION_EVENT_BUTTON_TERTIARY
         mouse_move_event = MouseClickEvent(abutton)
         send_data(mouse_move_event.serialize())
+    
+    def mouse_scroll_callback(_cur_x: int, _cur_y: int, _dx: int, dy: int, is_redirecting: bool):
+        if not is_redirecting:
+            return
+        mouse_scroll_event = MouseScrollEvent(dy)
+        send_data(mouse_scroll_event.serialize())
 
     return (
         keyboard_press_callback,
         keyboard_release_callback,
         mouse_move_callback,
         mouse_click_callback,
+        mouse_scroll_callback
     )

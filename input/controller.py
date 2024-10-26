@@ -18,6 +18,7 @@ KeyCode = keyboard.KeyCode
 KeyEventCallback = Callable[[Key | KeyCode, bool], None]
 MouseMoveCallback = Callable[[int, int, bool], None]
 MouseClickCallback = Callable[[int, int, mouse.Button, bool, bool], None]
+MouseScrollCallback = Callable[[int, int, int, int, bool], None]
 
 def schedule_toggle():
     global to_toggle_flag
@@ -33,9 +34,7 @@ exit_key_combination = "<ctrl>+<alt>+q"
 switch_hotkey = keyboard.HotKey(keyboard.HotKey.parse(switch_key_combination), schedule_toggle)
 exit_hotkey = keyboard.HotKey(keyboard.HotKey.parse(exit_key_combination), schedule_exit)
 
-def keyboard_press_handler_factory(
-    callback: KeyEventCallback | None
-):
+def keyboard_press_handler_factory(callback: KeyEventCallback | None):
     def keyboard_press_handler(k: Key):
         global to_toggle_flag, to_exit_flag, is_redirecting
         canonical_k = keyboard_listener.canonical(k) # type: ignore
@@ -54,9 +53,7 @@ def keyboard_press_handler_factory(
             return False
     return keyboard_press_handler
 
-def keyboard_release_handler_factory(
-    callback: KeyEventCallback | None
-):
+def keyboard_release_handler_factory(callback: KeyEventCallback | None):
     def keyboard_release_handler(k: Key):
         global to_toggle_flag, to_exit_flag, is_redirecting
         canonical_k = keyboard_listener.canonical(k) # type: ignore
@@ -71,9 +68,7 @@ def keyboard_release_handler_factory(
                 return False
     return keyboard_release_handler
 
-def mouse_move_handler_factory(
-    callback: MouseMoveCallback | None
-):
+def mouse_move_handler_factory(callback: MouseMoveCallback | None):
     last_move_time = time.time()
     move_interval = 1 / 120
     def mouse_move_handler(x: int, y: int):
@@ -94,9 +89,7 @@ def mouse_move_handler_factory(
                 return False
     return mouse_move_handler
 
-def mouse_click_handler_factory(
-    callback: MouseClickCallback | None
-):
+def mouse_click_handler_factory(callback: MouseClickCallback | None):
     def mouse_click_handler(x: int, y: int, button: mouse.Button, pressed: bool):
         global to_exit_flag, is_redirecting
         if callback is not None:
@@ -106,6 +99,17 @@ def mouse_click_handler_factory(
                 to_exit_flag = True
                 return False
     return mouse_click_handler
+
+def mouse_scroll_handler_factory(callback: MouseScrollCallback | None):
+    def mouse_scroll_handler(x: int, y: int, dx: int, dy: int):
+        global to_exit_flag, is_redirecting
+        if callback is not None:
+            try:
+                callback(x, y, dx, dy, is_redirecting)
+            except StopException:
+                to_exit_flag = True
+                return False
+    return mouse_scroll_handler
 
 def show_function_message():
     print(f'''\
@@ -117,6 +121,7 @@ def main_loop(
     keyboard_release_callback: KeyEventCallback,
     mouse_move_callback: MouseMoveCallback,
     mouse_click_callback: MouseClickCallback,
+    mouse_scroll_callback: MouseScrollCallback,
 ):
     global keyboard_listener, to_toggle_flag
 
@@ -150,6 +155,7 @@ def main_loop(
             mouse.Listener(
                 on_move=mouse_move_handler_factory(mouse_move_callback),
                 on_click=mouse_click_handler_factory(mouse_click_callback),
+                on_scroll=mouse_scroll_handler_factory(mouse_scroll_callback),
             ) as mouse_listener:
             keyboard_listener.join()
             if to_toggle_flag:

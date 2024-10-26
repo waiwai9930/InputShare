@@ -101,17 +101,6 @@ def TouchClickEvent(position: ScreenPosition, button: mouse.Button, pressed: boo
 
 # --- --- --- --- --- ---
 
-# struct {
-#     uint16_t id;
-#     const char *name; // pointer to static data
-#     uint16_t report_desc_size;
-#     const uint8_t *report_desc; // pointer to static data
-# } uhid_create;
-# struct {
-#     uint16_t id;
-#     uint16_t size;
-#     uint8_t data[SC_HID_MAX_SIZE];
-# } uhid_input;
 class UHIDCreateEvent:
     msg_type: ControlMsgType = ControlMsgType.MSG_TYPE_UHID_CREATE # 8
     id_: int = HID_ID_MOUSE # 16
@@ -160,5 +149,11 @@ def MouseMoveEvent(x: int, y: int, buttons_state: AMotionEventButtons) -> HIOInp
 def MouseClickEvent(buttons_state: AMotionEventButtons) -> HIOInputEvent:
     data = [0, 0, 0, 0]
     data[0] = buttons_state.value
+    input_event = HIOInputEvent(data)
+    return input_event
+
+def MouseScrollEvent(dy: int) -> HIOInputEvent:
+    data = [0, 0, 0, 0]
+    data[3] = CLAMP(dy, -127, 127) % 256
     input_event = HIOInputEvent(data)
     return input_event

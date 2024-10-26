@@ -23,8 +23,14 @@ def open_mask_window():
     root.wm_attributes("-alpha", 0.01)
     root.wm_attributes("-topmost", True)
     root.wm_attributes("-fullscreen", True)
+    root.configure(cursor="none")
     root.overrideredirect(True)
     root.geometry(f"{screen_width}x{screen_height}")
+
+    larger_font = i18n([
+        ctk.CTkFont(family="Arial", size=18),
+        ctk.CTkFont(family="Microsoft YaHei", size=18),
+    ])
 
     label_toplevel = ctk.CTkToplevel(master=root)
     label_toplevel.geometry("+20+20")
@@ -36,12 +42,12 @@ def open_mask_window():
     label1 = ctk.CTkLabel(
         master=label_toplevel,
         text=i18n(["Use <Shift>+<Alt>+q to quit", "使用 <Shift>+<Alt>+q 退出程序"]),
-        font=("Arial", 18),
+        font=larger_font,
     )
     label2 = ctk.CTkLabel(
         master=label_toplevel,
         text=i18n(["Use <Shift>+<Alt>+s to toggle", "使用 <Shift>+<Alt>+s 切换控制"]),
-        font=("Arial", 18),
+        font=larger_font,
     )
     label1.pack(padx=4, pady=4)
     label2.pack(padx=4, pady=4)

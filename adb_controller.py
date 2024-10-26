@@ -68,11 +68,13 @@ key_event_map = {
     Key.alt_r:   AKeyCode.AKEYCODE_ALT_RIGHT,
     Key.shift_l: AKeyCode.AKEYCODE_SHIFT_LEFT,
     Key.shift_r: AKeyCode.AKEYCODE_SHIFT_RIGHT,
+    Key.cmd:     AKeyCode.AKEYCODE_APP_SWITCH,
 
     KeyCode.from_vk(8 ): AKeyCode.AKEYCODE_DEL, # backspace
     KeyCode.from_vk(9 ): AKeyCode.AKEYCODE_TAB,
     KeyCode.from_vk(13): AKeyCode.AKEYCODE_ENTER,
     KeyCode.from_vk(20): AKeyCode.AKEYCODE_CAPS_LOCK,
+    KeyCode.from_vk(27): AKeyCode.AKEYCODE_ESCAPE,
     KeyCode.from_vk(32): AKeyCode.AKEYCODE_SPACE,
     KeyCode.from_vk(37): AKeyCode.AKEYCODE_DPAD_LEFT,
     KeyCode.from_vk(38): AKeyCode.AKEYCODE_DPAD_UP,
