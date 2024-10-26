@@ -43,3 +43,11 @@ The shortcuts following are available after connection
 
 `<Ctrl>+<Shift>+s`: toggle the control between your computer and your Android device
 `<Ctrl>+<Shift>+q`: quit the program
+
+## Development
+
+Build project:
+
+```bash
+pyinstaller --windowed --add-data "./adb-bin/;adb-bin/" --add-data "./server/scrcpy-server;server/" main.py
+```

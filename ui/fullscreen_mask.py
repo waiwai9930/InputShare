@@ -1,7 +1,7 @@
 import customtkinter as ctk
 import threading
 from typing import Callable
-from utils import screen_size
+from utils import i18n, screen_size
 
 stop_event = threading.Event()
 screen_width, screen_height = screen_size()
@@ -19,7 +19,7 @@ def check_event(root: ctk.CTk):
 
 def open_mask_window():
     root = ctk.CTk()
-    root.wm_title("InputShare Mask")
+    root.wm_title(i18n(["InputShare Mask", "输入流转 —— 蒙版"]))
     root.wm_attributes("-alpha", 0.01)
     root.wm_attributes("-topmost", True)
     root.wm_attributes("-fullscreen", True)
@@ -28,19 +28,19 @@ def open_mask_window():
 
     label_toplevel = ctk.CTkToplevel(master=root)
     label_toplevel.geometry("+20+20")
-    label_toplevel.wm_title("InputShare Prompt")
+    label_toplevel.wm_title(i18n(["InputShare Shortcuts", "输入流转 —— 快捷键提示"]))
     label_toplevel.wm_attributes('-alpha', 0.6)
     label_toplevel.wm_attributes("-topmost", True)
     label_toplevel.overrideredirect(True)
 
     label1 = ctk.CTkLabel(
         master=label_toplevel,
-        text="Use <Shift>+<Alt>+q to quit    ",
+        text=i18n(["Use <Shift>+<Alt>+q to quit", "使用 <Shift>+<Alt>+q 退出程序"]),
         font=("Arial", 18),
     )
     label2 = ctk.CTkLabel(
         master=label_toplevel,
-        text="Use <Shift>+<Alt>+s to toggle",
+        text=i18n(["Use <Shift>+<Alt>+s to toggle", "使用 <Shift>+<Alt>+s 切换控制"]),
         font=("Arial", 18),
     )
     label1.pack(padx=4, pady=4)

@@ -1,4 +1,5 @@
 import re
+import locale
 import screeninfo
 
 def CLAMP(v: int, x: int, y: int) -> int:
@@ -35,6 +36,20 @@ def is_valid_ipv6_addr(ip_str):
 def screen_size() -> tuple[int, int]:
     monitor = screeninfo.get_monitors()[0]
     return monitor.width, monitor.height
+
+def i18n_factory():
+    user_language = locale.getdefaultlocale()[0]
+    language_index = 0
+    if user_language in ["zh", "zh_CN", "zh_HK", "zh_MO", "zh_SG", "zh_TW"]:
+        language_index = 1
+    def i18n_instance(candidates: list):
+        if len(candidates) == 0:
+            raise Exception("Empty i18n candidates")
+        if language_index < len(candidates):
+            return candidates[language_index]
+        return candidates[0]
+    return i18n_instance
+i18n = i18n_factory()
 
 class StopException(Exception):
     """If an event listener callback raises this exception, the current

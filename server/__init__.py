@@ -9,8 +9,8 @@ def push_server(device: AdbDevice):
     server_relative_path = "scrcpy-server"
     target_path = "/data/local/tmp/scrcpy-server-manual.jar"
     script_path = Path(__file__).resolve().parent
-    sever_binary_path = Path.joinpath(script_path, server_relative_path)
-    device.push(str(sever_binary_path), target_path)
+    server_binary_path = Path.joinpath(script_path, server_relative_path)
+    device.push(str(server_binary_path), target_path)
 
 def server_process_factory(adb_client: AdbClient):
     device = adb_client.device_list()[0]
@@ -24,6 +24,7 @@ def server_process_factory(adb_client: AdbClient):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
+            creationflags=subprocess.CREATE_NO_WINDOW,
         )
     except Exception as e:
         print("[Error] Failed to start subprocess: ", e)
