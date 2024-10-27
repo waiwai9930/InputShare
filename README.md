@@ -1,5 +1,7 @@
 # InputShare
 
+[中文介绍](README_zh.md)
+
 __InputShare__ enables you share keyboard and mouse of your computer with an Android device via ADB in wired / wireless way.
 
 ## Features
