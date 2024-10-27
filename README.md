@@ -16,20 +16,20 @@ Go to the [release page][https://github.com/BHznJNs/InputShare/releases] and dow
 
 ## Usage
 
-You firstly need to enable the __Developer Settings__ of your device.
+You firstly need to enable the __Developer Settings__ of your Android device.
 
 For wired connection:
 
 1. Enable the __USB Debugging__ in the __Developer Settings__ page
 2. Connect your device with computer via a USB cable
-3. Just run the script with `python main.py` and skip steps
+3. Just run the executable and skip the pairing and connecting steps
 4. Enjoy your mouse and keyboard on Android device
 
 For wireless connection:
 
 1. Enable the __Wireless Debugging__ in the Developer Settings page
-2. Run the script with `python main.py`
-3. Open __Pair device with pairing code__ option and input the IP address and port and the pairing code into the pairing tab of connecting window
+2. Run the executable
+3. On your Android device: Open __Pair device with pairing code__ option and input the IP address and port and the pairing code into the pairing tab of connecting window
 4. Input the IP address and port in the main __Wireless Debugging__ into the connecting tab of connection window
 5. Enjoy your mouse and keyboard on Android device
 
@@ -54,6 +54,16 @@ Install the requirements with:
 ```bash
 pip install -r requirements.txt
 ```
+
+Run the entry script:
+
+```bash
+python main.py
+```
+
+If you want to build this project by yourself, go on:
+
+### Build
 
 Install the pyinstaller:
 
