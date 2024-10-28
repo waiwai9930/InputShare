@@ -1,159 +1,115 @@
-import struct
-from pynput import mouse
+from enum import Enum, auto
+from android.android_def import AKeyCode
+from android.hid_def import HIDKeymod
+from android.sdl_def import SDL_Scancode, SDL_Scancode
+from input.controller import Key, KeyCode
 
-from utils import CLAMP
-from .keycode import AKeyCode
-from .keyevent import AKeyEventAction
-from .coords import ScreenPosition
-from .motion_event import HID_ID_MOUSE, HID_MOUSE_INPUT_SIZE, HID_MOUSE_REPORT_DESC, POINTER_ID_MOUSE, AMotionEventAction, AMotionEventButtons
-from .msg_type import ControlMsgType
+class ControlMsgType(Enum):
+    """
+    Represents the types of control messages.
+    """
+    MSG_TYPE_INJECT_KEYCODE = 0
+    MSG_TYPE_INJECT_TEXT = auto()
+    MSG_TYPE_INJECT_TOUCH_EVENT = auto()
+    MSG_TYPE_INJECT_SCROLL_EVENT = auto()
+    MSG_TYPE_BACK_OR_SCREEN_ON = auto()
+    MSG_TYPE_EXPAND_NOTIFICATION_PANEL = auto()
+    MSG_TYPE_EXPAND_SETTINGS_PANEL = auto()
+    MSG_TYPE_COLLAPSE_PANELS = auto()
+    MSG_TYPE_GET_CLIPBOARD = auto()
+    MSG_TYPE_SET_CLIPBOARD = auto()
+    MSG_TYPE_SET_SCREEN_POWER_MODE = auto()
+    MSG_TYPE_ROTATE_DEVICE = auto()
+    MSG_TYPE_UHID_CREATE = auto()
+    MSG_TYPE_UHID_INPUT = auto()
+    MSG_TYPE_UHID_DESTROY = auto()
+    MSG_TYPE_OPEN_HARD_KEYBOARD_SETTINGS = auto()
 
-class InjectKeyCode:
-    msg_type: ControlMsgType = ControlMsgType.MSG_TYPE_INJECT_KEYCODE
-    key_code: AKeyCode
-    action: AKeyEventAction
-    repeat: int = 0
-    metastate: int = 0
+key_scancode_map: dict[Key | KeyCode, SDL_Scancode | HIDKeymod | AKeyCode] = {
+    KeyCode.from_char("0"): SDL_Scancode.SDL_SCANCODE_0,
+    KeyCode.from_char("1"): SDL_Scancode.SDL_SCANCODE_1,
+    KeyCode.from_char("2"): SDL_Scancode.SDL_SCANCODE_2,
+    KeyCode.from_char("3"): SDL_Scancode.SDL_SCANCODE_3,
+    KeyCode.from_char("4"): SDL_Scancode.SDL_SCANCODE_4,
+    KeyCode.from_char("5"): SDL_Scancode.SDL_SCANCODE_5,
+    KeyCode.from_char("6"): SDL_Scancode.SDL_SCANCODE_6,
+    KeyCode.from_char("7"): SDL_Scancode.SDL_SCANCODE_7,
+    KeyCode.from_char("8"): SDL_Scancode.SDL_SCANCODE_8,
+    KeyCode.from_char("9"): SDL_Scancode.SDL_SCANCODE_9,
 
-    def __init__(self, key_code: AKeyCode, action: AKeyEventAction) -> None:
-        self.key_code = key_code
-        self.action = action
+    KeyCode.from_char("a"): SDL_Scancode.SDL_SCANCODE_A,
+    KeyCode.from_char("b"): SDL_Scancode.SDL_SCANCODE_B,
+    KeyCode.from_char("c"): SDL_Scancode.SDL_SCANCODE_C,
+    KeyCode.from_char("d"): SDL_Scancode.SDL_SCANCODE_D,
+    KeyCode.from_char("e"): SDL_Scancode.SDL_SCANCODE_E,
+    KeyCode.from_char("f"): SDL_Scancode.SDL_SCANCODE_F,
+    KeyCode.from_char("g"): SDL_Scancode.SDL_SCANCODE_G,
+    KeyCode.from_char("h"): SDL_Scancode.SDL_SCANCODE_H,
+    KeyCode.from_char("i"): SDL_Scancode.SDL_SCANCODE_I,
+    KeyCode.from_char("j"): SDL_Scancode.SDL_SCANCODE_J,
+    KeyCode.from_char("k"): SDL_Scancode.SDL_SCANCODE_K,
+    KeyCode.from_char("l"): SDL_Scancode.SDL_SCANCODE_L,
+    KeyCode.from_char("m"): SDL_Scancode.SDL_SCANCODE_M,
+    KeyCode.from_char("n"): SDL_Scancode.SDL_SCANCODE_N,
+    KeyCode.from_char("o"): SDL_Scancode.SDL_SCANCODE_O,
+    KeyCode.from_char("p"): SDL_Scancode.SDL_SCANCODE_P,
+    KeyCode.from_char("q"): SDL_Scancode.SDL_SCANCODE_Q,
+    KeyCode.from_char("r"): SDL_Scancode.SDL_SCANCODE_R,
+    KeyCode.from_char("s"): SDL_Scancode.SDL_SCANCODE_S,
+    KeyCode.from_char("t"): SDL_Scancode.SDL_SCANCODE_T,
+    KeyCode.from_char("u"): SDL_Scancode.SDL_SCANCODE_U,
+    KeyCode.from_char("v"): SDL_Scancode.SDL_SCANCODE_V,
+    KeyCode.from_char("w"): SDL_Scancode.SDL_SCANCODE_W,
+    KeyCode.from_char("x"): SDL_Scancode.SDL_SCANCODE_X,
+    KeyCode.from_char("y"): SDL_Scancode.SDL_SCANCODE_Y,
+    KeyCode.from_char("z"): SDL_Scancode.SDL_SCANCODE_Z,
 
-    def serialize(self) -> bytes:
-        buf = struct.pack(
-            ">BBIII",
-            self.msg_type.value,
-            self.action.value,
-            self.key_code.value,
-            self.repeat,
-            self.metastate,
-        )
-        return buf
+    KeyCode.from_char(","): SDL_Scancode.SDL_SCANCODE_COMMA,
+    KeyCode.from_char("."): SDL_Scancode.SDL_SCANCODE_PERIOD,
+    KeyCode.from_char("`"): SDL_Scancode.SDL_SCANCODE_GRAVE,
+    KeyCode.from_char("-"): SDL_Scancode.SDL_SCANCODE_MINUS,
+    KeyCode.from_char("="): SDL_Scancode.SDL_SCANCODE_EQUALS,
+    KeyCode.from_char("["): SDL_Scancode.SDL_SCANCODE_LEFTBRACKET,
+    KeyCode.from_char("]"): SDL_Scancode.SDL_SCANCODE_RIGHTBRACKET,
+    KeyCode.from_char("\\"): SDL_Scancode.SDL_SCANCODE_BACKSLASH,
+    KeyCode.from_char(";"): SDL_Scancode.SDL_SCANCODE_SEMICOLON,
+    KeyCode.from_char("'"): SDL_Scancode.SDL_SCANCODE_APOSTROPHE,
+    KeyCode.from_char("/"): SDL_Scancode.SDL_SCANCODE_SLASH,
 
-# --- --- --- --- --- ---
+    Key.alt:     HIDKeymod.HID_MOD_LEFT_ALT,
+    Key.alt_l:   HIDKeymod.HID_MOD_LEFT_ALT,
+    Key.alt_r:   HIDKeymod.HID_MOD_RIGHT_ALT,
+    Key.ctrl:    HIDKeymod.HID_MOD_LEFT_CONTROL,
+    Key.ctrl_l:  HIDKeymod.HID_MOD_LEFT_CONTROL,
+    Key.ctrl_r:  HIDKeymod.HID_MOD_RIGHT_CONTROL,
+    Key.shift_l: HIDKeymod.HID_MOD_LEFT_SHIFT,
+    Key.shift_r: HIDKeymod.HID_MOD_RIGHT_SHIFT,
+    Key.cmd:     AKeyCode.AKEYCODE_ALL_APPS,
 
-class InjectTouchEvent:
-    msg_type: ControlMsgType = ControlMsgType.MSG_TYPE_INJECT_TOUCH_EVENT
-    action: AMotionEventAction
-    action_button: AMotionEventButtons
-    buttons: AMotionEventButtons
-    pointer_id = POINTER_ID_MOUSE
-    position: ScreenPosition
-    pressure: int
+    KeyCode.from_vk(37): SDL_Scancode.SDL_SCANCODE_LEFT,
+    KeyCode.from_vk(38): SDL_Scancode.SDL_SCANCODE_UP,
+    KeyCode.from_vk(39): SDL_Scancode.SDL_SCANCODE_RIGHT,
+    KeyCode.from_vk(40): SDL_Scancode.SDL_SCANCODE_DOWN,
 
-    def __init__(
-        self,
-        position: ScreenPosition,
-        action: AMotionEventAction,
-        buttons: AMotionEventButtons = AMotionEventButtons.AMOTION_EVENT_BUTTON_SECONDARY,
-        action_button: AMotionEventButtons = AMotionEventButtons.AMOTION_EVENT_BUTTON_NONE,
-    ) -> None:
-        is_up = action == AMotionEventAction.AMOTION_EVENT_ACTION_UP
-        self.pressure = 0 if is_up else 1
-        self.position = position
+    KeyCode.from_vk(8 ): SDL_Scancode.SDL_SCANCODE_BACKSPACE,
+    KeyCode.from_vk(9 ): SDL_Scancode.SDL_SCANCODE_TAB,
+    KeyCode.from_vk(13): SDL_Scancode.SDL_SCANCODE_RETURN,
+    KeyCode.from_vk(20): SDL_Scancode.SDL_SCANCODE_CAPSLOCK,
+    KeyCode.from_vk(27): SDL_Scancode.SDL_SCANCODE_ESCAPE,
+    KeyCode.from_vk(32): SDL_Scancode.SDL_SCANCODE_SPACE,
+    KeyCode.from_vk(45): SDL_Scancode.SDL_SCANCODE_INSERT,
+    KeyCode.from_vk(46): SDL_Scancode.SDL_SCANCODE_DELETE,
 
-        self.action = action
-        self.buttons = buttons
-        self.action_button = action_button
-
-    def serialize(self) -> bytes:
-        buf = struct.pack(
-            ">BBQIIHHHII",
-            self.msg_type.value, # 8
-            self.action.value, # 8
-            self.pointer_id, # 64
-            self.position.point.x, # 32
-            self.position.point.y, # 32
-            self.position.size.width, # 16
-            self.position.size.height, # 16
-            self.pressure, # 16
-            self.action_button, # 32
-            self.buttons, # 32
-        )
-        return buf
-def TouchMoveEvent(position: ScreenPosition) -> InjectTouchEvent:
-    return InjectTouchEvent(
-        position,
-        AMotionEventAction.AMOTION_EVENT_ACTION_HOVER_MOVE,
-    )
-def TouchClickEvent(position: ScreenPosition, button: mouse.Button, pressed: bool) -> InjectTouchEvent:
-    abutton = None
-    match button:
-        case mouse.Button.left:
-            abutton = AMotionEventButtons.AMOTION_EVENT_BUTTON_PRIMARY
-        case mouse.Button.right:
-            abutton = AMotionEventButtons.AMOTION_EVENT_BUTTON_SECONDARY
-        case _:
-            abutton = AMotionEventButtons.AMOTION_EVENT_BUTTON_NONE
-    
-    action = None
-    if pressed:
-        action = AMotionEventAction.AMOTION_EVENT_ACTION_DOWN
-    else:
-        action = AMotionEventAction.AMOTION_EVENT_ACTION_UP
-
-    return InjectTouchEvent(
-        position,
-        action,
-        abutton,
-        abutton,
-    )
-
-# --- --- --- --- --- ---
-
-class UHIDCreateEvent:
-    msg_type: ControlMsgType = ControlMsgType.MSG_TYPE_UHID_CREATE # 8
-    id_: int = HID_ID_MOUSE # 16
-    name = 0 # 8
-    report_desc_size: int = len(HID_MOUSE_REPORT_DESC) # 16
-    report_desc: bytes = HID_MOUSE_REPORT_DESC
-    def serialize(self) -> bytes:
-        buf = struct.pack(
-            ">BHBH",
-            self.msg_type.value,
-            self.id_,
-            self.name,
-            self.report_desc_size,
-        )
-        buf += self.report_desc
-        return buf
-
-class HIOInputEvent:
-    msg_type: ControlMsgType = ControlMsgType.MSG_TYPE_UHID_INPUT # 8
-    id_: int = HID_ID_MOUSE # 16
-    size: int = HID_MOUSE_INPUT_SIZE # 16
-    data: bytes
-
-    def __init__(self, data: list[int]) -> None:
-        self.data = bytes(data)
-
-    def serialize(self) -> bytes:
-        buf = struct.pack(
-            ">BHH",
-            self.msg_type.value,
-            self.id_,
-            self.size,
-        )
-        buf += self.data
-        return buf
-
-def MouseMoveEvent(x: int, y: int, buttons_state: AMotionEventButtons) -> HIOInputEvent:
-    data = [0, 0, 0, 0]
-    data[0] = buttons_state.value
-    data[1] = CLAMP(x, -127, 127) % 256
-    data[2] = CLAMP(y, -127, 127) % 256
-    data[3] = 0
-    input_event = HIOInputEvent(data)
-    return input_event
-
-def MouseClickEvent(buttons_state: AMotionEventButtons) -> HIOInputEvent:
-    data = [0, 0, 0, 0]
-    data[0] = buttons_state.value
-    input_event = HIOInputEvent(data)
-    return input_event
-
-def MouseScrollEvent(dy: int) -> HIOInputEvent:
-    data = [0, 0, 0, 0]
-    data[3] = CLAMP(dy, -127, 127) % 256
-    input_event = HIOInputEvent(data)
-    return input_event
+    KeyCode.from_vk(112): AKeyCode.AKEYCODE_APP_SWITCH, # F1
+    KeyCode.from_vk(113): AKeyCode.AKEYCODE_HOME,
+    KeyCode.from_vk(114): AKeyCode.AKEYCODE_BACK,
+    KeyCode.from_vk(115): AKeyCode.AKEYCODE_MEDIA_PREVIOUS,
+    KeyCode.from_vk(116): AKeyCode.AKEYCODE_MEDIA_PLAY_PAUSE, # F5
+    KeyCode.from_vk(117): AKeyCode.AKEYCODE_MEDIA_NEXT,
+    KeyCode.from_vk(118): AKeyCode.AKEYCODE_VOLUME_DOWN,
+    KeyCode.from_vk(119): AKeyCode.AKEYCODE_VOLUME_UP,
+    # KeyCode.from_vk(120): pass,
+    # KeyCode.from_vk(121): pass, # F10
+    KeyCode.from_vk(122): AKeyCode.AKEYCODE_SOFT_SLEEP,
+    KeyCode.from_vk(123): AKeyCode.AKEYCODE_WAKEUP, # F12
+}

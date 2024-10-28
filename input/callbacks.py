@@ -2,9 +2,12 @@ import socket
 
 from subprocess import Popen
 from pynput import mouse
-from android import InjectKeyCode, AKeyEventAction, MouseClickEvent, MouseMoveEvent, MouseScrollEvent, UHIDCreateEvent
-from android.motion_event import AMotionEventButtons
-from adb_controller import key_event_map
+from android import key_scancode_map
+from android.android_def import AKeyCode, AKeyEventAction
+from android.hid_def import HID_KEYBOARD_MAX_KEYS, HID_MouseButton, HIDKeymod, KeymodStateStore, MouseButtonStateStore
+from android.hid_event import HIDKeyboardInitEvent, KeyEvent, MouseClickEvent, MouseMoveEvent, MouseScrollEvent, HIDMouseInitEvent
+from android.inject_event import InjectKeyCode
+from android.sdl_def import SDL_Scancode
 from input.edge_portal import edge_portal_passing_event
 from input.controller import Key, KeyCode, KeyEventCallback, MouseClickCallback, MouseMoveCallback, MouseScrollCallback, StopException
 
@@ -26,29 +29,54 @@ def callback_context_wrapper(
         except:
             print("[Error] Send message error.")
 
+    keyboard_init = HIDKeyboardInitEvent()
+    send_data(keyboard_init.serialize())
+    keymod_state = KeymodStateStore()
+    key_list: list[SDL_Scancode] = []
+
     def keyboard_press_callback(k: Key | KeyCode, is_redirecting: bool):
         if not is_redirecting:
             return
-        if k not in key_event_map:
+        if k not in key_scancode_map:
             return
-        akey_code = key_event_map[k]
-        inject_key_code = InjectKeyCode(akey_code, AKeyEventAction.AKEY_EVENT_ACTION_DOWN)
-        send_data(inject_key_code.serialize())
+        generic_key = key_scancode_map[k]
+        if isinstance(generic_key, HIDKeymod):
+            keymod_state.keydown(generic_key)
+        elif isinstance(generic_key, AKeyCode):
+            inject_key_code = InjectKeyCode(generic_key, AKeyEventAction.AKEY_EVENT_ACTION_DOWN)
+            send_data(inject_key_code.serialize())
+            return
+        elif generic_key not in key_list:
+            key_list.append(generic_key)
+            if len(key_list) > HID_KEYBOARD_MAX_KEYS:
+                key_to_remove = key_list[0]
+                key_list.remove(key_to_remove)
+        key_event = KeyEvent(keymod_state, key_list)
+        send_data(key_event.serialize())
 
     def keyboard_release_callback(k: Key | KeyCode, is_redirecting: bool):
         if not is_redirecting:
             return
-        if k not in key_event_map:
+        if k not in key_scancode_map:
             return
-        akey_code = key_event_map[k]
-        inject_key_code = InjectKeyCode(akey_code, AKeyEventAction.AKEY_EVENT_ACTION_UP)
-        send_data(inject_key_code.serialize())
+        generic_key = key_scancode_map[k]
+        if isinstance(generic_key, HIDKeymod):
+            keymod_state.keyup(generic_key)
+        elif isinstance(generic_key, AKeyCode):
+            inject_key_code = InjectKeyCode(generic_key, AKeyEventAction.AKEY_EVENT_ACTION_UP)
+            send_data(inject_key_code.serialize())
+            return
+        elif generic_key in key_list:
+            key_list.remove(generic_key)
+        key_event = KeyEvent(keymod_state, key_list)
+        send_data(key_event.serialize())
 
     # --- --- --- --- --- ---
 
-    mouse_init = UHIDCreateEvent()
+    mouse_init = HIDMouseInitEvent()
     send_data(mouse_init.serialize())
     last_mouse_point: tuple[int, int] | None = None
+    mouse_button_state = MouseButtonStateStore()
 
     def compute_mouse_pointer_diff(cur_x: int, cur_y: int) -> tuple[int, int] | None:
         nonlocal last_mouse_point
@@ -73,23 +101,26 @@ def callback_context_wrapper(
         if res is None:
             return
         diff_x, diff_y = res
-        mouse_move_event = MouseMoveEvent(diff_x, diff_y, AMotionEventButtons.AMOTION_EVENT_BUTTON_NONE)
+        mouse_move_event = MouseMoveEvent(diff_x, diff_y, mouse_button_state)
         send_data(mouse_move_event.serialize())
 
     def mouse_click_callback(_cur_x: int, _cur_y: int, button: mouse.Button, pressed: bool, is_redirecting: bool):
         nonlocal last_mouse_point
         if not is_redirecting:
             return
-        abutton = AMotionEventButtons.AMOTION_EVENT_BUTTON_NONE
+        hid_button = HID_MouseButton.MOUSE_BUTTON_NONE
+        match button:
+            case mouse.Button.left:
+                hid_button = HID_MouseButton.MOUSE_BUTTON_LEFT
+            case mouse.Button.right:
+                hid_button = HID_MouseButton.MOUSE_BUTTON_RIGHT
+            case mouse.Button.middle:
+                hid_button = HID_MouseButton.MOUSE_BUTTON_MIDDLE
         if pressed:
-            match button:
-                case mouse.Button.left:
-                    abutton = AMotionEventButtons.AMOTION_EVENT_BUTTON_PRIMARY
-                case mouse.Button.right:
-                    abutton = AMotionEventButtons.AMOTION_EVENT_BUTTON_SECONDARY
-                case mouse.Button.middle:
-                    abutton = AMotionEventButtons.AMOTION_EVENT_BUTTON_TERTIARY
-        mouse_move_event = MouseClickEvent(abutton)
+            mouse_button_state.mouse_down(hid_button)
+        else:
+            mouse_button_state.mouse_up(hid_button)
+        mouse_move_event = MouseClickEvent(mouse_button_state)
         send_data(mouse_move_event.serialize())
     
     def mouse_scroll_callback(_cur_x: int, _cur_y: int, _dx: int, dy: int, is_redirecting: bool):

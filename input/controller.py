@@ -39,16 +39,16 @@ def keyboard_press_handler_factory(callback: KeyEventCallback | None):
         switch_hotkey.press(canonical_k)
         exit_hotkey.press(canonical_k)
 
+        if to_toggle_flag == True:
+            is_redirecting = not is_redirecting
+            return False
+
         if callback is not None:
             try:
                 callback(canonical_k, is_redirecting)
             except StopException:
                 to_exit_flag = True
                 return False
-
-        if to_toggle_flag == True:
-            is_redirecting = not is_redirecting
-            return False
     return keyboard_press_handler
 
 def keyboard_release_handler_factory(callback: KeyEventCallback | None):
