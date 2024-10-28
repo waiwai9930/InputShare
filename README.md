@@ -39,8 +39,20 @@ For wireless connection:
 
 The shortcuts following are available after connection
 
-`<Ctrl>+<Shift>+s`: toggle the control between your computer and your Android device
-`<Ctrl>+<Shift>+q`: quit the program
+| Shortcut | Description |
+| --- | --- |
+| `<Ctrl>+<Alt>+s` | toggle the control between your computer and your Android device |
+| `<Ctrl>+<Alt>+q` | quit the program |
+| `F1` | Multi-task switching |
+| `F2` | Return to Home |
+| `F3` | Back |
+| `F4` | Previous Media |
+| `F5` | Play / Pause Media |
+| `F6` | Next Media |
+| `F7` | Volume Down |
+| `F8` | Volume Up |
+| `F11` | Screen Sleep |
+| `F12` | Wake Up |
 
 ## Development
 
