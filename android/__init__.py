@@ -1,8 +1,8 @@
 from enum import Enum, auto
+from pynput import keyboard
 from android.android_def import AKeyCode
 from android.hid_def import HIDKeymod
-from android.sdl_def import SDL_Scancode, SDL_Scancode
-from input.controller import Key, KeyCode
+from android.sdl_def import SDL_Scancode
 
 class ControlMsgType(Enum):
     """
@@ -25,6 +25,8 @@ class ControlMsgType(Enum):
     MSG_TYPE_UHID_DESTROY = auto()
     MSG_TYPE_OPEN_HARD_KEYBOARD_SETTINGS = auto()
 
+Key = keyboard.Key
+KeyCode = keyboard.KeyCode
 key_scancode_map: dict[Key | KeyCode, SDL_Scancode | HIDKeymod | AKeyCode] = {
     KeyCode.from_char("0"): SDL_Scancode.SDL_SCANCODE_0,
     KeyCode.from_char("1"): SDL_Scancode.SDL_SCANCODE_1,

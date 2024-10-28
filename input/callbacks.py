@@ -1,7 +1,8 @@
 import socket
 
 from subprocess import Popen
-from pynput import mouse
+from typing import Callable
+from pynput import mouse, keyboard
 from android import key_scancode_map
 from android.android_def import AKeyCode, AKeyEventAction
 from android.hid_def import HID_KEYBOARD_MAX_KEYS, HID_MouseButton, HIDKeymod, KeymodStateStore, MouseButtonStateStore
@@ -9,12 +10,19 @@ from android.hid_event import HIDKeyboardInitEvent, KeyEvent, MouseClickEvent, M
 from android.inject_event import InjectKeyCode
 from android.sdl_def import SDL_Scancode
 from input.edge_portal import edge_portal_passing_event
-from input.controller import Key, KeyCode, KeyEventCallback, MouseClickCallback, MouseMoveCallback, MouseScrollCallback, StopException
+from utils import StopException
+
+SendDataCallback = Callable[[bytes], None]
+KeyEventCallback = Callable[[keyboard.Key | keyboard.KeyCode, bool], None]
+MouseMoveCallback = Callable[[int, int, bool], None]
+MouseClickCallback = Callable[[int, int, mouse.Button, bool, bool], None]
+MouseScrollCallback = Callable[[int, int, int, int, bool], None]
 
 def callback_context_wrapper(
     client_socket: socket.socket,
     server_process: Popen[str],
 ) -> tuple[
+    SendDataCallback,
     KeyEventCallback, KeyEventCallback,
     MouseMoveCallback, MouseClickCallback, MouseScrollCallback,
 ]:
@@ -34,7 +42,7 @@ def callback_context_wrapper(
     keymod_state = KeymodStateStore()
     key_list: list[SDL_Scancode] = []
 
-    def keyboard_press_callback(k: Key | KeyCode, is_redirecting: bool):
+    def keyboard_press_callback(k: keyboard.Key | keyboard.KeyCode, is_redirecting: bool):
         if not is_redirecting:
             return
         if k not in key_scancode_map:
@@ -54,7 +62,7 @@ def callback_context_wrapper(
         key_event = KeyEvent(keymod_state, key_list)
         send_data(key_event.serialize())
 
-    def keyboard_release_callback(k: Key | KeyCode, is_redirecting: bool):
+    def keyboard_release_callback(k: keyboard.Key | keyboard.KeyCode, is_redirecting: bool):
         if not is_redirecting:
             return
         if k not in key_scancode_map:
@@ -130,9 +138,10 @@ def callback_context_wrapper(
         send_data(mouse_scroll_event.serialize())
 
     return (
+        send_data,
         keyboard_press_callback,
         keyboard_release_callback,
         mouse_move_callback,
         mouse_click_callback,
-        mouse_scroll_callback
+        mouse_scroll_callback,
     )

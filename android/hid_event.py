@@ -57,6 +57,11 @@ def KeyEvent(keymod: KeymodStateStore, keys: list[SDL_Scancode]):
     keyboard_event = HIDKeyboardInputEvent(data)
     return keyboard_event
 
+def KeyEmptyEvent():
+    data = [0] * HIDKeyboardInputEvent.size
+    keyboard_event = HIDKeyboardInputEvent(data)
+    return keyboard_event
+
 # --- --- --- --- --- ---
 
 class HIDMouseInitEvent:
