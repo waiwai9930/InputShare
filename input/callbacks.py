@@ -3,12 +3,12 @@ import socket
 from subprocess import Popen
 from typing import Callable
 from pynput import mouse, keyboard
-from android import key_scancode_map
-from android.android_def import AKeyCode, AKeyEventAction
-from android.hid_def import HID_KEYBOARD_MAX_KEYS, HID_MouseButton, HIDKeymod, KeymodStateStore, MouseButtonStateStore
-from android.hid_event import HIDKeyboardInitEvent, KeyEvent, MouseClickEvent, MouseMoveEvent, MouseScrollEvent, HIDMouseInitEvent
-from android.inject_event import InjectKeyCode
-from android.sdl_def import SDL_Scancode
+from scrcpy_client import key_scancode_map
+from scrcpy_client.android_def import AKeyCode, AKeyEventAction
+from scrcpy_client.hid_def import HID_KEYBOARD_MAX_KEYS, HID_MouseButton, HIDKeymod, KeymodStateStore, MouseButtonStateStore
+from scrcpy_client.hid_event import HIDKeyboardInitEvent, KeyEvent, MouseClickEvent, MouseMoveEvent, MouseScrollEvent, HIDMouseInitEvent
+from scrcpy_client.inject_event import InjectKeyCode
+from scrcpy_client.sdl_def import SDL_Scancode
 from input.edge_portal import edge_portal_passing_event
 from utils import StopException
 

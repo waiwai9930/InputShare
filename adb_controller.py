@@ -15,7 +15,8 @@ def try_connecting(addr: str, timeout: float=4.0) -> adbutils.AdbClient | None:
     client = adbutils.AdbClient()
     try:
         output = client.connect(addr, timeout)
-        print("[ADB] ", output)
+        assert len(client.device_list()) > 0
+        print("[ADB]", output)
     except adbutils.AdbTimeout as e:
         print("[Error] Connect timeout: ", e)
         return None

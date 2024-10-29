@@ -1,9 +1,9 @@
 import struct
 
-from android import ControlMsgType
-from android.hid_def import HID_ID_KEYBOARD, HID_ID_MOUSE, HID_KEYBOARD_INPUT_SIZE, HID_KEYBOARD_REPORT_DESC, HID_MOUSE_INPUT_SIZE, HID_MOUSE_REPORT_DESC, KeymodStateStore, MouseButtonStateStore
-from android.sdl_def import SDL_Scancode
-from utils import CLAMP
+from scrcpy_client import ControlMsgType
+from scrcpy_client.hid_def import HID_ID_KEYBOARD, HID_ID_MOUSE, HID_KEYBOARD_INPUT_SIZE, HID_KEYBOARD_REPORT_DESC, HID_MOUSE_INPUT_SIZE, HID_MOUSE_REPORT_DESC, KeymodStateStore, MouseButtonStateStore
+from scrcpy_client.sdl_def import SDL_Scancode
+from utils import clamp
 
 class HIDKeyboardInitEvent:
     msg_type: ControlMsgType = ControlMsgType.MSG_TYPE_UHID_CREATE # 8
@@ -103,8 +103,8 @@ class HIDMouseInputEvent:
 def MouseMoveEvent(x: int, y: int, buttons_state: MouseButtonStateStore) -> HIDMouseInputEvent:
     data = [0, 0, 0, 0]
     data[0] = buttons_state.mouse_button
-    data[1] = CLAMP(x, -127, 127) % 256
-    data[2] = CLAMP(y, -127, 127) % 256
+    data[1] = clamp(x, -127, 127) % 256
+    data[2] = clamp(y, -127, 127) % 256
     data[3] = 0
     input_event = HIDMouseInputEvent(data)
     return input_event
@@ -117,6 +117,6 @@ def MouseClickEvent(buttons_state: MouseButtonStateStore) -> HIDMouseInputEvent:
 
 def MouseScrollEvent(dy: int) -> HIDMouseInputEvent:
     data = [0, 0, 0, 0]
-    data[3] = CLAMP(dy, -127, 127) % 256
+    data[3] = clamp(dy, -127, 127) % 256
     input_event = HIDMouseInputEvent(data)
     return input_event

@@ -1,8 +1,8 @@
 from enum import Enum, auto
 from pynput import keyboard
-from android.android_def import AKeyCode
-from android.hid_def import HIDKeymod
-from android.sdl_def import SDL_Scancode
+from scrcpy_client.android_def import AKeyCode
+from scrcpy_client.hid_def import HIDKeymod
+from scrcpy_client.sdl_def import SDL_Scancode
 
 class ControlMsgType(Enum):
     """

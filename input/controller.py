@@ -1,5 +1,7 @@
 from pynput import keyboard, mouse
-from android.hid_event import KeyEmptyEvent
+from input.clipboard_monitor import clipboard_monitor_factory
+from scrcpy_client.clipboard_event import GetClipboardEvent, SetClipboardEvent
+from scrcpy_client.hid_event import KeyEmptyEvent
 from input.callbacks import KeyEventCallback, MouseClickCallback, MouseMoveCallback, MouseScrollCallback, SendDataCallback
 from input.edge_portal import edge_portal_thread_factory
 from ui.fullscreen_mask import mask_thread_factory
@@ -105,13 +107,17 @@ def main_loop(
     global keyboard_listener, to_toggle_flag
 
     def toggle_redirecting_state():
-        nonlocal close_mask, close_edge_portal
+        nonlocal\
+            start_clipboard_monitor, pause_clipboard_monitor,\
+            close_mask, close_edge_portal
         if is_redirecting:
             close_mask = mask_thread_factory()
+            pause_clipboard_monitor()
             close_edge_portal = edge_portal_thread_factory()
             print("[Info] Input redirecting enabled.")
         else:
             send_data(KeyEmptyEvent().serialize())
+            start_clipboard_monitor()
             if close_mask is not None:
                 close_mask()
                 close_mask = None
@@ -123,6 +129,10 @@ def main_loop(
     show_function_message()
     close_mask = None
     close_edge_portal = None
+    send_data(GetClipboardEvent().serialize()) # start server clipboard sync
+    start_clipboard_monitor, pause_clipboard_monitor = clipboard_monitor_factory(
+        lambda new_text: send_data(SetClipboardEvent(new_text).serialize())
+    )
 
     while not to_exit_flag:
         toggle_redirecting_state()
@@ -145,3 +155,4 @@ def main_loop(
 
     if close_mask is not None: close_mask(True)
     if close_edge_portal is not None: close_edge_portal()
+    pause_clipboard_monitor()

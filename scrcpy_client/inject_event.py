@@ -1,8 +1,8 @@
 import struct
 from pynput.mouse import Button
 
-from android import ControlMsgType
-from android.android_def import POINTER_ID_MOUSE, AKeyCode, AKeyEventAction, AMotionEventAction, AMotionEventButtons, ScreenPosition
+from scrcpy_client import ControlMsgType
+from scrcpy_client.android_def import POINTER_ID_MOUSE, AKeyCode, AKeyEventAction, AMotionEventAction, AMotionEventButtons, ScreenPosition
 
 class InjectKeyCode:
     msg_type: ControlMsgType = ControlMsgType.MSG_TYPE_INJECT_KEYCODE

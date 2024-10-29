@@ -2,7 +2,7 @@ import re
 import locale
 import screeninfo
 
-def CLAMP(v: int, x: int, y: int) -> int:
+def clamp(v: int, x: int, y: int) -> int:
     return min(max(v, x), y)
 
 def get_ip_from_addr_str(addr: str) -> str:

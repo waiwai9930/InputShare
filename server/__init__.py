@@ -1,11 +1,17 @@
+import socket
 import subprocess
 import sys
 import time
+import threading
 
 from pathlib import Path
 from adbutils import AdbClient, AdbDevice
+import pyperclip
 
 from adb_controller import ADB_BIN_PATH
+from scrcpy_client.clipboard_event import GetClipboardEventResponse
+
+SERVER_PORT = 1234
 
 def push_server(device: AdbDevice):
     server_relative_path = "scrcpy-server"
@@ -17,7 +23,7 @@ def push_server(device: AdbDevice):
 def server_process_factory(adb_client: AdbClient):
     device = adb_client.device_list()[0]
     push_server(device)
-    device.forward("tcp:1234", "localabstract:scrcpy")
+    device.forward(f"tcp:{SERVER_PORT}", "localabstract:scrcpy")
 
     command = "CLASSPATH=/data/local/tmp/scrcpy-server-manual.jar app_process / com.genymobile.scrcpy.Server 2.7 tunnel_forward=true video=false audio=false control=true cleanup=false raw_stream=true max_size=1920"
     try:
@@ -37,3 +43,35 @@ def server_process_factory(adb_client: AdbClient):
     time.sleep(0.5)
 
     return process
+
+def server_receiver_factory(client_socket: socket.socket) -> threading.Thread:
+    def receiver(client_socket: socket.socket):
+        def data_recv() -> bool:
+            data = client_socket.recv(2048)
+            if len(data) > 0:
+                text = GetClipboardEventResponse.deserialize(data)
+                if text != pyperclip.paste():
+                    # prevent duplicated clipboard content
+                    pyperclip.copy(text)
+                return True
+            else:
+                print("[Server] Server closed the connection")
+                return False
+
+        while True:
+            try:
+                if not data_recv():
+                    break
+            except ConnectionAbortedError:
+                print("[Error] Connection aborted")
+            except ConnectionResetError:
+                print("[Error] Connection reset")
+                break
+            except Exception as e:
+                print("[Error] Getting clipboard data error: ", e)
+                break
+        print("[Server] Receiver stopped")
+
+    thread = threading.Thread(target=receiver, args=[client_socket])
+    thread.start()
+    return thread
