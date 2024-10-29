@@ -5,6 +5,13 @@ import screeninfo
 def CLAMP(v: int, x: int, y: int) -> int:
     return min(max(v, x), y)
 
+def get_ip_from_addr_str(addr: str) -> str:
+    match = re.match(r'\[?([a-fA-F0-9:.]+)\]?:\d+$', addr)
+    if match:
+        return match.group(1)
+    else:
+        raise ValueError("Invalid IP address format")
+
 def is_valid_ipv4_addr(ipv4_addr: str) -> bool:
     pattern = r'^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(:[0-9]{1,5})$'
     return re.match(pattern, ipv4_addr) is not None

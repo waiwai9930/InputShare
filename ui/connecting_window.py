@@ -2,14 +2,14 @@ import sys
 import customtkinter as ctk
 
 from adb_controller import try_connecting, try_pairing
-from utils import i18n, is_valid_ipv4_addr, is_valid_ipv6_addr
+from utils import get_ip_from_addr_str, i18n, is_valid_ipv4_addr, is_valid_ipv6_addr
 
-def mount_pairing_view(tabview: ctk.CTkTabview):
+def mount_pairing_view(tabview: ctk.CTkTabview, connecting_addr_entry: ctk.CTkEntry):
     def pair_callback():
-        nonlocal addr_textbox, pairing_code_textbox, error_label
+        nonlocal addr_entry, pairing_code_entry, error_label
 
-        addr = addr_textbox.get("1.0", ctk.END).strip()
-        pairing_code = pairing_code_textbox.get("1.0", ctk.END).strip()
+        addr = addr_entry.get().strip()
+        pairing_code = pairing_code_entry.get().strip()
         if not is_valid_ipv4_addr(addr) and not is_valid_ipv6_addr(addr):
             error_label.configure(text=i18n(["Invalid pairing address!", "配对地址无效！"]))
             return
@@ -17,13 +17,20 @@ def mount_pairing_view(tabview: ctk.CTkTabview):
         if ret == False:
             error_label.configure(text=i18n(["Pairing Failed!", "配对失败！"]))
             return
+        device_ip = get_ip_from_addr_str(addr)
+        connecting_addr_entry.insert(0, device_ip)
         tabview.set(i18n(["Connecting", "连接"]))
 
     def need_not_pairing_callback():
         nonlocal tabview
         tabview.set(i18n(["Connecting", "连接"]))
+    
+    def validate_entry(text: str):
+        return text.isdigit() and len(text) <= 6
 
     frame = tabview.tab(i18n(["Pairing", "配对"]))
+    vcmd = (tabview.register(validate_entry), "%P")
+
     prompt_label1 = ctk.CTkLabel(
         master=frame,
         text=i18n(["Wireless debugging pairing IP address and port:", "无线调试配对 IP 地址和端口：                "]),
@@ -40,19 +47,21 @@ def mount_pairing_view(tabview: ctk.CTkTabview):
         text_color="red",
         font=larger_font,
     )
-    addr_textbox = ctk.CTkTextbox(
+    addr_entry = ctk.CTkEntry(
         master=frame,
-        height=1,
+        font=normal_font,
     )
-    pairing_code_textbox = ctk.CTkTextbox(
+    pairing_code_entry = ctk.CTkEntry(
         master=frame,
-        height=1,
+        font=normal_font,
+        validate="key",
+        validatecommand=vcmd,
     )
 
     prompt_label1.grid(row=0, column=0, padx=20, pady=(10, 4), sticky="w")
-    addr_textbox.grid(row=1, column=0, padx=20, sticky="we")
+    addr_entry.grid(row=1, column=0, padx=20, sticky="we")
     prompt_label2.grid(row=2, column=0, padx=20, pady=(10, 4), sticky="w")
-    pairing_code_textbox.grid(row=3, column=0, padx=20, sticky="we")
+    pairing_code_entry.grid(row=3, column=0, padx=20, sticky="we")
     error_label.grid(row=4, column=0, padx=20, pady=(10, 4), sticky="w")
 
     button_frame = ctk.CTkFrame(master=frame)
@@ -72,11 +81,11 @@ def mount_pairing_view(tabview: ctk.CTkTabview):
     button1.pack(side=ctk.LEFT)
     button2.pack(side=ctk.RIGHT)
 
-def mount_connecting_view(tabview: ctk.CTkTabview):
+def mount_connecting_view(tabview: ctk.CTkTabview) -> ctk.CTkEntry:
     def connect_callback():
-        nonlocal addr_textbox, error_label
+        nonlocal addr_entry, error_label
 
-        adb_addr = addr_textbox.get("1.0", ctk.END).strip()
+        adb_addr = addr_entry.get().strip()
         if not is_valid_ipv4_addr(adb_addr) and not is_valid_ipv6_addr(adb_addr):
             error_label.configure(text=i18n(["Invalid connecting address!", "配对地址无效！"]))
             return
@@ -95,9 +104,9 @@ def mount_connecting_view(tabview: ctk.CTkTabview):
         text=i18n(["Wireless debugging IP address and port:    ", "无线调试 IP 地址和端口：                       "]),
         font=larger_font,
     )
-    addr_textbox = ctk.CTkTextbox(
+    addr_entry = ctk.CTkEntry(
         master=frame,
-        height=1,
+        font=normal_font,
     )
     error_label = ctk.CTkLabel(
         master=frame,
@@ -112,7 +121,7 @@ def mount_connecting_view(tabview: ctk.CTkTabview):
     )
 
     prompt_label.grid(row=0, column=0, padx=20, pady=(10, 4), sticky="w")
-    addr_textbox.grid(row=1, column=0, padx=20, sticky="we")
+    addr_entry.grid(row=1, column=0, padx=20, sticky="we")
     error_label.grid(row=2, column=0, padx=20, pady=(10, 4), sticky="w")
     blank_label.grid(row=3, column=0, padx=20, pady=(10, 4), sticky="w")
 
@@ -132,6 +141,8 @@ def mount_connecting_view(tabview: ctk.CTkTabview):
     button_frame.grid(row=4, column=0, padx=20, pady=10, sticky="we")
     button1.pack(side=ctk.LEFT)
     button2.pack(side=ctk.RIGHT)
+    # expose the addr_textbox to mainwindow
+    return addr_entry
 
 def open_connecting_window():
     global connecting_window, normal_font, larger_font
@@ -145,8 +156,8 @@ def open_connecting_window():
     connecting_window.resizable(width=False, height=False)
 
     normal_font = i18n([
-    ctk.CTkFont(family="Arial", size=16),
-    ctk.CTkFont(family="Microsoft YaHei", size=16),
+        ctk.CTkFont(family="Arial", size=16),
+        ctk.CTkFont(family="Microsoft YaHei", size=16),
     ])
     larger_font = i18n([
         ctk.CTkFont(family="Arial", size=18),
@@ -158,8 +169,8 @@ def open_connecting_window():
     tabview.add(i18n(["Connecting", "连接"]))
     tabview.pack()
 
-    mount_pairing_view(tabview)
-    mount_connecting_view(tabview)
+    connecting_addr_textbox = mount_connecting_view(tabview)
+    mount_pairing_view(tabview, connecting_addr_textbox)
 
     connecting_window.protocol("WM_DELETE_WINDOW", delete_window_callback)
     connecting_window.mainloop()
