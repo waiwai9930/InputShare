@@ -1,5 +1,9 @@
 import re
 import locale
+import threading
+import time
+
+import pyperclip
 import screeninfo
 
 def clamp(v: int, x: int, y: int) -> int:
@@ -57,6 +61,33 @@ def i18n_factory():
         return candidates[0]
     return i18n_instance
 i18n = i18n_factory()
+
+class Clipboard:
+    wait_time_second = 0.1
+    retry_times = 5
+    clipboard_lock = threading.Lock()
+
+    @staticmethod
+    def safe_paste() -> str | None:
+        with Clipboard.clipboard_lock:
+            for _ in range(Clipboard.retry_times):
+                try:
+                    return pyperclip.paste()
+                except pyperclip.PyperclipWindowsException:
+                    time.sleep(Clipboard.wait_time_second)
+            print("[Error] Failed to access clipboard after several attempts.")
+            return None
+
+    @staticmethod
+    def safe_copy(text: str):
+        with Clipboard.clipboard_lock:
+            for _ in range(Clipboard.retry_times):
+                try:
+                    pyperclip.copy(text)
+                    return
+                except pyperclip.PyperclipWindowsException:
+                    time.sleep(Clipboard.wait_time_second)
+            print("[Error] Failed to copy to clipboard after several attempts.")
 
 class StopException(Exception):
     """If an event listener callback raises this exception, the current

@@ -6,10 +6,10 @@ import threading
 
 from pathlib import Path
 from adbutils import AdbClient, AdbDevice
-import pyperclip
 
 from adb_controller import ADB_BIN_PATH
 from scrcpy_client.clipboard_event import GetClipboardEventResponse
+from utils import Clipboard
 
 SERVER_PORT = 1234
 
@@ -34,15 +34,27 @@ def server_process_factory(adb_client: AdbClient):
             text=True,
             creationflags=subprocess.CREATE_NO_WINDOW,
         )
+        output = process.stdout.readline() # type: ignore
     except Exception as e:
         print("[Error] Failed to start subprocess: ", e)
         sys.exit(1)
 
-    output = process.stdout.readline() # type: ignore
     print(output)
     time.sleep(0.5)
-
     return process
+
+class ReceivedClipboardText:
+    lock = threading.Lock()
+    text: str | None = None
+    @staticmethod
+    def read():
+        with ReceivedClipboardText.lock:
+            current_text = ReceivedClipboardText.text
+        return current_text
+    @staticmethod
+    def write(new_text: str):
+        with ReceivedClipboardText.lock:
+            ReceivedClipboardText.text = new_text
 
 def server_receiver_factory(client_socket: socket.socket) -> threading.Thread:
     def receiver(client_socket: socket.socket):
@@ -50,9 +62,14 @@ def server_receiver_factory(client_socket: socket.socket) -> threading.Thread:
             data = client_socket.recv(2048)
             if len(data) > 0:
                 text = GetClipboardEventResponse.deserialize(data)
-                if text != pyperclip.paste():
-                    # prevent duplicated clipboard content
-                    pyperclip.copy(text)
+                if text is None:
+                    return True
+
+                # prevent duplicated clipboard content
+                current_clipboard_text = Clipboard.safe_paste()
+                if current_clipboard_text is not None and text != current_clipboard_text:
+                    Clipboard.safe_copy(text)
+                    ReceivedClipboardText.write(text)
                 return True
             else:
                 print("[Server] Server closed the connection")
