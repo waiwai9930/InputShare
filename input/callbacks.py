@@ -30,7 +30,7 @@ def callback_context_wrapper(
         try:
             client_socket.sendall(data)
         except Exception as e:
-            print("[Error] Server error: ", e)
+            print("[Error] Send data error: ", e)
             client_socket.close()
             server_process.terminate()
             raise StopException
@@ -89,9 +89,14 @@ def callback_context_wrapper(
         if last_mouse_point is None:
             last_mouse_point = (cur_x, cur_y)
             return None
-        diff_x = cur_x - last_mouse_point[0]
-        diff_y = cur_y - last_mouse_point[1]
+        smooth_factor = 0.8
+        last_x, last_y = last_mouse_point
         last_mouse_point = (cur_x, cur_y)
+
+        smoothed_x = int(smooth_factor * cur_x + (1 - smooth_factor) * last_x)
+        smoothed_y = int(smooth_factor * cur_y + (1 - smooth_factor) * last_y)
+        diff_x = smoothed_x - last_x
+        diff_y = smoothed_y - last_y
         return (diff_x, diff_y)
 
     def mouse_move_callback(cur_x: int, cur_y: int, is_redirecting: bool):

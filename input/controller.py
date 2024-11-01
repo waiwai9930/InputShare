@@ -4,7 +4,7 @@ from scrcpy_client.clipboard_event import GetClipboardEvent, SetClipboardEvent
 from scrcpy_client.hid_event import KeyEmptyEvent
 from input.callbacks import KeyEventCallback, MouseClickCallback, MouseMoveCallback, MouseScrollCallback, SendDataCallback
 from input.edge_portal import edge_portal_thread_factory
-from server import ReceivedClipboardText
+from server.receiver import ReceivedClipboardText
 from ui.fullscreen_mask import mask_thread_factory
 from utils import Clipboard, StopException
 
@@ -124,11 +124,11 @@ def main_loop(
         if is_redirecting:
             last_received = ReceivedClipboardText.read()
             current_clipboard_content = Clipboard.safe_paste()
+            if not Clipboard.sync_clipboard: return
             if last_received is None: return
             if current_clipboard_content is None: return
             if last_received == current_clipboard_content: return
             try_send_data(SetClipboardEvent(current_clipboard_content).serialize())
-
 
     show_function_message()
     try_send_data(GetClipboardEvent().serialize()) # start server clipboard sync
@@ -155,7 +155,6 @@ def main_loop(
         toggle_event.clear()
         keyboard_listener.stop()
 
-    # if close_edge_portal is not None: close_edge_portal()
     mouse_listener.stop()
     exit_mask()
     close_edge_portal()
