@@ -1,8 +1,10 @@
 import sys
 import customtkinter as ctk
 
+from PIL import Image, ImageTk
+from tkinter import PhotoImage
 from adb_controller import try_connecting, try_pairing
-from utils import get_ip_from_addr_str, i18n, is_valid_ipv4_addr, is_valid_ipv6_addr
+from utils import get_ip_from_addr_str, i18n, is_valid_ipv4_addr, is_valid_ipv6_addr, script_abs_path
 
 def mount_pairing_view(tabview: ctk.CTkTabview, connecting_addr_entry: ctk.CTkEntry):
     def pair_callback():
@@ -30,6 +32,8 @@ def mount_pairing_view(tabview: ctk.CTkTabview, connecting_addr_entry: ctk.CTkEn
 
     frame = tabview.tab(i18n(["Pairing", "配对"]))
     vcmd = (tabview.register(validate_entry), "%P")
+    normal_font = i18n([ctk.CTkFont(family="Arial", size=16), ctk.CTkFont(family="Microsoft YaHei", size=16)])
+    larger_font = i18n([ctk.CTkFont(family="Arial", size=18), ctk.CTkFont(family="Microsoft YaHei", size=18)])
 
     prompt_label1 = ctk.CTkLabel(
         master=frame,
@@ -98,6 +102,9 @@ def mount_connecting_view(tabview: ctk.CTkTabview) -> ctk.CTkEntry:
     def need_not_connection_callback():
         connecting_window.destroy()
 
+    normal_font = i18n([ctk.CTkFont(family="Arial", size=16), ctk.CTkFont(family="Microsoft YaHei", size=16)])
+    larger_font = i18n([ctk.CTkFont(family="Arial", size=18), ctk.CTkFont(family="Microsoft YaHei", size=18)])
+
     frame = tabview.tab(i18n(["Connecting", "连接"]))
     prompt_label = ctk.CTkLabel(
         master=frame,
@@ -145,24 +152,18 @@ def mount_connecting_view(tabview: ctk.CTkTabview) -> ctk.CTkEntry:
     return addr_entry
 
 def open_connecting_window():
-    global connecting_window, normal_font, larger_font
+    global connecting_window #, normal_font, larger_font
     def delete_window_callback():
         connecting_window.destroy()
         sys.exit(0)
 
     connecting_window = ctk.CTk()
+    script_path = script_abs_path(__file__)
+    icon_path = script_path.joinpath("./icon.ico")
+    connecting_window.iconbitmap(icon_path)
     connecting_window.wm_title(i18n(["InputShare Connection", "输入流转 —— 连接"]))
     connecting_window.geometry("500x320")
     connecting_window.resizable(width=False, height=False)
-
-    normal_font = i18n([
-        ctk.CTkFont(family="Arial", size=16),
-        ctk.CTkFont(family="Microsoft YaHei", size=16),
-    ])
-    larger_font = i18n([
-        ctk.CTkFont(family="Arial", size=18),
-        ctk.CTkFont(family="Microsoft YaHei", size=18),
-    ])
 
     tabview = ctk.CTkTabview(master=connecting_window)
     tabview.add(i18n(["Pairing", "配对"]))

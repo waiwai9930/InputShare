@@ -29,13 +29,11 @@ def callback_context_wrapper(
     def send_data(data: bytes):
         try:
             client_socket.sendall(data)
-        except ConnectionAbortedError as e:
+        except Exception as e:
             print("[Error] Server error: ", e)
             client_socket.close()
             server_process.terminate()
             raise StopException
-        except:
-            print("[Error] Send message error.")
 
     keyboard_init = HIDKeyboardInitEvent()
     send_data(keyboard_init.serialize())
@@ -99,6 +97,7 @@ def callback_context_wrapper(
     def mouse_move_callback(cur_x: int, cur_y: int, is_redirecting: bool):
         nonlocal last_mouse_point
         if not is_redirecting:
+            last_mouse_point = None
             return
     
         if edge_portal_passing_event.is_set():

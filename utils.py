@@ -1,3 +1,4 @@
+from pathlib import Path
 import re
 import locale
 import threading
@@ -47,6 +48,9 @@ def is_valid_ipv6_addr(ip_str):
 def screen_size() -> tuple[int, int]:
     monitor = screeninfo.get_monitors()[0]
     return monitor.width, monitor.height
+
+def script_abs_path(_file: str) -> Path:
+    return Path(_file).resolve().parent
 
 def i18n_factory():
     user_language = locale.getdefaultlocale()[0]

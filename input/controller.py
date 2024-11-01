@@ -1,3 +1,4 @@
+import threading
 from pynput import keyboard, mouse
 from scrcpy_client.clipboard_event import GetClipboardEvent, SetClipboardEvent
 from scrcpy_client.hid_event import KeyEmptyEvent
@@ -8,20 +9,18 @@ from ui.fullscreen_mask import mask_thread_factory
 from utils import Clipboard, StopException
 
 is_redirecting = False
-to_toggle_flag = False
-to_exit_flag = False
-to_program_move_mouse_flag = False
+toggle_event = threading.Event()
+exit_event = threading.Event()
 keyboard_listener = None
-mouse_listener = None
 
 def schedule_toggle():
-    global to_toggle_flag
-    to_toggle_flag = True
+    global toggle_event
+    toggle_event.set()
 
 def schedule_exit():
-    global to_exit_flag
+    global exit_event
     schedule_toggle()
-    to_exit_flag = True
+    exit_event.set()
 
 switch_key_combination = "<ctrl>+<alt>+s"
 exit_key_combination = "<ctrl>+<alt>+q"
@@ -30,25 +29,21 @@ exit_hotkey = keyboard.HotKey(keyboard.HotKey.parse(exit_key_combination), sched
 
 def keyboard_press_handler_factory(callback: KeyEventCallback):
     def keyboard_press_handler(k: keyboard.Key):
-        global to_toggle_flag, to_exit_flag, is_redirecting
+        global is_redirecting
         canonical_k = keyboard_listener.canonical(k) # type: ignore
         switch_hotkey.press(canonical_k)
         exit_hotkey.press(canonical_k)
 
-        if to_toggle_flag == True:
-            is_redirecting = not is_redirecting
-            return False
-
         try:
             callback(canonical_k, is_redirecting)
         except StopException:
-            to_exit_flag = True
+            schedule_exit()
             return False
     return keyboard_press_handler
 
 def keyboard_release_handler_factory(callback: KeyEventCallback):
     def keyboard_release_handler(k: keyboard.Key):
-        global to_toggle_flag, to_exit_flag, is_redirecting
+        global is_redirecting
         canonical_k = keyboard_listener.canonical(k) # type: ignore
         switch_hotkey.release(canonical_k)
         exit_hotkey.release(canonical_k)
@@ -56,38 +51,38 @@ def keyboard_release_handler_factory(callback: KeyEventCallback):
         try:
             callback(canonical_k, is_redirecting)
         except StopException:
-            to_exit_flag = True
+            schedule_exit()
             return False
     return keyboard_release_handler
 
 def mouse_move_handler_factory(callback: MouseMoveCallback):
     def mouse_move_handler(x: int, y: int):
-        global to_exit_flag, is_redirecting
+        global is_redirecting
         try:
             callback(x, y, is_redirecting)
         except StopException:
-            to_exit_flag = True
+            schedule_exit()
             return False
     return mouse_move_handler
 
 def mouse_click_handler_factory(callback: MouseClickCallback):
     def mouse_click_handler(x: int, y: int, button: mouse.Button, pressed: bool):
-        global to_exit_flag, is_redirecting
+        global is_redirecting
         try:
             callback(x, y, button, pressed, is_redirecting)
         except StopException:
-            to_exit_flag = True
+            schedule_exit()
             return False
     return mouse_click_handler
 
 def mouse_scroll_handler_factory(callback: MouseScrollCallback):
     def mouse_scroll_handler(x: int, y: int, dx: int, dy: int):
-        global to_exit_flag, is_redirecting
+        global is_redirecting
         if callback is not None:
             try:
                 callback(x, y, dx, dy, is_redirecting)
             except StopException:
-                to_exit_flag = True
+                schedule_exit()
                 return False
     return mouse_scroll_handler
 
@@ -104,58 +99,63 @@ def main_loop(
     mouse_click_callback: MouseClickCallback,
     mouse_scroll_callback: MouseScrollCallback,
 ):
-    global keyboard_listener, to_toggle_flag
+    global is_redirecting, keyboard_listener
 
-    def toggle_redirecting_state():
-        nonlocal close_mask, close_edge_portal
+    def try_send_data(data: bytes):
+        try:
+            send_data(data)
+        except StopException:
+            schedule_exit()
+
+    def toggle_redirecting_state(is_redirecting: bool):
+        nonlocal show_mask, hide_mask,\
+            start_edge_portal, pause_edge_portal
         if is_redirecting:
-            close_mask = mask_thread_factory()
-            close_edge_portal = edge_portal_thread_factory()
+            show_mask()
+            start_edge_portal()
             print("[Info] Input redirecting enabled.")
         else:
-            send_data(KeyEmptyEvent().serialize())
-            if close_mask is not None:
-                close_mask()
-                close_mask = None
-            if close_edge_portal is not None:
-                close_edge_portal()
-                close_edge_portal = None
+            try_send_data(KeyEmptyEvent().serialize())
+            hide_mask()
+            pause_edge_portal()
             print("[Info] Input redirecting disabled.")
     
-    def toggle_callback():
-        global is_redirecting
+    def toggle_callback(is_redirecting: bool):
         if is_redirecting:
             last_received = ReceivedClipboardText.read()
             current_clipboard_content = Clipboard.safe_paste()
             if last_received is None: return
             if current_clipboard_content is None: return
             if last_received == current_clipboard_content: return
-            send_data(SetClipboardEvent(current_clipboard_content).serialize())
+            try_send_data(SetClipboardEvent(current_clipboard_content).serialize())
+
 
     show_function_message()
-    close_mask = None
-    close_edge_portal = None
-    send_data(GetClipboardEvent().serialize()) # start server clipboard sync
+    try_send_data(GetClipboardEvent().serialize()) # start server clipboard sync
+    show_mask, hide_mask, exit_mask = mask_thread_factory()
+    start_edge_portal, pause_edge_portal, close_edge_portal = edge_portal_thread_factory()
 
-    while not to_exit_flag:
-        toggle_redirecting_state()
+    mouse_listener = mouse.Listener(
+        on_move=mouse_move_handler_factory(mouse_move_callback),
+        on_click=mouse_click_handler_factory(mouse_click_callback),
+        on_scroll=mouse_scroll_handler_factory(mouse_scroll_callback),
+    )
+    mouse_listener.start()
+    while not exit_event.is_set():
+        toggle_redirecting_state(is_redirecting)
+        keyboard_listener = keyboard.Listener(
+            suppress=is_redirecting,
+            on_press=keyboard_press_handler_factory(keyboard_press_callback), # type: ignore
+            on_release=keyboard_release_handler_factory(keyboard_release_callback), # type: ignore
+        )
+        keyboard_listener.start()
+        toggle_event.wait()
+        is_redirecting = not is_redirecting
+        toggle_callback(is_redirecting)
+        toggle_event.clear()
+        keyboard_listener.stop()
 
-        with keyboard.Listener(
-                suppress=is_redirecting,
-                on_press=keyboard_press_handler_factory(keyboard_press_callback), # type: ignore
-                on_release=keyboard_release_handler_factory(keyboard_release_callback), # type: ignore
-            ) as keyboard_listener,\
-            mouse.Listener(
-                on_move=mouse_move_handler_factory(mouse_move_callback),
-                on_click=mouse_click_handler_factory(mouse_click_callback),
-                on_scroll=mouse_scroll_handler_factory(mouse_scroll_callback),
-            ) as mouse_listener:
-            keyboard_listener.join()
-            if to_toggle_flag:
-                to_toggle_flag = False
-                toggle_callback()
-                continue
-            mouse_listener.join()
-
-    if close_mask is not None: close_mask(True)
-    if close_edge_portal is not None: close_edge_portal()
+    # if close_edge_portal is not None: close_edge_portal()
+    mouse_listener.stop()
+    exit_mask()
+    close_edge_portal()

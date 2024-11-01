@@ -1,24 +1,36 @@
+from os import name
 import customtkinter as ctk
 import threading
 from typing import Callable
 from utils import i18n, screen_size
 
-stop_event = threading.Event()
+show_event = threading.Event()
+hide_event = threading.Event()
 exit_event = threading.Event()
+
 screen_width, screen_height = screen_size()
 
-def window_created(root: ctk.CTk, toplevel: ctk.CTkToplevel):
-    root.focus()
-    toplevel.lift()
+def check_event(root: ctk.CTk, toplevel: ctk.CTkToplevel):
+    def show_window(root: ctk.CTk, toplevel: ctk.CTkToplevel):
+        root.deiconify()
+        root.focus_force()
+        toplevel.deiconify()
+        toplevel.lift()
+    def hide_window(root: ctk.CTk, toplevel: ctk.CTkToplevel):
+        toplevel.withdraw()
+        root.withdraw()
 
-def check_event(root: ctk.CTk):
-    if stop_event.is_set():
-        stop_event.clear()
-        root.destroy()
+    if show_event.is_set():
+        show_window(root, toplevel)
+        show_event.clear()
+    elif hide_event.is_set():
+        hide_window(root, toplevel)
+        hide_event.clear()
     elif exit_event.is_set():
         root.quit()
-    else:
-        root.after(33, check_event, root)
+
+    interval_ms = int(1000 / 30)
+    root.after(interval_ms, check_event, root, toplevel)
 
 def open_mask_window():
     root = ctk.CTk()
@@ -28,6 +40,9 @@ def open_mask_window():
     root.wm_attributes("-fullscreen", True)
     root.configure(cursor="none")
     root.overrideredirect(True)
+    # root.bind_all("<Button-1>", lambda _: "break")
+    # root.bind_all("<Button-2>", lambda _: "break")
+    # root.bind_all("<Button-3>", lambda _: "break")
     root.geometry(f"{screen_width}x{screen_height}")
 
     larger_font = i18n([
@@ -55,17 +70,21 @@ def open_mask_window():
     label1.pack(padx=4, pady=4)
     label2.pack(padx=4, pady=4)
 
-    check_event(root)
-    root.after(0, window_created, root, label_toplevel)
+    root.after(0, check_event, root, label_toplevel)
     root.mainloop()
 
-def mask_thread_factory() -> Callable[[bool], None]:
-    def close_mask(is_exit: bool=False):
-        if is_exit:
-            exit_event.set()
-        else:
-            stop_event.set()
+def mask_thread_factory() -> tuple[
+    Callable[[], None],
+    Callable[[], None],
+    Callable[[], None],
+]:
+    def show_mask():
+        show_event.set()
+    def hide_mask():
+        hide_event.set()
+    def exit_mask():
+        exit_event.set()
 
     mask_thread = threading.Thread(target=open_mask_window)
     mask_thread.start()
-    return close_mask
+    return show_mask, hide_mask, exit_mask

@@ -6,11 +6,16 @@ from utils import screen_size
 
 screen_width, screen_height = screen_size()
 mouse_controller = pynput.mouse.Controller()
-stop_event = threading.Event()
+start_event = threading.Event()
+pause_event = threading.Event()
+close_event = threading.Event()
 edge_portal_passing_event = threading.Event()
 
-def create_edge_portal():
-    while not stop_event.is_set():
+def portal_loop(interval_sec: float):
+    if close_event.is_set():
+        return
+    pause_event.clear()
+    while not pause_event.is_set():
         x, y = mouse_controller.position
         is_at_left_side = x <= 0
         is_at_right_side = x >= screen_width - 1
@@ -26,11 +31,27 @@ def create_edge_portal():
             mouse_controller.move(0, screen_height - 1)
         if is_at_bottom_side:
             mouse_controller.move(0, 1 - screen_height)
-        time.sleep(1 / 30)
-    stop_event.clear()
+        time.sleep(interval_sec)
 
-def edge_portal_thread_factory() -> Callable[[], None]:
-    def stop_edge_portal():
-        stop_event.set()
+def create_edge_portal():
+    interval_sec = 1 / 60
+    while not close_event.is_set():
+        start_event.wait()
+        portal_loop(interval_sec)
+        start_event.clear()
+    print("[Info] Edge portal closed")
+
+def edge_portal_thread_factory() -> tuple[
+    Callable[[], None], Callable[[], None], Callable[[], None]
+]:
+    def start_edge_portal():
+        start_event.set()
+    def pause_edge_portal():
+        pause_event.set()
+    def close_edge_portal():
+        close_event.set()
+        pause_event.set()
+        start_event.set()
+
     threading.Thread(target=create_edge_portal).start()
-    return stop_edge_portal
+    return start_edge_portal, pause_edge_portal, close_edge_portal
