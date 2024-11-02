@@ -55,6 +55,11 @@ def callback_context_wrapper(
                     InjectKeyCode(AKeyCode.AKEYCODE_MEDIA_NEXT, AKeyEventAction.AKEY_EVENT_ACTION_DOWN).serialize(),
                     InjectKeyCode(AKeyCode.AKEYCODE_MEDIA_NEXT, AKeyEventAction.AKEY_EVENT_ACTION_UP).serialize()
                 ]
+            if k == SDL_Scancode.SDL_SCANCODE_BACKSLASH:
+                return [
+                    InjectKeyCode(AKeyCode.AKEYCODE_MEDIA_PLAY_PAUSE, AKeyEventAction.AKEY_EVENT_ACTION_DOWN).serialize(),
+                    InjectKeyCode(AKeyCode.AKEYCODE_MEDIA_PLAY_PAUSE, AKeyEventAction.AKEY_EVENT_ACTION_UP).serialize()
+                ]
         return None
 
     def keyboard_press_callback(k: keyboard.Key | keyboard.KeyCode, is_redirecting: bool):
