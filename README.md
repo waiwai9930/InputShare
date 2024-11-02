@@ -43,7 +43,7 @@ For wireless connection:
 
 ## Shortcuts
 
-The shortcuts following are available after connection
+The shortcuts following are available after connection:
 
 | Shortcut | Description |
 | --- | --- |
@@ -59,6 +59,15 @@ The shortcuts following are available after connection
 | `F8` | Volume Up |
 | `F11` | Screen Sleep |
 | `F12` | Wake Up |
+
+The shortcuts following are available after connection and not sharing:
+
+| Shortcut | Description |
+| --- | --- |
+| `<Alt>+UP` | Scroll Up |
+| `<Alt>+DOWN` | Scroll Down |
+| `<Alt>+[` | Previous Media |
+| `<Alt>+]` | Next Media |
 
 ## Development
 
