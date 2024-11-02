@@ -96,5 +96,5 @@ pip show customtkinter
 然后你就可以使用这个命令来构建项目（替换 `<CustomTkinter Location>` 为上面获得的 `customtkinter` 库路径）：
 
 ```bash
-pyinstaller --windowed --icon=ui/icon.ico --add-data "./adb-bin/;adb-bin/" --add-data "./server/scrcpy-server;server/" --add-data "<CustomTkinter Location>/customtkinter;customtkinter/" main.py
+pyinstaller --windowed --icon=ui/icon.ico --add-data "./ui/icon.ico;ui/" --add-data "./adb-bin/;adb-bin/" --add-data "./server/scrcpy-server;server/" --add-data "<CustomTkinter Location>/customtkinter;customtkinter/" main.py
 ```

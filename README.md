@@ -96,5 +96,5 @@ A Location will be shown, for example: `c:\users\<user_name>\appdata\local\progr
 Use this command to build (replace `<CustomTkinter Location>` with `customtkinter` library path got above):
 
 ```bash
-pyinstaller --windowed --icon=ui/icon.ico --add-data "./adb-bin/;adb-bin/" --add-data "./server/scrcpy-server;server/" --add-data "<CustomTkinter Location>/customtkinter;customtkinter/" main.py
+pyinstaller --windowed --icon=ui/icon.ico --add-data "./ui/icon.ico;ui/" --add-data "./adb-bin/;adb-bin/" --add-data "./server/scrcpy-server;server/" --add-data "<CustomTkinter Location>/customtkinter;customtkinter/" main.py
 ```
