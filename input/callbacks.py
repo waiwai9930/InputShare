@@ -6,7 +6,7 @@ from pynput import mouse, keyboard
 from scrcpy_client import key_scancode_map
 from scrcpy_client.android_def import AKeyCode, AKeyEventAction
 from scrcpy_client.hid_def import HID_KEYBOARD_MAX_KEYS, HID_MouseButton, HIDKeymod, KeymodStateStore, MouseButtonStateStore
-from scrcpy_client.hid_event import HIDKeyboardInitEvent, KeyEvent, MouseClickEvent, MouseMoveEvent, MouseScrollEvent, HIDMouseInitEvent
+from scrcpy_client.hid_event import HIDKeyboardInitEvent, KeyEmptyEvent, KeyEvent, MouseClickEvent, MouseMoveEvent, MouseScrollEvent, HIDMouseInitEvent
 from scrcpy_client.inject_event import InjectKeyCode
 from scrcpy_client.sdl_def import SDL_Scancode
 from input.edge_portal import edge_portal_passing_event
@@ -40,19 +40,40 @@ def callback_context_wrapper(
     keymod_state = KeymodStateStore()
     key_list: list[SDL_Scancode] = []
 
+    def customized_shortcuts(k: SDL_Scancode | HIDKeymod | AKeyCode, is_redirecting: bool) -> list[bytes] | None:
+        if is_redirecting: return None
+        if keymod_state.has_key(HIDKeymod.HID_MOD_LEFT_ALT) or keymod_state.has_key(HIDKeymod.HID_MOD_RIGHT_ALT):
+            if k in [SDL_Scancode.SDL_SCANCODE_UP, SDL_Scancode.SDL_SCANCODE_DOWN]:
+                return [KeyEvent(KeymodStateStore(), [k]).serialize(), KeyEmptyEvent().serialize()]
+            if k == SDL_Scancode.SDL_SCANCODE_LEFTBRACKET:
+                return [
+                    InjectKeyCode(AKeyCode.AKEYCODE_MEDIA_PREVIOUS, AKeyEventAction.AKEY_EVENT_ACTION_DOWN).serialize(),
+                    InjectKeyCode(AKeyCode.AKEYCODE_MEDIA_PREVIOUS, AKeyEventAction.AKEY_EVENT_ACTION_UP).serialize()
+                ]
+            if k == SDL_Scancode.SDL_SCANCODE_RIGHTBRACKET:
+                return [
+                    InjectKeyCode(AKeyCode.AKEYCODE_MEDIA_NEXT, AKeyEventAction.AKEY_EVENT_ACTION_DOWN).serialize(),
+                    InjectKeyCode(AKeyCode.AKEYCODE_MEDIA_NEXT, AKeyEventAction.AKEY_EVENT_ACTION_UP).serialize()
+                ]
+        return None
+
     def keyboard_press_callback(k: keyboard.Key | keyboard.KeyCode, is_redirecting: bool):
-        if not is_redirecting:
-            return
-        if k not in key_scancode_map:
-            return
+        if k not in key_scancode_map: return
         generic_key = key_scancode_map[k]
+        shortcut_data = customized_shortcuts(generic_key, is_redirecting)
+        if shortcut_data is not None:
+            for data in shortcut_data: send_data(data)
+            return
+
         if isinstance(generic_key, HIDKeymod):
             keymod_state.keydown(generic_key)
-        elif isinstance(generic_key, AKeyCode):
+
+        if not is_redirecting: return
+        if isinstance(generic_key, AKeyCode):
             inject_key_code = InjectKeyCode(generic_key, AKeyEventAction.AKEY_EVENT_ACTION_DOWN)
             send_data(inject_key_code.serialize())
             return
-        elif generic_key not in key_list:
+        if isinstance(generic_key, SDL_Scancode) and generic_key not in key_list:
             key_list.append(generic_key)
             if len(key_list) > HID_KEYBOARD_MAX_KEYS:
                 key_to_remove = key_list[0]
@@ -61,18 +82,17 @@ def callback_context_wrapper(
         send_data(key_event.serialize())
 
     def keyboard_release_callback(k: keyboard.Key | keyboard.KeyCode, is_redirecting: bool):
-        if not is_redirecting:
-            return
-        if k not in key_scancode_map:
-            return
+        if k not in key_scancode_map: return
         generic_key = key_scancode_map[k]
         if isinstance(generic_key, HIDKeymod):
             keymod_state.keyup(generic_key)
-        elif isinstance(generic_key, AKeyCode):
+
+        if not is_redirecting: return
+        if isinstance(generic_key, AKeyCode):
             inject_key_code = InjectKeyCode(generic_key, AKeyEventAction.AKEY_EVENT_ACTION_UP)
             send_data(inject_key_code.serialize())
             return
-        elif generic_key in key_list:
+        if isinstance(generic_key, SDL_Scancode) and generic_key in key_list:
             key_list.remove(generic_key)
         key_event = KeyEvent(keymod_state, key_list)
         send_data(key_event.serialize())

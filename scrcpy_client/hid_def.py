@@ -125,6 +125,10 @@ class HIDKeymod(IntEnum):
     HID_MOD_RIGHT_ALT = (1 << 6)
     HID_MOD_RIGHT_GUI = (1 << 7) # right Win | Command
 
+    HID_MOD_ALT = HID_MOD_LEFT_ALT | HID_MOD_RIGHT_ALT
+    HID_MOD_SHIFT = HID_MOD_LEFT_SHIFT | HID_MOD_RIGHT_SHIFT
+    HID_MOD_CONTROL = HID_MOD_LEFT_CONTROL | HID_MOD_RIGHT_CONTROL
+
 class KeymodStateStore:
     key: int = HIDKeymod.HID_MOD_NONE.value
     def keydown(self, key: HIDKeymod):
