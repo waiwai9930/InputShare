@@ -1,6 +1,5 @@
 import socket
 
-from subprocess import Popen
 from typing import Callable
 from pynput import mouse, keyboard
 from scrcpy_client import key_scancode_map
@@ -10,7 +9,6 @@ from scrcpy_client.hid_event import HIDKeyboardInitEvent, KeyEmptyEvent, KeyEven
 from scrcpy_client.inject_event import InjectKeyCode
 from scrcpy_client.sdl_def import SDL_Scancode
 from input.edge_portal import edge_portal_passing_event
-from utils import StopException
 
 CallbackResult = Exception | None
 SendDataCallback = Callable[[bytes], CallbackResult]

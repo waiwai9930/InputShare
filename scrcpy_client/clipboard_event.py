@@ -1,6 +1,6 @@
 import struct
-from zmq import IntEnum
 
+from enum import IntEnum
 from scrcpy_client import ControlMsgType
 
 class CopyKey(IntEnum):

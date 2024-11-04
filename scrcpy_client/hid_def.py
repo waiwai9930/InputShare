@@ -1,11 +1,9 @@
+from enum import IntEnum
+from scrcpy_client.sdl_def import SDL_BUTTON, SDL_BUTTON_LEFT, SDL_BUTTON_MIDDLE, SDL_BUTTON_RIGHT, SDL_BUTTON_X1, SDL_BUTTON_X2
+
 '''
 HID Mouse Definition
 '''
-
-from enum import IntEnum
-
-from scrcpy_client.sdl_def import SDL_BUTTON, SDL_BUTTON_LEFT, SDL_BUTTON_MIDDLE, SDL_BUTTON_RIGHT, SDL_BUTTON_X1, SDL_BUTTON_X2
-
 
 HID_ID_MOUSE = 2
 HID_MOUSE_INPUT_SIZE = 4

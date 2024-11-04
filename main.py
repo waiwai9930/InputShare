@@ -1,7 +1,7 @@
 import socket
-from multiprocessing import freeze_support
-
 import adbutils
+
+from multiprocessing import freeze_support
 from input.controller import main_loop
 from server import SERVER_PORT, server_process_factory
 from server.receiver import server_receiver_factory

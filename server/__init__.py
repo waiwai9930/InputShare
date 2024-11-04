@@ -4,7 +4,6 @@ import time
 
 from pathlib import Path
 from adbutils import AdbClient, AdbDevice
-
 from adb_controller import ADB_BIN_PATH
 from utils import script_abs_path
 

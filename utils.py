@@ -1,4 +1,3 @@
-from pathlib import Path
 import re
 import locale
 import threading
@@ -6,6 +5,8 @@ import time
 
 import pyperclip
 import screeninfo
+
+from pathlib import Path
 
 def clamp(v: int, x: int, y: int) -> int:
     return min(max(v, x), y)
@@ -93,9 +94,3 @@ class Clipboard:
                 except pyperclip.PyperclipWindowsException:
                     time.sleep(Clipboard.wait_time_second)
             print("[Error] Failed to copy to clipboard after several attempts.")
-
-class StopException(Exception):
-    """If an event listener callback raises this exception, the current
-    listener is stopped.
-    """
-    pass

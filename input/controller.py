@@ -6,7 +6,7 @@ from input.callbacks import KeyEventCallback, MouseClickCallback, MouseMoveCallb
 from input.edge_portal import edge_portal_thread_factory
 from server.receiver import ReceivedClipboardText
 from ui.fullscreen_mask import mask_thread_factory
-from utils import Clipboard, StopException
+from utils import Clipboard
 
 is_redirecting = False
 toggle_event = threading.Event()
