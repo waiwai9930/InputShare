@@ -12,28 +12,27 @@ from scrcpy_client.sdl_def import SDL_Scancode
 from input.edge_portal import edge_portal_passing_event
 from utils import StopException
 
-SendDataCallback = Callable[[bytes], None]
-KeyEventCallback = Callable[[keyboard.Key | keyboard.KeyCode, bool], None]
-MouseMoveCallback = Callable[[int, int, bool], None]
-MouseClickCallback = Callable[[int, int, mouse.Button, bool, bool], None]
-MouseScrollCallback = Callable[[int, int, int, int, bool], None]
+CallbackResult = Exception | None
+SendDataCallback = Callable[[bytes], CallbackResult]
+KeyEventCallback = Callable[[keyboard.Key | keyboard.KeyCode, bool], CallbackResult]
+MouseMoveCallback = Callable[[int, int, bool], CallbackResult]
+MouseClickCallback = Callable[[int, int, mouse.Button, bool, bool], CallbackResult]
+MouseScrollCallback = Callable[[int, int, int, int, bool], CallbackResult]
 
 def callback_context_wrapper(
     client_socket: socket.socket,
-    server_process: Popen[str],
 ) -> tuple[
     SendDataCallback,
     KeyEventCallback, KeyEventCallback,
     MouseMoveCallback, MouseClickCallback, MouseScrollCallback,
 ]:
-    def send_data(data: bytes):
+    def send_data(data: bytes) -> CallbackResult:
+        nonlocal client_socket
         try:
             client_socket.sendall(data)
         except Exception as e:
-            print("[Error] Send data error: ", e)
-            client_socket.close()
-            server_process.terminate()
-            raise StopException
+            return e
+        return None
 
     keyboard_init = HIDKeyboardInitEvent()
     send_data(keyboard_init.serialize())
@@ -62,13 +61,16 @@ def callback_context_wrapper(
                 ]
         return None
 
-    def keyboard_press_callback(k: keyboard.Key | keyboard.KeyCode, is_redirecting: bool):
+    def keyboard_press_callback(k: keyboard.Key | keyboard.KeyCode, is_redirecting: bool) -> CallbackResult:
         if k not in key_scancode_map: return
         generic_key = key_scancode_map[k]
         shortcut_data = customized_shortcuts(generic_key, is_redirecting)
         if shortcut_data is not None:
-            for data in shortcut_data: send_data(data)
-            return
+            for data in shortcut_data:
+                res = send_data(data)
+                if res is not None:
+                    return res
+            return None
 
         if isinstance(generic_key, HIDKeymod):
             keymod_state.keydown(generic_key)
@@ -76,17 +78,16 @@ def callback_context_wrapper(
         if not is_redirecting: return
         if isinstance(generic_key, AKeyCode):
             inject_key_code = InjectKeyCode(generic_key, AKeyEventAction.AKEY_EVENT_ACTION_DOWN)
-            send_data(inject_key_code.serialize())
-            return
+            return send_data(inject_key_code.serialize())
         if isinstance(generic_key, SDL_Scancode) and generic_key not in key_list:
             key_list.append(generic_key)
             if len(key_list) > HID_KEYBOARD_MAX_KEYS:
                 key_to_remove = key_list[0]
                 key_list.remove(key_to_remove)
         key_event = KeyEvent(keymod_state, key_list)
-        send_data(key_event.serialize())
+        return send_data(key_event.serialize())
 
-    def keyboard_release_callback(k: keyboard.Key | keyboard.KeyCode, is_redirecting: bool):
+    def keyboard_release_callback(k: keyboard.Key | keyboard.KeyCode, is_redirecting: bool) -> CallbackResult:
         if k not in key_scancode_map: return
         generic_key = key_scancode_map[k]
         if isinstance(generic_key, HIDKeymod):
@@ -95,12 +96,11 @@ def callback_context_wrapper(
         if not is_redirecting: return
         if isinstance(generic_key, AKeyCode):
             inject_key_code = InjectKeyCode(generic_key, AKeyEventAction.AKEY_EVENT_ACTION_UP)
-            send_data(inject_key_code.serialize())
-            return
+            return send_data(inject_key_code.serialize())
         if isinstance(generic_key, SDL_Scancode) and generic_key in key_list:
             key_list.remove(generic_key)
         key_event = KeyEvent(keymod_state, key_list)
-        send_data(key_event.serialize())
+        return send_data(key_event.serialize())
 
     # --- --- --- --- --- ---
 
@@ -124,7 +124,7 @@ def callback_context_wrapper(
         diff_y = smoothed_y - last_y
         return (diff_x, diff_y)
 
-    def mouse_move_callback(cur_x: int, cur_y: int, is_redirecting: bool):
+    def mouse_move_callback(cur_x: int, cur_y: int, is_redirecting: bool) -> CallbackResult:
         nonlocal last_mouse_point
         if not is_redirecting:
             last_mouse_point = None
@@ -139,9 +139,9 @@ def callback_context_wrapper(
             return
         diff_x, diff_y = res
         mouse_move_event = MouseMoveEvent(diff_x, diff_y, mouse_button_state)
-        send_data(mouse_move_event.serialize())
+        return send_data(mouse_move_event.serialize())
 
-    def mouse_click_callback(_cur_x: int, _cur_y: int, button: mouse.Button, pressed: bool, is_redirecting: bool):
+    def mouse_click_callback(_cur_x: int, _cur_y: int, button: mouse.Button, pressed: bool, is_redirecting: bool) -> CallbackResult:
         nonlocal last_mouse_point
         if not is_redirecting:
             return
@@ -158,13 +158,13 @@ def callback_context_wrapper(
         else:
             mouse_button_state.mouse_up(hid_button)
         mouse_move_event = MouseClickEvent(mouse_button_state)
-        send_data(mouse_move_event.serialize())
+        return send_data(mouse_move_event.serialize())
     
-    def mouse_scroll_callback(_cur_x: int, _cur_y: int, _dx: int, dy: int, is_redirecting: bool):
+    def mouse_scroll_callback(_cur_x: int, _cur_y: int, _dx: int, dy: int, is_redirecting: bool) -> CallbackResult:
         if not is_redirecting:
             return
         mouse_scroll_event = MouseScrollEvent(dy)
-        send_data(mouse_scroll_event.serialize())
+        return send_data(mouse_scroll_event.serialize())
 
     return (
         send_data,

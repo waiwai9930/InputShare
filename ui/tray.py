@@ -3,6 +3,7 @@ import threading
 import pystray
 
 from typing import Callable
+from dataclasses import dataclass
 from PIL import Image
 
 from input.controller import schedule_toggle as main_schedule_toggle,\
@@ -14,6 +15,11 @@ Menu = pystray.Menu
 MenuItem = pystray.MenuItem
 
 tray = None
+
+@dataclass
+class Notification:
+    title: str
+    message: str
 
 def create_tray(client_socket: socket.socket):
     global tray
@@ -66,10 +72,12 @@ def create_tray(client_socket: socket.socket):
     )
     tray.run()
 
-def tray_thread_factory(client_socket: socket.socket) -> Callable[[], None]:
-    def close_tray():
+def tray_thread_factory(client_socket: socket.socket) -> Callable[[Notification | None], None]:
+    def close_tray(reason: Notification | None):
         global tray
         assert tray is not None
+        if reason is not None:
+            tray.notify(reason.message, reason.title)
         tray.stop()
 
     thread = threading.Thread(target=create_tray, args=[client_socket])
