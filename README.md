@@ -57,6 +57,8 @@ The shortcuts following are available after connection:
 | `F6` | Next Media |
 | `F7` | Volume Down |
 | `F8` | Volume Up |
+| `F9` | Brightness Down |
+| `F10` | Brightness Up |
 | `F11` | Screen Sleep |
 | `F12` | Wake Up |
 

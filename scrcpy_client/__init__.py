@@ -112,8 +112,8 @@ key_scancode_map: dict[Key | KeyCode, SDL_Scancode | HIDKeymod | AKeyCode] = {
     KeyCode.from_vk(117): AKeyCode.AKEYCODE_MEDIA_NEXT,
     KeyCode.from_vk(118): AKeyCode.AKEYCODE_VOLUME_DOWN,
     KeyCode.from_vk(119): AKeyCode.AKEYCODE_VOLUME_UP,
-    # KeyCode.from_vk(120): pass,
-    # KeyCode.from_vk(121): pass, # F10
+    KeyCode.from_vk(120): AKeyCode.AKEYCODE_BRIGHTNESS_DOWN,
+    KeyCode.from_vk(121): AKeyCode.AKEYCODE_BRIGHTNESS_UP, # F10
     KeyCode.from_vk(122): AKeyCode.AKEYCODE_SOFT_SLEEP,
     KeyCode.from_vk(123): AKeyCode.AKEYCODE_WAKEUP, # F12
 }
