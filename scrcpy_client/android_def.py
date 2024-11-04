@@ -1,29 +1,24 @@
+from dataclasses import dataclass
 from enum import IntEnum
 
 '''
 Coordinates Definition
 '''
 
+@dataclass
 class ScreenSize:
     width: int
     height: int
-    def __init__(self, width: int, height: int) -> None:
-        self.width = width
-        self.height = height
 
+@dataclass
 class ScreenPoint:
     x: int
     y: int
-    def __init__(self, x: int, y: int) -> None:
-        self.x = x
-        self.y = y
 
+@dataclass
 class ScreenPosition:
     size: ScreenSize
     point: ScreenPoint
-    def __init__(self, size: ScreenSize, point: ScreenPoint) -> None:
-        self.size = size
-        self.point = point
 
 class UserRotation(IntEnum):
     Protrait  = 0
