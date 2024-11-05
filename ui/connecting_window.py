@@ -1,10 +1,9 @@
 import sys
 import customtkinter as ctk
 
-from PIL import Image, ImageTk
-from tkinter import PhotoImage
 from adb_controller import try_connecting, try_pairing
-from utils import get_ip_from_addr_str, i18n, is_valid_ipv4_addr, is_valid_ipv6_addr, script_abs_path
+from utils import get_ip_from_addr_str, is_valid_ipv4_addr, is_valid_ipv6_addr, script_abs_path
+from utils.i18n import i18n
 
 def mount_pairing_view(tabview: ctk.CTkTabview, connecting_addr_entry: ctk.CTkEntry):
     def pair_callback():

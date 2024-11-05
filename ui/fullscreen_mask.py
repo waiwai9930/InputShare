@@ -1,8 +1,9 @@
-from os import name
-import customtkinter as ctk
 import threading
+import customtkinter as ctk
+
 from typing import Callable
-from utils import i18n, screen_size
+from utils import screen_size
+from utils.i18n import i18n
 
 show_event = threading.Event()
 hide_event = threading.Event()
@@ -40,9 +41,6 @@ def open_mask_window():
     root.wm_attributes("-fullscreen", True)
     root.configure(cursor="none")
     root.overrideredirect(True)
-    # root.bind_all("<Button-1>", lambda _: "break")
-    # root.bind_all("<Button-2>", lambda _: "break")
-    # root.bind_all("<Button-3>", lambda _: "break")
     root.geometry(f"{screen_width}x{screen_height}")
 
     larger_font = i18n([

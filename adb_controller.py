@@ -5,6 +5,8 @@ import subprocess
 import adbutils
 from pathlib import Path
 
+from utils.logger import LogType, logger
+
 script_path = Path(__file__).resolve().parent
 adb_relative_path = "adb-bin/adb.exe"
 adb_bin_path = Path.joinpath(script_path, adb_relative_path)
@@ -16,12 +18,12 @@ def try_connecting(addr: str, timeout: float=4.0) -> adbutils.AdbClient | None:
     try:
         output = client.connect(addr, timeout)
         assert len(client.device_list()) > 0
-        print("[ADB]", output)
+        logger.write(LogType.Server, output)
     except adbutils.AdbTimeout as e:
-        print("[Error] Connect timeout: ", e)
+        logger.write(LogType.Error, "Connect timeout: " + str(e))
         return None
     except Exception as e:
-        print("[Error] Connect failed: ", e)
+        logger.write(LogType.Error, "Connect failed: " + str(e))
         return None
     return client
 
@@ -37,7 +39,7 @@ def try_pairing(addr: str, pairing_code: str) -> bool:
         process.wait()
         return True
     except Exception as e:
-        print("[Error] ADB failed to pair: ", e)
+        logger.write(LogType.Error, "ADB failed to pair: " + str(e))
         return False
 
 def get_display_size(adb_client: adbutils.AdbClient) -> tuple[int, int]:
@@ -48,7 +50,7 @@ def get_display_size(adb_client: adbutils.AdbClient) -> tuple[int, int]:
     size_match = size_pattern.search(output)
 
     if size_match is None:
-        print("[Error] Get device size failed.")
+        logger.write(LogType.Error, "Get device size failed.")
         sys.exit(1)
     size = size_match.group(0).split('=')[1]
     width, height = map(int, size.split('x'))

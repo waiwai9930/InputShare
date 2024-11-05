@@ -2,7 +2,8 @@ import socket
 import threading
 
 from scrcpy_client.clipboard_event import GetClipboardEventResponse
-from utils import Clipboard
+from utils.clipboard import Clipboard
+from utils.logger import logger, LogType
 
 class ReceivedClipboardText:
     lock = threading.Lock()
@@ -32,7 +33,7 @@ def server_receiver_factory(client_socket: socket.socket) -> threading.Thread:
                 ReceivedClipboardText.write(text)
             return True
         else:
-            print("[Server] Server closed the connection")
+            logger.write(LogType.Server, "Server closed connection.")
             return False
 
     def receiver(client_socket: socket.socket):
@@ -41,12 +42,12 @@ def server_receiver_factory(client_socket: socket.socket) -> threading.Thread:
                 if not data_recv(client_socket):
                     break
             except (ConnectionAbortedError, ConnectionResetError) as e:
-                print("[Error] Connection error: ", e)
+                logger.write(LogType.Error, "Connection error: " + str(e))
                 break
             except Exception as e:
-                print("[Error] Getting clipboard data error: ", e)
+                logger.write(LogType.Error, "Getting clipboard data error: " + str(e))
                 break
-        print("[Server] Receiver stopped")
+        logger.write(LogType.Server, "Receiver stopped.")
 
     thread = threading.Thread(target=receiver, args=[client_socket])
     thread.start()

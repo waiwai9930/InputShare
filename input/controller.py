@@ -6,7 +6,8 @@ from input.callbacks import KeyEventCallback, MouseClickCallback, MouseMoveCallb
 from input.edge_portal import edge_portal_thread_factory
 from server.receiver import ReceivedClipboardText
 from ui.fullscreen_mask import mask_thread_factory
-from utils import Clipboard
+from utils.clipboard import Clipboard
+from utils.logger import logger, LogType
 
 is_redirecting = False
 toggle_event = threading.Event()
@@ -107,12 +108,12 @@ def main_loop(
         if is_redirecting:
             show_mask()
             start_edge_portal()
-            print("[Info] Input redirecting enabled.")
+            logger.write(LogType.Info, "Input redirecting enabled.")
         else:
             send_data(KeyEmptyEvent().serialize())
             hide_mask()
             pause_edge_portal()
-            print("[Info] Input redirecting disabled.")
+            logger.write(LogType.Info, "Input redirecting disabled.")
     
     def toggle_callback(is_redirecting: bool):
         if is_redirecting:

@@ -6,6 +6,7 @@ from pathlib import Path
 from adbutils import AdbClient, AdbDevice
 from adb_controller import ADB_BIN_PATH
 from utils import script_abs_path
+from utils.logger import logger, LogType
 
 SERVER_PORT = 1234
 
@@ -32,9 +33,9 @@ def server_process_factory(adb_client: AdbClient):
         )
         output = process.stdout.readline() # type: ignore
     except Exception as e:
-        print("[Error] Failed to start subprocess: ", e)
+        logger.write(LogType.Error, "Failed to start subprocess: " + str(e))
         sys.exit(1)
 
-    print(output)
+    logger.write(LogType.Server, output)
     time.sleep(0.5)
     return process

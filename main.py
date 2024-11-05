@@ -8,7 +8,8 @@ from server.receiver import server_receiver_factory
 from input.callbacks import callback_context_wrapper
 from ui.connecting_window import open_connecting_window
 from ui.tray import Notification, tray_thread_factory
-from utils import i18n
+from utils.logger import LogType, logger
+from utils.i18n import i18n
 
 freeze_support()
 
@@ -24,7 +25,7 @@ close_tray = tray_thread_factory(client_socket)
 callbacks = callback_context_wrapper(client_socket)
 main_errno = main_loop(*callbacks)
 
-print("[Info] Terminated, closing...")
+logger.write(LogType.Info, "Terminated, closing...")
 client_socket.close()
 receiver_thread.join()
 server_process.wait()

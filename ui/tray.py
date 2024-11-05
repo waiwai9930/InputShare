@@ -9,7 +9,10 @@ from PIL import Image
 from input.controller import schedule_toggle as main_schedule_toggle,\
                              schedule_exit as main_schedule_exit
 from scrcpy_client.clipboard_event import SetClipboardEvent
-from utils import Clipboard, i18n, script_abs_path
+from utils import script_abs_path
+from utils.i18n import i18n
+from utils.clipboard import Clipboard
+from utils.logger import logger, LogType
 
 Menu = pystray.Menu
 MenuItem = pystray.MenuItem
@@ -33,9 +36,9 @@ def create_tray(client_socket: socket.socket):
         try:
             client_socket.sendall(event.serialize())
         except Exception as e:
-            print("[Error] Send data error: ", e)
+            logger.write(LogType.Error, "Send data error: " + str(e))
             exit_tray()
-    
+
     def toggle_sync_clipboard(_, item: MenuItem):
         Clipboard.sync_clipboard = not item.checked
 

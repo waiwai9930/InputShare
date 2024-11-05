@@ -1,12 +1,9 @@
 import re
-import locale
-import threading
 import time
-
-import pyperclip
 import screeninfo
 
 from pathlib import Path
+from typing import Any, Callable
 
 def clamp(v: int, x: int, y: int) -> int:
     return min(max(v, x), y)
@@ -53,44 +50,25 @@ def screen_size() -> tuple[int, int]:
 def script_abs_path(_file: str) -> Path:
     return Path(_file).resolve().parent
 
-def i18n_factory():
-    user_language = locale.getdefaultlocale()[0]
-    language_index = 0
-    if user_language in ["zh", "zh_CN", "zh_HK", "zh_MO", "zh_SG", "zh_TW"]:
-        language_index = 1
-    def i18n_instance(candidates: list):
-        if len(candidates) == 0:
-            raise Exception("Empty i18n candidates")
-        if language_index < len(candidates):
-            return candidates[language_index]
-        return candidates[0]
-    return i18n_instance
-i18n = i18n_factory()
+class TimeCounter:
+    __count: int = 0
+    __timer: float | None = None
+    interval_sec: float
+    callback: Callable[[int], Any]
 
-class Clipboard:
-    wait_time_second = 0.1
-    retry_times = 5
-    clipboard_lock = threading.Lock()
-    sync_clipboard = True
+    def __init__(self, interval_sec: float, callback: Callable[[int], Any]) -> None:
+        self.interval_sec = interval_sec
+        self.callback = callback
 
-    @staticmethod
-    def safe_paste() -> str | None:
-        with Clipboard.clipboard_lock:
-            for _ in range(Clipboard.retry_times):
-                try:
-                    return pyperclip.paste()
-                except pyperclip.PyperclipWindowsException:
-                    time.sleep(Clipboard.wait_time_second)
-            print("[Error] Failed to access clipboard after several attempts.")
-            return None
+    def count(self):
+        if self.__timer is None:
+            self.__count = 1
+            self.__timer = time.time()
+            return
 
-    @staticmethod
-    def safe_copy(text: str):
-        with Clipboard.clipboard_lock:
-            for _ in range(Clipboard.retry_times):
-                try:
-                    pyperclip.copy(text)
-                    return
-                except pyperclip.PyperclipWindowsException:
-                    time.sleep(Clipboard.wait_time_second)
-            print("[Error] Failed to copy to clipboard after several attempts.")
+        self.__count += 1
+        current_sec = time.time()
+        if current_sec - self.__timer >= self.interval_sec:
+            self.callback(self.__count)
+            self.__count = 0
+            self.__timer = current_sec
