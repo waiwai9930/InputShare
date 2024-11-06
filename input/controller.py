@@ -1,5 +1,6 @@
 import threading
 from pynput import keyboard, mouse
+from input import EXIT_KEY_COMBINATION, SWITCH_KEY_COMBINATION
 from scrcpy_client.clipboard_event import GetClipboardEvent, SetClipboardEvent
 from scrcpy_client.hid_event import KeyEmptyEvent
 from input.callbacks import KeyEventCallback, MouseClickCallback, MouseMoveCallback, MouseScrollCallback, SendDataCallback
@@ -7,7 +8,7 @@ from input.edge_portal import edge_portal_thread_factory
 from server.receiver import ReceivedClipboardText
 from ui.fullscreen_mask import mask_thread_factory
 from utils.clipboard import Clipboard
-from utils.logger import logger, LogType
+from utils.logger import LOGGER, LogType
 
 is_redirecting = False
 toggle_event = threading.Event()
@@ -23,10 +24,9 @@ def schedule_exit():
     schedule_toggle()
     exit_event.set()
 
-switch_key_combination = "<ctrl>+<alt>+s"
-exit_key_combination = "<ctrl>+<alt>+q"
-switch_hotkey = keyboard.HotKey(keyboard.HotKey.parse(switch_key_combination), schedule_toggle)
-exit_hotkey = keyboard.HotKey(keyboard.HotKey.parse(exit_key_combination), schedule_exit)
+
+switch_hotkey = keyboard.HotKey(keyboard.HotKey.parse(SWITCH_KEY_COMBINATION), schedule_toggle)
+exit_hotkey = keyboard.HotKey(keyboard.HotKey.parse(EXIT_KEY_COMBINATION), schedule_exit)
 
 def keyboard_press_handler_factory(callback: KeyEventCallback):
     def keyboard_press_handler(k: keyboard.Key | keyboard.KeyCode | None):
@@ -87,11 +87,6 @@ def mouse_scroll_handler_factory(callback: MouseScrollCallback):
             schedule_exit()
     return mouse_scroll_handler
 
-def show_function_message():
-    print(f'''\
-Push {switch_key_combination} to enable/disable redirecting mouse and keyboard input.
-Push {exit_key_combination} to exit.''')
-
 def main_loop(
     send_data: SendDataCallback,
     keyboard_press_callback: KeyEventCallback,
@@ -108,12 +103,12 @@ def main_loop(
         if is_redirecting:
             show_mask()
             start_edge_portal()
-            logger.write(LogType.Info, "Input redirecting enabled.")
+            LOGGER.write(LogType.Info, "Input redirecting enabled.")
         else:
             send_data(KeyEmptyEvent().serialize())
             hide_mask()
             pause_edge_portal()
-            logger.write(LogType.Info, "Input redirecting disabled.")
+            LOGGER.write(LogType.Info, "Input redirecting disabled.")
     
     def toggle_callback(is_redirecting: bool):
         if is_redirecting:
@@ -125,7 +120,6 @@ def main_loop(
             if last_received == current_clipboard_content: return
             return send_data(SetClipboardEvent(current_clipboard_content).serialize())
 
-    show_function_message()
     main_errno = send_data(GetClipboardEvent().serialize()) # start server clipboard sync
     show_mask, hide_mask, exit_mask = mask_thread_factory()
     start_edge_portal, pause_edge_portal, close_edge_portal = edge_portal_thread_factory()

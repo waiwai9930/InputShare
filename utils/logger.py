@@ -30,4 +30,4 @@ class Logger:
 
 script_path = script_abs_path(__file__)
 log_path = str(script_path.parent.joinpath(Logger.DEFAULT_LOG_FILE_NAME))
-logger = Logger(log_path)
+LOGGER = Logger(log_path)

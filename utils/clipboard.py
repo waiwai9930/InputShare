@@ -2,7 +2,7 @@ import threading
 import time
 import pyperclip
 
-from utils.logger import logger, LogType
+from utils.logger import LOGGER, LogType
 
 class Clipboard:
     wait_time_second = 0.1
@@ -18,7 +18,7 @@ class Clipboard:
                     return pyperclip.paste()
                 except pyperclip.PyperclipWindowsException:
                     time.sleep(Clipboard.wait_time_second)
-            logger.write(LogType.Error, "Failed to access clipboard after several attempts.")
+            LOGGER.write(LogType.Error, "Failed to access clipboard after several attempts.")
             return None
 
     @staticmethod
@@ -30,4 +30,4 @@ class Clipboard:
                     return
                 except pyperclip.PyperclipWindowsException:
                     time.sleep(Clipboard.wait_time_second)
-            logger.write(LogType.Error, "Failed to copy to clipboard after several attempts.")
+            LOGGER.write(LogType.Error, "Failed to copy to clipboard after several attempts.")

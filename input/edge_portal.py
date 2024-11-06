@@ -3,7 +3,7 @@ import threading
 import pynput
 from typing import Callable
 from utils import screen_size
-from utils.logger import logger, LogType
+from utils.logger import LOGGER, LogType
 
 screen_width, screen_height = screen_size()
 mouse_controller = pynput.mouse.Controller()
@@ -40,7 +40,7 @@ def create_edge_portal():
         start_event.wait()
         portal_loop(interval_sec)
         start_event.clear()
-    logger.write(LogType.Info, "Edge portal closed.")
+    LOGGER.write(LogType.Info, "Edge portal closed.")
 
 def edge_portal_thread_factory() -> tuple[
     Callable[[], None], Callable[[], None], Callable[[], None]

@@ -3,26 +3,20 @@ import threading
 import pystray
 
 from typing import Callable
-from dataclasses import dataclass
 from PIL import Image
 
 from input.controller import schedule_toggle as main_schedule_toggle,\
                              schedule_exit as main_schedule_exit
 from scrcpy_client.clipboard_event import SetClipboardEvent
-from utils import script_abs_path
-from utils.i18n import i18n
+from ui import ICON_ICO_PATH
+from utils.i18n import I18N
 from utils.clipboard import Clipboard
-from utils.logger import logger, LogType
+from utils.logger import LOGGER, LogType
 
 Menu = pystray.Menu
 MenuItem = pystray.MenuItem
 
 tray = None
-
-@dataclass
-class Notification:
-    title: str
-    message: str
 
 def create_tray(client_socket: socket.socket):
     global tray
@@ -36,7 +30,7 @@ def create_tray(client_socket: socket.socket):
         try:
             client_socket.sendall(event.serialize())
         except Exception as e:
-            logger.write(LogType.Error, "Send data error: " + str(e))
+            LOGGER.write(LogType.Error, "Send data error: " + str(e))
             exit_tray()
 
     def toggle_sync_clipboard(_, item: MenuItem):
@@ -48,41 +42,43 @@ def create_tray(client_socket: socket.socket):
         assert tray is not None
         tray.stop()
 
-    icon_path = script_abs_path(__file__).joinpath("icon.ico")
-    tray_img = Image.open(icon_path)
+    tray_img = Image.open(ICON_ICO_PATH)
     tray_menu = Menu(
         MenuItem(
-            i18n(["Enable sharing", "开启键鼠共享"]),
+            I18N(["Enable sharing", "开启键鼠共享"]),
             main_schedule_toggle),
         Menu.SEPARATOR,
         MenuItem(
-            i18n(["Sync clipboard", "同步剪贴板"]),
+            I18N(["Sync clipboard", "同步剪贴板"]),
             action=toggle_sync_clipboard,
             checked=lambda _: Clipboard.sync_clipboard),
         MenuItem(
-            i18n(["Send clipboard text", "发送当前剪贴板文本"]),
+            I18N(["Send clipboard text", "发送当前剪贴板文本"]),
             send_clipboard_text),
         Menu.SEPARATOR,
         MenuItem(
-            i18n(["Exit", "退出"]),
+            I18N(["Exit", "退出"]),
             exit_tray),
     )
     tray = pystray.Icon(
         "InputShare",
-        title=i18n(["InputShare", "输入流转"]),
+        title=I18N(["InputShare", "输入流转"]),
         icon=tray_img,
         menu=tray_menu,
     )
     tray.run()
 
-def tray_thread_factory(client_socket: socket.socket) -> Callable[[Notification | None], None]:
-    def close_tray(reason: Notification | None):
+def tray_thread_factory(client_socket: socket.socket) -> Callable[[], None]:
+    def close_tray():
         global tray
         assert tray is not None
-        if reason is not None:
-            tray.notify(reason.message, reason.title)
         tray.stop()
+        LOGGER.write(LogType.Info, "Tray stopped.")
 
-    thread = threading.Thread(target=create_tray, args=[client_socket])
+    thread = threading.Thread(
+        target=create_tray,
+        args=[client_socket],
+        daemon=True,
+    )
     thread.start()
     return close_tray
