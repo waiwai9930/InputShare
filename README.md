@@ -70,6 +70,7 @@ The shortcuts following are available after connection and not sharing:
 | `<Alt>+DOWN` | Scroll Down |
 | `<Alt>+[` | Previous Media |
 | `<Alt>+]` | Next Media |
+| `<Alt>+\` | Play / Pause Media |
 
 ## Development
 
