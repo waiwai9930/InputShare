@@ -88,7 +88,9 @@ key_scancode_map: dict[Key | KeyCode, SDL_Scancode | HIDKeymod | AKeyCode] = {
     Key.shift:   HIDKeymod.HID_MOD_SHIFT,
     Key.shift_l: HIDKeymod.HID_MOD_LEFT_SHIFT,
     Key.shift_r: HIDKeymod.HID_MOD_RIGHT_SHIFT,
-    Key.cmd:     AKeyCode.AKEYCODE_ALL_APPS,
+    Key.cmd:     HIDKeymod.HID_MOD_LEFT_GUI,
+    Key.cmd_l:   HIDKeymod.HID_MOD_LEFT_GUI,
+    Key.cmd_r:   HIDKeymod.HID_MOD_RIGHT_GUI,
 
     KeyCode.from_vk(37): SDL_Scancode.SDL_SCANCODE_LEFT,
     KeyCode.from_vk(38): SDL_Scancode.SDL_SCANCODE_UP,

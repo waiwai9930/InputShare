@@ -38,6 +38,7 @@ def close_notification_resolver(errno: Exception | None):
                 I18N(["Error", "错误"]),
                 I18N([f"Unknown error: {error_name}", f"未知错误：{error_name}"]),
             )
+    adbutils.AdbClient().server_kill()
     LOGGER.write(LogType.Info, "Terminated with: " + str(close_notification))
     send_notification(close_notification)
 

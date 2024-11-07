@@ -66,13 +66,13 @@ def create_tray(client_socket: socket.socket):
         icon=tray_img,
         menu=tray_menu,
     )
+    LOGGER.write(LogType.Info, "Tray started.")
     tray.run()
 
 def tray_thread_factory(client_socket: socket.socket) -> Callable[[], None]:
     def close_tray():
         global tray
-        assert tray is not None
-        tray.stop()
+        if tray is not None: tray.stop()
         LOGGER.write(LogType.Info, "Tray stopped.")
 
     thread = threading.Thread(

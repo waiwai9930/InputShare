@@ -1,6 +1,7 @@
 import socket
 import subprocess
 import sys
+import time
 
 from pathlib import Path
 from adbutils import AdbClient, AdbDevice
@@ -41,6 +42,7 @@ cleanup=false raw_stream=true send_dummy_byte=true max_size=4096"
         sys.exit(1)
 
     LOGGER.write(LogType.Server, output)
+    time.sleep(1)
     return process
 
 class InvalidDummyByteException(Exception): pass

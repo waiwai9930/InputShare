@@ -112,7 +112,7 @@ def callback_context_wrapper(
         if last_mouse_point is None:
             last_mouse_point = (cur_x, cur_y)
             return None
-        smooth_factor = 0.8
+        smooth_factor = 0.6
         last_x, last_y = last_mouse_point
         last_mouse_point = (cur_x, cur_y)
 
@@ -127,14 +127,14 @@ def callback_context_wrapper(
         if not is_redirecting:
             last_mouse_point = None
             return
-    
+
         if edge_portal_passing_event.is_set():
             last_mouse_point = None
             edge_portal_passing_event.clear()
             return
         res = compute_mouse_pointer_diff(cur_x, cur_y)
-        if res is None:
-            return
+        if res is None: return
+
         diff_x, diff_y = res
         mouse_move_event = MouseMoveEvent(diff_x, diff_y, mouse_button_state)
         return send_data(mouse_move_event.serialize())

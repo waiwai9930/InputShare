@@ -1,3 +1,4 @@
+import sys, os
 from enum import Enum
 from utils import script_abs_path
 
@@ -28,6 +29,10 @@ class Logger:
         self.file.write(complete_log_message + "\n")
         self.file.flush()
 
-script_path = script_abs_path(__file__)
-log_path = str(script_path.parent.joinpath(Logger.DEFAULT_LOG_FILE_NAME))
+if getattr(sys, 'frozen', False):
+    log_base_dir = os.path.dirname(sys.executable)
+else:
+    script_path = script_abs_path(__file__)
+    log_base_dir = script_path.parent
+log_path = os.path.join(log_base_dir, Logger.DEFAULT_LOG_FILE_NAME)
 LOGGER = Logger(log_path)
