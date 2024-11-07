@@ -37,7 +37,7 @@ For wireless connection:
 
 1. Enable the __Wireless Debugging__ in the Developer Settings page
 2. Run the executable
-3. On your Android device: Open __Pair device with pairing code__ option and input the IP address and port and the pairing code into the pairing tab of connecting window
+3. On your Android device: Open __Pair device with pairing code__ option and input the IP address and port and the pairing code into the pairing tab of connecting window (This is the pairing step which is generally needed for the first time use)
 4. Input the IP address and port in the main __Wireless Debugging__ into the connecting tab of connection window
 5. Enjoy your mouse and keyboard on Android device
 
