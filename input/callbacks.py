@@ -1,5 +1,8 @@
 import socket
+import threading
+import time
 
+from collections import deque
 from typing import Callable
 from pynput import mouse, keyboard
 from scrcpy_client import key_scancode_map
@@ -106,21 +109,46 @@ def callback_context_wrapper(
     send_data(mouse_init.serialize())
     last_mouse_point: tuple[int, int] | None = None
     mouse_button_state = MouseButtonStateStore()
+    movement_queue: deque[tuple[int, int]] = deque()
+
+    from input.controller import schedule_exit
+    def mouse_movement_sender():
+        nonlocal send_data
+        INTERVAL_SEC = 1 / 120
+        last_call_time = time.perf_counter()
+        while True:
+            call_time_diff = time.perf_counter() - last_call_time
+            last_call_time = time.perf_counter()
+            if call_time_diff < INTERVAL_SEC:
+                time.sleep(INTERVAL_SEC - call_time_diff)
+
+            if len(movement_queue) == 0:
+                event = MouseMoveEvent(0, 0, mouse_button_state)
+                res = send_data(event.serialize())
+                if res is not None: schedule_exit(res); break
+                continue
+
+            x, y = movement_queue.popleft()
+            event = MouseMoveEvent(x, y, mouse_button_state)
+            res = send_data(event.serialize())
+            if res is not None: schedule_exit(res); break
+    threading.Thread(target=mouse_movement_sender, daemon=True).start()
 
     def compute_mouse_pointer_diff(cur_x: int, cur_y: int) -> tuple[int, int] | None:
         nonlocal last_mouse_point
         if last_mouse_point is None:
             last_mouse_point = (cur_x, cur_y)
             return None
-        smooth_factor = 0.6
         last_x, last_y = last_mouse_point
         last_mouse_point = (cur_x, cur_y)
 
-        smoothed_x = int(smooth_factor * cur_x + (1 - smooth_factor) * last_x)
-        smoothed_y = int(smooth_factor * cur_y + (1 - smooth_factor) * last_y)
-        diff_x = smoothed_x - last_x
-        diff_y = smoothed_y - last_y
-        return (diff_x, diff_y)
+        diff_x = cur_x - last_x
+        diff_y = cur_y - last_y
+        speed = (diff_x ** 2 + diff_y ** 2) ** 0.5
+        adjusted_scale = 1 if speed == 0 else min(1, 2 / (speed ** 0.5))
+        diff_x = int(diff_x * adjusted_scale)
+        diff_y = int(diff_y * adjusted_scale)
+        return diff_x, diff_y
 
     def mouse_move_callback(cur_x: int, cur_y: int, is_redirecting: bool) -> CallbackResult:
         nonlocal last_mouse_point
@@ -134,10 +162,7 @@ def callback_context_wrapper(
             return
         res = compute_mouse_pointer_diff(cur_x, cur_y)
         if res is None: return
-
-        diff_x, diff_y = res
-        mouse_move_event = MouseMoveEvent(diff_x, diff_y, mouse_button_state)
-        return send_data(mouse_move_event.serialize())
+        movement_queue.append(res)
 
     def mouse_click_callback(_cur_x: int, _cur_y: int, button: mouse.Button, pressed: bool, is_redirecting: bool) -> CallbackResult:
         nonlocal last_mouse_point

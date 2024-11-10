@@ -19,11 +19,12 @@ def schedule_toggle():
     global toggle_event
     toggle_event.set()
 
-def schedule_exit():
-    global exit_event
+def schedule_exit(errno: Exception | None = None):
+    global exit_event, main_errno
+    if errno is not None:
+        main_errno = errno
     schedule_toggle()
     exit_event.set()
-
 
 switch_hotkey = keyboard.HotKey(keyboard.HotKey.parse(SWITCH_KEY_COMBINATION), schedule_toggle)
 exit_hotkey = keyboard.HotKey(keyboard.HotKey.parse(EXIT_KEY_COMBINATION), schedule_exit)
@@ -39,9 +40,7 @@ def keyboard_press_handler_factory(callback: KeyEventCallback):
         exit_hotkey.press(canonical_k)
 
         res = callback(canonical_k, is_redirecting)
-        if res is not None:
-            main_errno = res
-            schedule_exit()
+        if res is not None: schedule_exit(res)
     return keyboard_press_handler
 
 def keyboard_release_handler_factory(callback: KeyEventCallback):
@@ -55,36 +54,28 @@ def keyboard_release_handler_factory(callback: KeyEventCallback):
         exit_hotkey.release(canonical_k)
 
         res = callback(canonical_k, is_redirecting)
-        if res is not None:
-            main_errno = res
-            schedule_exit()
+        if res is not None: schedule_exit(res)
     return keyboard_release_handler
 
 def mouse_move_handler_factory(callback: MouseMoveCallback):
     def mouse_move_handler(x: int, y: int):
         global is_redirecting, main_errno
         res = callback(x, y, is_redirecting)
-        if res is not None:
-            main_errno = res
-            schedule_exit()
+        if res is not None: schedule_exit(res)
     return mouse_move_handler
 
 def mouse_click_handler_factory(callback: MouseClickCallback):
     def mouse_click_handler(x: int, y: int, button: mouse.Button, pressed: bool):
         global is_redirecting, main_errno
         res = callback(x, y, button, pressed, is_redirecting)
-        if res is not None:
-            main_errno = res
-            schedule_exit()
+        if res is not None: schedule_exit(res)
     return mouse_click_handler
 
 def mouse_scroll_handler_factory(callback: MouseScrollCallback):
     def mouse_scroll_handler(x: int, y: int, dx: int, dy: int):
         global is_redirecting, main_errno
         res = callback(x, y, dx, dy, is_redirecting)
-        if res is not None:
-            main_errno = res
-            schedule_exit()
+        if res is not None: schedule_exit(res)
     return mouse_scroll_handler
 
 def main_loop(
