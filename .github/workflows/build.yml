@@ -55,4 +55,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: output/macos_your_script.zip
+          files: InputShare-win-x64.zip
