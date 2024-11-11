@@ -32,6 +32,7 @@ jobs:
 
       - name: Build executable with PyInstaller
         run: |
+          ./build_venv/Scripts/activate
           pyinstaller --windowed --icon=ui/icon.ico --add-data "./ui/icon.ico;ui/" --add-data "./ui/icon.png;ui/" --add-data "./adb-bin/;adb-bin/" --add-data "./server/scrcpy-server;server/" --add-data "./build_venv/Lib/site-packages/customtkinter;customtkinter/" main.py
         env:
           PYTHONUNBUFFERED: 1
