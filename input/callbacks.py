@@ -109,25 +109,35 @@ def callback_context_wrapper(
     send_data(mouse_init.serialize())
     last_mouse_point: tuple[int, int] | None = None
     mouse_button_state = MouseButtonStateStore()
-    movement_queue: deque[tuple[int, int]] = deque()
+    movement_queue: deque[tuple[int, int]] = deque(maxlen=4)
 
     from input.controller import schedule_exit
     def mouse_movement_sender():
         nonlocal send_data
-        INTERVAL_SEC = 1 / 120
+        DEFAULT_INTERVAL_SEC = 1 / 120
+        INTERVAL_INCR = 1 / 30
+        INTERVAL_INCR_FACTOR = 60
+
+        interval_sec = DEFAULT_INTERVAL_SEC
+        no_move_counter = 0
         last_call_time = time.perf_counter()
         while True:
             call_time_diff = time.perf_counter() - last_call_time
             last_call_time = time.perf_counter()
-            if call_time_diff < INTERVAL_SEC:
-                time.sleep(INTERVAL_SEC - call_time_diff)
+            if call_time_diff < interval_sec:
+                time.sleep(interval_sec - call_time_diff)
 
             if len(movement_queue) == 0:
+                no_move_counter += 1
+                if no_move_counter > INTERVAL_INCR_FACTOR:
+                    interval_sec = INTERVAL_INCR
                 event = MouseMoveEvent(0, 0, mouse_button_state)
                 res = send_data(event.serialize())
                 if res is not None: schedule_exit(res); break
                 continue
 
+            no_move_counter = 0
+            interval_sec = DEFAULT_INTERVAL_SEC
             x, y = movement_queue.popleft()
             event = MouseMoveEvent(x, y, mouse_button_state)
             res = send_data(event.serialize())
