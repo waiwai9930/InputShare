@@ -29,7 +29,7 @@ class Logger:
         self.file.write(complete_log_message + "\n")
         self.file.flush()
 
-if getattr(sys, 'frozen', False):
+if getattr(sys, "frozen", False):
     log_base_dir = os.path.dirname(sys.executable)
 else:
     script_path = script_abs_path(__file__)

@@ -18,8 +18,9 @@ def push_server(device: AdbDevice):
     server_binary_path = Path.joinpath(script_path, server_relative_path)
     device.push(str(server_binary_path), target_path)
 
-def server_process_factory():
+def server_process_factory() -> subprocess.Popen:
     adb_client = AdbClient()
+    # todo: check for if has device
     device = adb_client.device_list()[0]
     push_server(device)
     device.forward(f"tcp:{SERVER_PORT}", "localabstract:scrcpy")

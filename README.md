@@ -72,6 +72,21 @@ The shortcuts following are available after connection and not sharing:
 | `<Alt>+]` | Next Media |
 | `<Alt>+\` | Play / Pause Media |
 
+## FAQ
+
+### How to enable wireless debugging quickly?
+
+You can refer to this video to add the Wireless Debugging to Quick Setting Shortcut:
+[How To Add / Remove Wireless Debugging Quick Setting Shortcut](https://www.youtube.com/watch?v=_MMpawUGeKI)
+
+### Does it share the screen of Android device to the computer?
+
+No, __InputShare__ only shares the keyboard and mouse, it will not mirror the screen of your Android device to your computer.
+
+### Do I need to configure ADB by myself?
+
+No, there is a built-in ADB packaged, which will be called automatically.
+
 ## Development
 
 Clone this repo:
