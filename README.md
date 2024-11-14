@@ -1,6 +1,13 @@
-# InputShare
-
-[中文介绍](README_zh.md)
+<div style="text-align: center">
+    <br />
+    <img src="./ui/icon.png" alt="InputShare Logo" width="160" height="160" />
+    <h1>InputShare</h1>
+    <a href="README_zh.md">中文介绍</a> | 
+    <a href="https://bhznjns.github.io/InputShare/">Homepage</a> | 
+    <a href="https://github.com/BHznJNs/InputShare/issues">Feedback</a>
+    <br />
+    <br />
+</div>
 
 __InputShare__ enables you to share the keyboard and mouse of your computer with an Android device via ADB in wired / wireless way.
 

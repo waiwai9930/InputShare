@@ -1,4 +1,13 @@
-# 输入流转
+<div style="text-align: center">
+    <br />
+    <img src="./ui/icon.png" alt="输入流转 Logo" width="160" height="160" />
+    <h1>输入流转</h1>
+    <a href="README_zh.md">中文介绍</a> | 
+    <a href="https://bhznjns.github.io/InputShare/">项目主页</a> | 
+    <a href="https://github.com/BHznJNs/InputShare/issues">问题反馈</a>
+    <br />
+    <br />
+</div>
 
 __输入流转__ 能够让你的安卓设备通过有线/无线的方式和电脑**共享键鼠**。
 
