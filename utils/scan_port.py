@@ -1,26 +1,45 @@
-import asyncio
+import selectors
+import socket
+from concurrent.futures import Future, ThreadPoolExecutor
 
-async def test_single_port(ip: str, port: int) -> int | None:
-    connection = asyncio.open_connection(ip, port)
-    try:
-        _, writer = await asyncio.wait_for(connection, timeout=0.2)
-        writer.close()
-        await writer.wait_closed()
-        return port
-    except: return None
+from utils.logger import LOGGER, LogType
 
-async def inner_port_scan(ip: str, start_port: int, end_port: int, step=1024) -> int | None:
-    for i in range(start_port, end_port, step):
-        port_range = range(i, min(end_port, i + step))
-        tasks = [test_single_port(ip, port) for port in port_range]
-        results = await asyncio.gather(*tasks)
+DEFAULT_START_PORT = 32000
+DEFAULT_END_PORT = 47000
+DEFAULT_STEP = 512
+DEFAULT_CONNECT_TIMEOUT = 0.6
 
-        for result in results:
-            if result is None: continue
-            return result
+def test_batch_port(ip: str, start_port: int, end_port: int) -> int | None:
+    selector = selectors.DefaultSelector()
+
+    for port in range(start_port, end_port):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.setblocking(False)
+        sock.connect_ex((ip, port))
+        selector.register(sock, selectors.EVENT_WRITE)
+
+    events = selector.select(timeout=DEFAULT_CONNECT_TIMEOUT)
+    port = None
+    for event_key, _ in events:
+        target_sock = event_key.fileobj
+        _, port = target_sock.getpeername() # type: ignore
+    selector.close()
+    if port is not None: return port
 
 def scan_port(ip: str) -> int | None:
-    start_port = 32000
-    end_port = 47000
-    target_port = asyncio.run(inner_port_scan(ip, start_port, end_port))
+    executor = ThreadPoolExecutor(max_workers=4)
+    futures: list[Future] = []
+    for i in range(DEFAULT_START_PORT, DEFAULT_END_PORT, DEFAULT_STEP):
+        future = executor.submit(test_batch_port, ip, i, min(DEFAULT_END_PORT, i + DEFAULT_STEP))
+        futures.append(future)
+
+    target_port = None
+    for future in futures:
+        try:
+            result = future.result()
+            if result is None: continue
+            target_port = result; break
+        except Exception as e:
+            LOGGER.write(LogType.Error, "Port scanning error: " + str(e))
+    executor.shutdown(cancel_futures=True)
     return target_port
