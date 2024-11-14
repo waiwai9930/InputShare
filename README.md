@@ -1,4 +1,4 @@
-<div style="text-align: center">
+<div align="center">
     <br />
     <img src="./ui/icon.png" alt="InputShare Logo" width="160" height="160" />
     <h1>InputShare</h1>

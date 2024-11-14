@@ -1,4 +1,4 @@
-<div style="text-align: center">
+<div align="center">
     <br />
     <img src="./ui/icon.png" alt="输入流转 Logo" width="160" height="160" />
     <h1>输入流转</h1>
