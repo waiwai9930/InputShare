@@ -9,6 +9,7 @@ from input.controller import schedule_toggle as main_schedule_toggle,\
                              schedule_exit as main_schedule_exit
 from scrcpy_client.clipboard_event import SetClipboardEvent
 from ui import ICON_ICO_PATH
+from utils.config_manager import CONFIG
 from utils.i18n import I18N
 from utils.clipboard import Clipboard
 from utils.logger import LOGGER, LogType
@@ -34,7 +35,7 @@ def create_tray(client_socket: socket.socket):
             exit_tray()
 
     def toggle_sync_clipboard(_, item: MenuItem):
-        Clipboard.sync_clipboard = not item.checked
+        CONFIG.config.sync_clipboard = not item.checked
 
     def exit_tray():
         global tray
@@ -51,7 +52,7 @@ def create_tray(client_socket: socket.socket):
         MenuItem(
             I18N(["Sync clipboard", "同步剪贴板"]),
             action=toggle_sync_clipboard,
-            checked=lambda _: Clipboard.sync_clipboard),
+            checked=lambda _: CONFIG.config.sync_clipboard),
         MenuItem(
             I18N(["Send clipboard text", "发送当前剪贴板文本"]),
             send_clipboard_text),

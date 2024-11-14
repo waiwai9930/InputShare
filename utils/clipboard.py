@@ -8,7 +8,6 @@ class Clipboard:
     wait_time_second = 0.1
     retry_times = 5
     clipboard_lock = threading.Lock()
-    sync_clipboard = True
 
     @staticmethod
     def safe_paste() -> str | None:
