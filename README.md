@@ -14,9 +14,9 @@ __InputShare__ enables you to share the keyboard and mouse of your computer with
 
 ## Screenshots
 
-![Pairing UI](./screenshots/pairing_en.png)
-![Connecting UI](./screenshots/connecting_en.png)
-![System Tray](./screenshots/tray_selections_en.png)
+| Pairing | Connecting | System Tray |
+| --- | --- | --- |
+| ![Pairing UI](./screenshots/pairing_en.png) | ![Connecting UI](./screenshots/connecting_en.png) | ![System Tray](./screenshots/tray_selections_en.png) |
 
 ## Install
 
