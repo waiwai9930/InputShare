@@ -12,12 +12,15 @@ from utils.config_manager import CONFIG
 from utils.logger import LOGGER, LogType
 
 is_redirecting = False
+keyboard_controller = keyboard.Controller()
 toggle_event = threading.Event()
 exit_event = threading.Event()
 main_errno: Exception | None = None
 
 def schedule_toggle():
     global toggle_event
+    keyboard_controller.release(keyboard.Key.ctrl)
+    keyboard_controller.release(keyboard.Key.alt)
     toggle_event.set()
 
 def schedule_exit(errno: Exception | None = None):
@@ -93,8 +96,9 @@ def main_loop(
         nonlocal show_mask, hide_mask,\
             start_edge_portal, pause_edge_portal
         if is_redirecting:
-            show_mask()
-            start_edge_portal()
+            if CONFIG.config.share_mouse:
+                show_mask()
+                start_edge_portal()
             LOGGER.write(LogType.Info, "Input redirecting enabled.")
         else:
             send_data(KeyEmptyEvent().serialize())
@@ -130,7 +134,7 @@ def main_loop(
             break
 
         keyboard_listener = keyboard.Listener(
-            suppress=is_redirecting,
+            suppress=is_redirecting and CONFIG.config.share_keyboard,
             on_press=keyboard_press_handler_factory(keyboard_press_callback),
             on_release=keyboard_release_handler_factory(keyboard_release_callback),
         )

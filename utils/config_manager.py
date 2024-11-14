@@ -11,6 +11,8 @@ DEFAULT_CONFIG_FILE_NAME = "config.json"
 class ConfigFile:
     device_ip1: str = ""
     sync_clipboard: bool = True
+    share_mouse: bool = True
+    share_keyboard: bool = True
 
 class ConfigManager:
     path: str
