@@ -11,6 +11,8 @@ from utils.logger import LOGGER, LogType
 
 SERVER_PORT = 1234
 
+class ADBConnectionError(Exception): pass
+
 def push_server(device: AdbDevice):
     server_relative_path = "scrcpy-server"
     target_path = "/data/local/tmp/scrcpy-server-manual.jar"
@@ -18,12 +20,15 @@ def push_server(device: AdbDevice):
     server_binary_path = Path.joinpath(script_path, server_relative_path)
     device.push(str(server_binary_path), target_path)
 
-def server_process_factory() -> subprocess.Popen:
+def server_process_factory() -> subprocess.Popen | Exception:
     adb_client = AdbClient()
-    # todo: check for if has device
-    device = adb_client.device_list()[0]
-    push_server(device)
-    device.forward(f"tcp:{SERVER_PORT}", "localabstract:scrcpy")
+    device_list = adb_client.device_list()
+    if len(device_list) == 0:
+        return ADBConnectionError()
+
+    primary_device = device_list[0]
+    push_server(primary_device)
+    primary_device.forward(f"tcp:{SERVER_PORT}", "localabstract:scrcpy")
 
     command = "CLASSPATH=/data/local/tmp/scrcpy-server-manual.jar \
 app_process / com.genymobile.scrcpy.Server 2.7 \
@@ -40,8 +45,7 @@ cleanup=false raw_stream=true send_dummy_byte=true max_size=4096"
         output = process.stdout.readline() # type: ignore
     except Exception as e:
         LOGGER.write(LogType.Error, "Failed to start subprocess: " + str(e))
-        sys.exit(1)
-
+        return e
     LOGGER.write(LogType.Server, output)
     time.sleep(1)
     return process

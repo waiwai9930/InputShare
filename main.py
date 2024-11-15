@@ -4,7 +4,7 @@ import adbutils
 
 from multiprocessing import freeze_support
 from input.controller import main_loop
-from server import InvalidDummyByteException, server_process_factory, try_connect_server
+from server import ADBConnectionError, InvalidDummyByteException, server_process_factory, try_connect_server
 from server.receiver import server_receiver_factory
 from input.callbacks import callback_context_wrapper
 from ui.connecting_window import open_connecting_window
@@ -17,6 +17,11 @@ def close_notification_resolver(errno: Exception | None):
     close_notification = None
     match errno:
         case None: pass
+        case ADBConnectionError():
+            close_notification = Notification(
+                I18N(["ConnectionError", "连接错误"]),
+                I18N(["Wired connection failed, please check if the device is connected correctly.", "有线连接失败，请检查是否正确连接设备。"]),
+            )
         case socket.timeout | TimeoutError():
             close_notification = Notification(
                 I18N(["NetworkError", "网络错误"]),
@@ -48,6 +53,10 @@ if __name__ == "__main__":
     open_connecting_window()
 
     server_process = server_process_factory()
+    if isinstance(server_process, Exception):
+        close_notification_resolver(server_process)
+        sys.exit(1)
+
     client_socket = try_connect_server("localhost")
     if not isinstance(client_socket, socket.socket):
         close_notification_resolver(client_socket)
