@@ -34,10 +34,8 @@ def create_tray(client_socket: socket.socket):
             LOGGER.write(LogType.Error, "Send data error: " + str(e))
             exit_tray()
 
-    def toggle_share_mouse(_, item: MenuItem):
-        CONFIG.config.share_mouse = not item.checked
-    def toggle_share_keyboard(_, item: MenuItem):
-        CONFIG.config.share_keyboard = not item.checked
+    def toggle_share_keyboard_only(_, item: MenuItem):
+        CONFIG.config.share_keyboard_only = not item.checked
     def toggle_sync_clipboard(_, item: MenuItem):
         CONFIG.config.sync_clipboard = not item.checked
 
@@ -51,27 +49,23 @@ def create_tray(client_socket: socket.socket):
     tray_menu = Menu(
         MenuItem(
             I18N(["Enable sharing", "开启键鼠共享"]),
-            main_schedule_toggle),
+            action=main_schedule_toggle),
+        MenuItem(
+            I18N(["Send clipboard text", "发送当前剪贴板文本"]),
+            action=send_clipboard_text),
         Menu.SEPARATOR,
         MenuItem(
-            I18N(["Share Mouse", "共享鼠标"]),
-            action=toggle_share_mouse,
-            checked=lambda _: CONFIG.config.share_mouse),
-        MenuItem(
-            I18N(["Share Keyboard", "共享键盘"]),
-            action=toggle_share_keyboard,
-            checked=lambda _: CONFIG.config.share_keyboard),
+            I18N(["Share keyboard only", "仅共享键盘"]),
+            action=toggle_share_keyboard_only,
+            checked=lambda _: CONFIG.config.share_keyboard_only),
         MenuItem(
             I18N(["Sync clipboard", "同步剪贴板"]),
             action=toggle_sync_clipboard,
             checked=lambda _: CONFIG.config.sync_clipboard),
-        MenuItem(
-            I18N(["Send clipboard text", "发送当前剪贴板文本"]),
-            send_clipboard_text),
         Menu.SEPARATOR,
         MenuItem(
             I18N(["Exit", "退出"]),
-            exit_tray),
+            action=exit_tray),
     )
     tray = pystray.Icon(
         "InputShare",

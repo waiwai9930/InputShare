@@ -1,5 +1,9 @@
 import sys
+import threading
 import customtkinter as ctk
+
+from dataclasses import dataclass
+from queue import Queue
 
 from adb_controller import try_connect_device, try_pairing
 from ui import ICON_ICO_PATH
@@ -93,39 +97,82 @@ def mount_pairing_view(tabview: ctk.CTkTabview, connecting_addr_entry: ctk.CTkEn
     button2.pack(side=ctk.RIGHT)
 
 def mount_connecting_view(tabview: ctk.CTkTabview) -> ctk.CTkEntry:
-    def connect_callback():
-        nonlocal addr_entry, auto_scan_port, error_label, waiting_label
-        error_label.configure(text=""); error_label.update()
-        waiting_label.configure(text=I18N(["Connecting, may take some time...", "连接中，可能需要一些时间..."])); waiting_label.update()
+    @dataclass
+    class ProcessError: msg: str
+    process_data_queue: Queue[str | ProcessError] = Queue()
 
-        adb_addr = addr_entry.get().strip()
-        valid_ip_str = is_valid_ip_str(adb_addr)
-        valid_ip_addr_part = is_valid_ip_addr_part(adb_addr)
-        if auto_scan_port.get() == 1:
+    def process_ip_port(addr: str, to_scan_port: bool):
+        valid_ip_str = is_valid_ip_str(addr)
+        valid_ip_addr_part = is_valid_ip_addr_part(addr)
+        if to_scan_port:
             if not valid_ip_str and not valid_ip_addr_part:
-                error_label.configure(text=I18N(["Invalid connecting address!", "连接地址无效！"]))
-                waiting_label.configure(text="")
+                process_data_queue.put(
+                    ProcessError(I18N(["Invalid connecting address!", "连接地址无效！"])))
                 return
+            # format address string into ip_part only string
+            ip_addr_part = addr if valid_ip_addr_part else get_ip_addr_part(addr)
 
-            ip_addr_part = adb_addr if valid_ip_addr_part else get_ip_addr_part(adb_addr)
             target_port = scan_port(ip_addr_part)
             if target_port is None:
-                error_label.configure(text=I18N(["Port scanning failed, please check the IP address.", "扫描端口失败，请检查 IP 地址是否正确。"]))
-                waiting_label.configure(text="")
+                process_data_queue.put(
+                    ProcessError(I18N(["Port scanning failed, please check the IP address.", "扫描端口失败，请检查 IP 地址是否正确。"])))
                 return
-            adb_addr = f"{ip_addr_part}:{target_port}"
+            process_data_queue.put(f"{ip_addr_part}:{target_port}")
         elif not valid_ip_str:
-            error_label.configure(text=I18N(["Invalid connecting address!", "配对地址无效！"]))
-            waiting_label.configure(text="")
+            # not to_scan_port and ip-port address string is not valid
+            process_data_queue.put(
+                ProcessError(I18N(["Invalid connecting address!", "配对地址无效！"])))
+        else: process_data_queue.put(addr)
+
+    def process_callback():
+        global connecting_window
+        nonlocal error_label, waiting_label
+        if process_data_queue.empty():
+            # wait for ip_port data processed
+            connecting_window.after(func=process_callback, ms=100)
             return
 
-        ret = try_connect_device(adb_addr)
+        connect_addr = process_data_queue.get()
+        if type(connect_addr) == ProcessError:
+            error_label.configure(text=connect_addr.msg)
+            waiting_label.configure(text="")
+            enable_widgets()
+            connecting_window.configure(cursor="arrow")
+            return
+
+        assert type(connect_addr) == str
+        # got valid ip_port string, connect
+        ret = try_connect_device(connect_addr)
         if ret is None:
             error_label.configure(text=I18N(["Connecting failed, please retry.", "连接失败！"]))
             waiting_label.configure(text="")
             return
-        CONFIG.config.device_ip1 = get_ip_addr_part(adb_addr)
+        CONFIG.config.device_ip1 = get_ip_addr_part(connect_addr)
         connecting_window.destroy()
+
+    def enable_widgets():
+        nonlocal addr_entry, auto_scan_port, button1, button2
+        for wid in [addr_entry, auto_scan_port, button1, button2]:
+            wid.configure(state="normal")
+
+    def disable_widgets():
+        nonlocal addr_entry, auto_scan_port, button1, button2
+        for wid in [addr_entry, auto_scan_port, button1, button2]:
+            wid.configure(state="disabled")
+
+    def connect_callback():
+        global connecting_window
+        nonlocal addr_entry, auto_scan_port, error_label, waiting_label
+        error_label.configure(text=""); error_label.update()
+        waiting_label.configure(text=I18N(["Connecting, may take some time...", "连接中，可能需要一些时间..."])); waiting_label.update()
+
+        disable_widgets()
+        connecting_window.configure(cursor="watch")
+
+        adb_addr = addr_entry.get().strip()
+        to_scan_port = bool(auto_scan_port.get())
+        threading.Thread(target=process_ip_port, args=[adb_addr, to_scan_port]).start()
+        connecting_window.after(func=process_callback, ms=100)
 
     def need_not_connection_callback():
         connecting_window.destroy()

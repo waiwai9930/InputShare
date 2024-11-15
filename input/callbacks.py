@@ -2,7 +2,7 @@ import socket
 import threading
 import time
 
-from collections import deque
+from queue import Queue
 from typing import Callable
 from pynput import mouse, keyboard
 from scrcpy_client import key_scancode_map
@@ -64,7 +64,6 @@ def callback_context_wrapper(
         return None
 
     def keyboard_press_callback(k: keyboard.Key | keyboard.KeyCode, is_redirecting: bool) -> CallbackResult:
-        if not CONFIG.config.share_keyboard: return None
         if k not in key_scancode_map: return None
         generic_key = key_scancode_map[k]
         shortcut_data = customized_shortcuts(generic_key, is_redirecting)
@@ -91,7 +90,6 @@ def callback_context_wrapper(
         return send_data(key_event.serialize())
 
     def keyboard_release_callback(k: keyboard.Key | keyboard.KeyCode, is_redirecting: bool) -> CallbackResult:
-        if not CONFIG.config.share_keyboard: return None
         if k not in key_scancode_map: return None
         generic_key = key_scancode_map[k]
         if isinstance(generic_key, HIDKeymod):
@@ -112,7 +110,7 @@ def callback_context_wrapper(
     send_data(mouse_init.serialize())
     last_mouse_point: tuple[int, int] | None = None
     mouse_button_state = MouseButtonStateStore()
-    movement_queue: deque[tuple[int, int]] = deque(maxlen=4)
+    movement_queue: Queue[tuple[int, int]] = Queue(maxsize=4)
 
     from input.controller import schedule_exit
     def mouse_movement_sender():
@@ -130,7 +128,7 @@ def callback_context_wrapper(
             if call_time_diff < interval_sec:
                 time.sleep(interval_sec - call_time_diff)
 
-            if len(movement_queue) == 0:
+            if movement_queue.empty():
                 no_move_counter += 1
                 if no_move_counter > INTERVAL_INCR_FACTOR:
                     interval_sec = INTERVAL_INCR
@@ -141,7 +139,7 @@ def callback_context_wrapper(
 
             no_move_counter = 0
             interval_sec = DEFAULT_INTERVAL_SEC
-            x, y = movement_queue.popleft()
+            x, y = movement_queue.get()
             event = MouseMoveEvent(x, y, mouse_button_state)
             res = send_data(event.serialize())
             if res is not None: schedule_exit(res); break
@@ -165,7 +163,7 @@ def callback_context_wrapper(
 
     def mouse_move_callback(cur_x: int, cur_y: int, is_redirecting: bool) -> CallbackResult:
         nonlocal last_mouse_point
-        if not is_redirecting or not CONFIG.config.share_mouse:
+        if not is_redirecting or CONFIG.config.share_keyboard_only:
             last_mouse_point = None
             return None
 
@@ -175,11 +173,11 @@ def callback_context_wrapper(
             return None
         res = compute_mouse_pointer_diff(cur_x, cur_y)
         if res is None: return None
-        movement_queue.append(res)
+        movement_queue.put(res)
 
     def mouse_click_callback(_cur_x: int, _cur_y: int, button: mouse.Button, pressed: bool, is_redirecting: bool) -> CallbackResult:
         nonlocal last_mouse_point
-        if not is_redirecting or not CONFIG.config.share_mouse:
+        if not is_redirecting or CONFIG.config.share_keyboard_only:
             return None
 
         hid_button = HID_MouseButton.MOUSE_BUTTON_NONE
@@ -198,7 +196,7 @@ def callback_context_wrapper(
         return send_data(mouse_move_event.serialize())
     
     def mouse_scroll_callback(_cur_x: int, _cur_y: int, _dx: int, dy: int, is_redirecting: bool) -> CallbackResult:
-        if not is_redirecting or not CONFIG.config.share_mouse:
+        if not is_redirecting or CONFIG.config.share_keyboard_only:
             return None
         mouse_scroll_event = MouseScrollEvent(dy)
         return send_data(mouse_scroll_event.serialize())

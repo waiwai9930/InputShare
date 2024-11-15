@@ -96,24 +96,22 @@ def main_loop(
         nonlocal show_mask, hide_mask,\
             start_edge_portal, pause_edge_portal
         if is_redirecting:
-            if CONFIG.config.share_mouse:
-                show_mask()
-                start_edge_portal()
+            if not CONFIG.config.share_keyboard_only:
+                show_mask(); start_edge_portal()
             LOGGER.write(LogType.Info, "Input redirecting enabled.")
         else:
             send_data(KeyEmptyEvent().serialize())
-            hide_mask()
-            pause_edge_portal()
+            hide_mask(); pause_edge_portal()
             LOGGER.write(LogType.Info, "Input redirecting disabled.")
-    
+
     def toggle_callback(is_redirecting: bool):
         if is_redirecting:
             last_received = ReceivedClipboardText.read()
             current_clipboard_content = Clipboard.safe_paste()
             if not CONFIG.config.sync_clipboard: return
-            if last_received is None: return
             if current_clipboard_content is None: return
-            if last_received == current_clipboard_content: return
+            if last_received is not None and\
+               last_received == current_clipboard_content: return
             return send_data(SetClipboardEvent(current_clipboard_content).serialize())
 
     main_errno = send_data(GetClipboardEvent().serialize()) # start server clipboard sync
@@ -134,7 +132,7 @@ def main_loop(
             break
 
         keyboard_listener = keyboard.Listener(
-            suppress=is_redirecting and CONFIG.config.share_keyboard,
+            suppress=is_redirecting,
             on_press=keyboard_press_handler_factory(keyboard_press_callback),
             on_release=keyboard_release_handler_factory(keyboard_release_callback),
         )
