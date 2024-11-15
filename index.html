@@ -130,24 +130,9 @@
         p.logo {
             display: flex;
             align-items: center;
-            margin-bottom: 6rem;
             gap: 8px;
             color: var(--color-text-h1);
             font-weight: bold;
-        }
-
-        @media screen and (min-width: 1024px) {
-            h1 {
-                font-size: 3.75rem;
-            }
-
-            p.logo {
-                margin-bottom: 12rem;
-            }
-
-            .hero-container .gradient-wrapper {
-                background-position-x: 16rem !important;
-            }
         }
 
         a.download {
@@ -182,26 +167,80 @@
             pointer-events: none;
         }
 
-        @media screen and (min-width: 1024px) {
-            .hero-container .gradient-wrapper {
-                background-position-x: 16rem !important;
-            }
+        .hero {
+            margin: 0 2rem 3rem;
         }
 
-        .hero {
+        .hero .content {
             max-width: 48rem;
-            margin: 0 2rem 3rem;
+        }
+
+        .hero nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 1rem 0 8rem;
+        }
+
+        .hero nav p {
+            margin: 0;
+        }
+
+        .hero a.github {
+            position: relative;
+            bottom: 0;
+            padding-bottom: 0;
+            color: var(--color-text-h1) !important;
+            font-weight: bold;
+            text-decoration: none;
+            background-image: linear-gradient(
+                to right,
+                var(--color-text-h1),
+                var(--color-text-h1)
+            );
+            background-repeat: no-repeat;
+            background-position: right bottom;
+            background-size: 0 2px;
+            transition: bottom .3s,
+                        padding .15s,
+                        background-size .3s;
+        }
+        .hero a.github:hover {
+            bottom: 2px;
+            padding-bottom: 2px;
+            background-position: left bottom;
+            background-size: 100% 2px;
         }
 
         .hero .action span {
             margin-left: 1rem;
             color: var(--color-text-p);
+            font-size: .85rem;
         }
 
         .device-container {
             display: flex;
             justify-content: center;
             gap: 6rem;
+        }
+
+        
+        @media screen and (max-width: 768px) {
+            .hero p {
+                font-size: 1.125rem;
+            }
+        }
+
+        @media screen and (min-width: 1024px) {
+            h1 {
+                font-size: 3.75rem;
+            }
+            .hero nav {
+                margin-bottom: min(14rem, 40vh);
+            }
+            .hero-container .gradient-wrapper {
+                background-position-x: 16rem !important;
+            }
         }
 
         @media screen and (max-width: 768px) {
@@ -650,7 +689,7 @@
             margin: 0;
             font-size: 1rem;
             line-height: 1.5rem;
-            color: white;
+            color: var(--color-text-h1);
         }
 
         .how-to-use h3 {
@@ -702,6 +741,7 @@
 
         .shortcuts {
             margin: 0 1.5rem 4rem;
+            overflow-x: hidden;
         }
 
         .shortcuts p {
@@ -709,6 +749,9 @@
             margin-bottom: .8rem;
         }
 
+        .shortcuts .table-wrapper {
+            overflow-x: auto;
+        }
         .shortcuts table {
             width: 100%;
             margin-bottom: 1.2rem;
@@ -797,17 +840,20 @@
     <div class="hero-container">
         <div class="gradient-wrapper"></div>
         <div class="hero">
-            <p class="logo">
-                <img src="./ui/icon.png" width="36" height="36">InputShare
-            </p>
-            <h1>Effortless Android Device Control</h1>
-            <p>Seamlessly share your computer's keyboard and mouse with Android device using InputShare. Experience
-                smooth switching, clipboard sync, and both wired and wireless connections for ultimate productivity.
-            </p>
-            <div class="action">
-                <a class="download"
-                    href="https://github.com/BHznJNs/InputShare/releases/download/0.4.2/InputShare-win-x64-0.4.2.zip">Download</a><span>Free
-                    and open-source.</span>
+            <nav>
+                <p class="logo">
+                    <img src="./ui/icon.png" width="36" height="36">InputShare
+                </p>
+                <a class="github" href="https://github.com/BHznJNs/InputShare">GitHub</a>
+            </nav>
+            <div class="content">
+                <h1>Effortless Android Device Control</h1>
+                <p>Seamlessly share your computer's keyboard, mouse and clipboard with Android device using InputShare.</p>
+                <div class="action">
+                    <a class="download"
+                        href="https://github.com/BHznJNs/InputShare/releases/download/0.5.4/InputShare-win-x64.zip">Download</a><span>Free
+                        and open-source.</span>
+                </div>
             </div>
         </div>
     </div>
@@ -1026,286 +1072,290 @@
         <div class="content">
             <div class="shortcuts-sharing">
                 <p>Shortcuts below are available while sharing:</p>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Shortcut</th>
-                            <th>Description</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>S</kbd></td>
-                            <td>Toggle the sharing state</td>
-                            <td>
-                                <div class="icon-container">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-toggles" viewBox="0 0 16 16">
-                                        <path
-                                            d="M4.5 9a3.5 3.5 0 1 0 0 7h7a3.5 3.5 0 1 0 0-7h-7zm7 6a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5zm-7-14a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zm2.45 0A3.49 3.49 0 0 1 8 3.5 3.49 3.49 0 0 1 6.95 6h4.55a2.5 2.5 0 0 0 0-5H6.95zM4.5 0h7a3.5 3.5 0 1 1 0 7h-7a3.5 3.5 0 1 1 0-7z" />
-                                    </svg>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Q</kbd></td>
-                            <td>Quit the program</td>
-                            <td>
-                                <div class="icon-container">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-escape" viewBox="0 0 16 16">
-                                        <path
-                                            d="M8.538 1.02a.5.5 0 1 0-.076.998 6 6 0 1 1-6.445 6.444.5.5 0 0 0-.997.076A7 7 0 1 0 8.538 1.02Z" />
-                                        <path
-                                            d="M7.096 7.828a.5.5 0 0 0 .707-.707L2.707 2.025h2.768a.5.5 0 1 0 0-1H1.5a.5.5 0 0 0-.5.5V5.5a.5.5 0 0 0 1 0V2.732l5.096 5.096Z" />
-                                    </svg>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><kbd>F1</kbd></td>
-                            <td>Multi-task switching</td>
-                            <td>
-                                <div class="icon-container">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-grid-3x2" viewBox="0 0 16 16">
-                                        <path
-                                            d="M0 3.5A1.5 1.5 0 0 1 1.5 2h13A1.5 1.5 0 0 1 16 3.5v8a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 11.5v-8zM1.5 3a.5.5 0 0 0-.5.5V7h4V3H1.5zM5 8H1v3.5a.5.5 0 0 0 .5.5H5V8zm1 0v4h4V8H6zm4-1V3H6v4h4zm1 1v4h3.5a.5.5 0 0 0 .5-.5V8h-4zm0-1h4V3.5a.5.5 0 0 0-.5-.5H11v4z" />
-                                    </svg>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><kbd>F2</kbd></td>
-                            <td>Return to Home</td>
-                            <td>
-                                <div class="icon-container">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-house" viewBox="0 0 16 16">
-                                        <path fill-rule="evenodd"
-                                            d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5ZM13 7.207l-5-5-5 5V13.5a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5V7.207Z" />
-                                    </svg>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><kbd>F3</kbd></td>
-                            <td>Back</td>
-                            <td>
-                                <div class="icon-container">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-arrow-return-left" viewBox="0 0 16 16">
-                                        <path fill-rule="evenodd"
-                                            d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5z" />
-                                    </svg>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><kbd>F4</kbd></td>
-                            <td>Previous Media</td>
-                            <td>
-                                <div class="icon-container">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-skip-start" viewBox="0 0 16 16">
-                                        <path
-                                            d="M4 4a.5.5 0 0 1 1 0v3.248l6.267-3.636c.52-.302 1.233.043 1.233.696v7.384c0 .653-.713.998-1.233.696L5 8.752V12a.5.5 0 0 1-1 0V4zm7.5.633L5.696 8l5.804 3.367V4.633z" />
-                                    </svg>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><kbd>F5</kbd></td>
-                            <td>Play / Pause Media</td>
-                            <td>
-                                <div class="icon-container">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-play" viewBox="0 0 16 16">
-                                        <path
-                                            d="M10.804 8 5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z" />
-                                    </svg>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><kbd>F6</kbd></td>
-                            <td>Next Media</td>
-                            <td>
-                                <div class="icon-container">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-skip-end" viewBox="0 0 16 16">
-                                        <path
-                                            d="M12.5 4a.5.5 0 0 0-1 0v3.248L5.233 3.612C4.713 3.31 4 3.655 4 4.308v7.384c0 .653.713.998 1.233.696L11.5 8.752V12a.5.5 0 0 0 1 0V4zM5 4.633 10.804 8 5 11.367V4.633z" />
-                                    </svg>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><kbd>F7</kbd></td>
-                            <td>Volume Down</td>
-                            <td>
-                                <div class="icon-container">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-volume-down" viewBox="0 0 16 16">
-                                        <path
-                                            d="M9 4a.5.5 0 0 0-.812-.39L5.825 5.5H3.5A.5.5 0 0 0 3 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 9 12V4zM6.312 6.39 8 5.04v5.92L6.312 9.61A.5.5 0 0 0 6 9.5H4v-3h2a.5.5 0 0 0 .312-.11zM12.025 8a4.486 4.486 0 0 1-1.318 3.182L10 10.475A3.489 3.489 0 0 0 11.025 8 3.49 3.49 0 0 0 10 5.525l.707-.707A4.486 4.486 0 0 1 12.025 8z" />
-                                    </svg>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><kbd>F8</kbd></td>
-                            <td>Volume Up</td>
-                            <td>
-                                <div class="icon-container">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-volume-up" viewBox="0 0 16 16">
-                                        <path
-                                            d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707z" />
-                                        <path
-                                            d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.483 5.483 0 0 1 11.025 8a5.483 5.483 0 0 1-1.61 3.89l.706.706z" />
-                                        <path
-                                            d="M10.025 8a4.486 4.486 0 0 1-1.318 3.182L8 10.475A3.489 3.489 0 0 0 9.025 8c0-.966-.392-1.841-1.025-2.475l.707-.707A4.486 4.486 0 0 1 10.025 8zM7 4a.5.5 0 0 0-.812-.39L3.825 5.5H1.5A.5.5 0 0 0 1 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 7 12V4zM4.312 6.39 6 5.04v5.92L4.312 9.61A.5.5 0 0 0 4 9.5H2v-3h2a.5.5 0 0 0 .312-.11z" />
-                                    </svg>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><kbd>F9</kbd></td>
-                            <td>Brightness Down</td>
-                            <td>
-                                <div class="icon-container">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-brightness-low" viewBox="0 0 16 16">
-                                        <path
-                                            d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm.5-9.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm0 11a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm5-5a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm-11 0a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm9.743-4.036a.5.5 0 1 1-.707-.707.5.5 0 0 1 .707.707zm-7.779 7.779a.5.5 0 1 1-.707-.707.5.5 0 0 1 .707.707zm7.072 0a.5.5 0 1 1 .707-.707.5.5 0 0 1-.707.707zM3.757 4.464a.5.5 0 1 1 .707-.707.5.5 0 0 1-.707.707z" />
-                                    </svg>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><kbd>F10</kbd></td>
-                            <td>Brightness Up</td>
-                            <td>
-                                <div class="icon-container">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-brightness-high" viewBox="0 0 16 16">
-                                        <path
-                                            d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z" />
-                                    </svg>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><kbd>F11</kbd></td>
-                            <td>Screen Sleep</td>
-                            <td>
-                                <div class="icon-container">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-moon" viewBox="0 0 16 16">
-                                        <path
-                                            d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278zM4.858 1.311A7.269 7.269 0 0 0 1.025 7.71c0 4.02 3.279 7.276 7.319 7.276a7.316 7.316 0 0 0 5.205-2.162c-.337.042-.68.063-1.029.063-4.61 0-8.343-3.714-8.343-8.29 0-1.167.242-2.278.681-3.286z" />
-                                    </svg>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><kbd>F12</kbd></td>
-                            <td>Wake Up</td>
-                            <td>
-                                <div class="icon-container">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-power" viewBox="0 0 16 16">
-                                        <path d="M7.5 1v7h1V1h-1z" />
-                                        <path
-                                            d="M3 8.812a4.999 4.999 0 0 1 2.578-4.375l-.485-.874A6 6 0 1 0 11 3.616l-.501.865A5 5 0 1 1 3 8.812z" />
-                                    </svg>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Shortcut</th>
+                                <th>Description</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>S</kbd></td>
+                                <td>Toggle the sharing state</td>
+                                <td>
+                                    <div class="icon-container">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                            class="bi bi-toggles" viewBox="0 0 16 16">
+                                            <path
+                                                d="M4.5 9a3.5 3.5 0 1 0 0 7h7a3.5 3.5 0 1 0 0-7h-7zm7 6a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5zm-7-14a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zm2.45 0A3.49 3.49 0 0 1 8 3.5 3.49 3.49 0 0 1 6.95 6h4.55a2.5 2.5 0 0 0 0-5H6.95zM4.5 0h7a3.5 3.5 0 1 1 0 7h-7a3.5 3.5 0 1 1 0-7z" />
+                                        </svg>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Q</kbd></td>
+                                <td>Quit the program</td>
+                                <td>
+                                    <div class="icon-container">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                            class="bi bi-escape" viewBox="0 0 16 16">
+                                            <path
+                                                d="M8.538 1.02a.5.5 0 1 0-.076.998 6 6 0 1 1-6.445 6.444.5.5 0 0 0-.997.076A7 7 0 1 0 8.538 1.02Z" />
+                                            <path
+                                                d="M7.096 7.828a.5.5 0 0 0 .707-.707L2.707 2.025h2.768a.5.5 0 1 0 0-1H1.5a.5.5 0 0 0-.5.5V5.5a.5.5 0 0 0 1 0V2.732l5.096 5.096Z" />
+                                        </svg>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>F1</kbd></td>
+                                <td>Multi-task switching</td>
+                                <td>
+                                    <div class="icon-container">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                            class="bi bi-grid-3x2" viewBox="0 0 16 16">
+                                            <path
+                                                d="M0 3.5A1.5 1.5 0 0 1 1.5 2h13A1.5 1.5 0 0 1 16 3.5v8a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 11.5v-8zM1.5 3a.5.5 0 0 0-.5.5V7h4V3H1.5zM5 8H1v3.5a.5.5 0 0 0 .5.5H5V8zm1 0v4h4V8H6zm4-1V3H6v4h4zm1 1v4h3.5a.5.5 0 0 0 .5-.5V8h-4zm0-1h4V3.5a.5.5 0 0 0-.5-.5H11v4z" />
+                                        </svg>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>F2</kbd></td>
+                                <td>Return to Home</td>
+                                <td>
+                                    <div class="icon-container">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                            class="bi bi-house" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd"
+                                                d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5ZM13 7.207l-5-5-5 5V13.5a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5V7.207Z" />
+                                        </svg>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>F3</kbd></td>
+                                <td>Back</td>
+                                <td>
+                                    <div class="icon-container">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                            class="bi bi-arrow-return-left" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd"
+                                                d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5z" />
+                                        </svg>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>F4</kbd></td>
+                                <td>Previous Media</td>
+                                <td>
+                                    <div class="icon-container">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                            class="bi bi-skip-start" viewBox="0 0 16 16">
+                                            <path
+                                                d="M4 4a.5.5 0 0 1 1 0v3.248l6.267-3.636c.52-.302 1.233.043 1.233.696v7.384c0 .653-.713.998-1.233.696L5 8.752V12a.5.5 0 0 1-1 0V4zm7.5.633L5.696 8l5.804 3.367V4.633z" />
+                                        </svg>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>F5</kbd></td>
+                                <td>Play / Pause Media</td>
+                                <td>
+                                    <div class="icon-container">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                            class="bi bi-play" viewBox="0 0 16 16">
+                                            <path
+                                                d="M10.804 8 5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z" />
+                                        </svg>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>F6</kbd></td>
+                                <td>Next Media</td>
+                                <td>
+                                    <div class="icon-container">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                            class="bi bi-skip-end" viewBox="0 0 16 16">
+                                            <path
+                                                d="M12.5 4a.5.5 0 0 0-1 0v3.248L5.233 3.612C4.713 3.31 4 3.655 4 4.308v7.384c0 .653.713.998 1.233.696L11.5 8.752V12a.5.5 0 0 0 1 0V4zM5 4.633 10.804 8 5 11.367V4.633z" />
+                                        </svg>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>F7</kbd></td>
+                                <td>Volume Down</td>
+                                <td>
+                                    <div class="icon-container">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                            class="bi bi-volume-down" viewBox="0 0 16 16">
+                                            <path
+                                                d="M9 4a.5.5 0 0 0-.812-.39L5.825 5.5H3.5A.5.5 0 0 0 3 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 9 12V4zM6.312 6.39 8 5.04v5.92L6.312 9.61A.5.5 0 0 0 6 9.5H4v-3h2a.5.5 0 0 0 .312-.11zM12.025 8a4.486 4.486 0 0 1-1.318 3.182L10 10.475A3.489 3.489 0 0 0 11.025 8 3.49 3.49 0 0 0 10 5.525l.707-.707A4.486 4.486 0 0 1 12.025 8z" />
+                                        </svg>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>F8</kbd></td>
+                                <td>Volume Up</td>
+                                <td>
+                                    <div class="icon-container">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                            class="bi bi-volume-up" viewBox="0 0 16 16">
+                                            <path
+                                                d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707z" />
+                                            <path
+                                                d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.483 5.483 0 0 1 11.025 8a5.483 5.483 0 0 1-1.61 3.89l.706.706z" />
+                                            <path
+                                                d="M10.025 8a4.486 4.486 0 0 1-1.318 3.182L8 10.475A3.489 3.489 0 0 0 9.025 8c0-.966-.392-1.841-1.025-2.475l.707-.707A4.486 4.486 0 0 1 10.025 8zM7 4a.5.5 0 0 0-.812-.39L3.825 5.5H1.5A.5.5 0 0 0 1 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 7 12V4zM4.312 6.39 6 5.04v5.92L4.312 9.61A.5.5 0 0 0 4 9.5H2v-3h2a.5.5 0 0 0 .312-.11z" />
+                                        </svg>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>F9</kbd></td>
+                                <td>Brightness Down</td>
+                                <td>
+                                    <div class="icon-container">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                            class="bi bi-brightness-low" viewBox="0 0 16 16">
+                                            <path
+                                                d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm.5-9.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm0 11a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm5-5a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm-11 0a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm9.743-4.036a.5.5 0 1 1-.707-.707.5.5 0 0 1 .707.707zm-7.779 7.779a.5.5 0 1 1-.707-.707.5.5 0 0 1 .707.707zm7.072 0a.5.5 0 1 1 .707-.707.5.5 0 0 1-.707.707zM3.757 4.464a.5.5 0 1 1 .707-.707.5.5 0 0 1-.707.707z" />
+                                        </svg>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>F10</kbd></td>
+                                <td>Brightness Up</td>
+                                <td>
+                                    <div class="icon-container">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                            class="bi bi-brightness-high" viewBox="0 0 16 16">
+                                            <path
+                                                d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z" />
+                                        </svg>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>F11</kbd></td>
+                                <td>Screen Sleep</td>
+                                <td>
+                                    <div class="icon-container">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                            class="bi bi-moon" viewBox="0 0 16 16">
+                                            <path
+                                                d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278zM4.858 1.311A7.269 7.269 0 0 0 1.025 7.71c0 4.02 3.279 7.276 7.319 7.276a7.316 7.316 0 0 0 5.205-2.162c-.337.042-.68.063-1.029.063-4.61 0-8.343-3.714-8.343-8.29 0-1.167.242-2.278.681-3.286z" />
+                                        </svg>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>F12</kbd></td>
+                                <td>Wake Up</td>
+                                <td>
+                                    <div class="icon-container">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                            class="bi bi-power" viewBox="0 0 16 16">
+                                            <path d="M7.5 1v7h1V1h-1z" />
+                                            <path
+                                                d="M3 8.812a4.999 4.999 0 0 1 2.578-4.375l-.485-.874A6 6 0 1 0 11 3.616l-.501.865A5 5 0 1 1 3 8.812z" />
+                                        </svg>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <div class="shortcuts-not-sharing">
                 <p>Shortcuts below are available while not sharing:</p>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Shortcut</th>
-                            <th>Description</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><kbd>Alt</kbd>+<kbd>↑</kbd></td>
-                            <td>Scroll Up</td>
-                            <td>
-                                <div class="icon-container">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-arrow-up" viewBox="0 0 16 16">
-                                        <path fill-rule="evenodd"
-                                            d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z" />
-                                    </svg>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><kbd>Alt</kbd>+<kbd>↓</kbd></td>
-                            <td>Scroll Down</td>
-                            <td>
-                                <div class="icon-container">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-arrow-down" viewBox="0 0 16 16">
-                                        <path fill-rule="evenodd"
-                                            d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z" />
-                                    </svg>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><kbd>Alt</kbd>+<kbd>[</kbd></td>
-                            <td>Previous Media</td>
-                            <td>
-                                <div class="icon-container">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-skip-start" viewBox="0 0 16 16">
-                                        <path
-                                            d="M4 4a.5.5 0 0 1 1 0v3.248l6.267-3.636c.52-.302 1.233.043 1.233.696v7.384c0 .653-.713.998-1.233.696L5 8.752V12a.5.5 0 0 1-1 0V4zm7.5.633L5.696 8l5.804 3.367V4.633z" />
-                                    </svg>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><kbd>Alt</kbd>+<kbd>]</kbd></td>
-                            <td>Next Media</td>
-                            <td>
-                                <div class="icon-container">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-skip-end" viewBox="0 0 16 16">
-                                        <path
-                                            d="M12.5 4a.5.5 0 0 0-1 0v3.248L5.233 3.612C4.713 3.31 4 3.655 4 4.308v7.384c0 .653.713.998 1.233.696L11.5 8.752V12a.5.5 0 0 0 1 0V4zM5 4.633 10.804 8 5 11.367V4.633z" />
-                                    </svg>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><kbd>Alt</kbd>+<kbd>\</kbd></td>
-                            <td>Play / Pause Media</td>
-                            <td>
-                                <div class="icon-container">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-play" viewBox="0 0 16 16">
-                                        <path
-                                            d="M10.804 8 5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z" />
-                                    </svg>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Shortcut</th>
+                                <th>Description</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><kbd>Alt</kbd>+<kbd>↑</kbd></td>
+                                <td>Scroll Up</td>
+                                <td>
+                                    <div class="icon-container">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                            class="bi bi-arrow-up" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd"
+                                                d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z" />
+                                        </svg>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>Alt</kbd>+<kbd>↓</kbd></td>
+                                <td>Scroll Down</td>
+                                <td>
+                                    <div class="icon-container">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                            class="bi bi-arrow-down" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd"
+                                                d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z" />
+                                        </svg>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>Alt</kbd>+<kbd>[</kbd></td>
+                                <td>Previous Media</td>
+                                <td>
+                                    <div class="icon-container">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                            class="bi bi-skip-start" viewBox="0 0 16 16">
+                                            <path
+                                                d="M4 4a.5.5 0 0 1 1 0v3.248l6.267-3.636c.52-.302 1.233.043 1.233.696v7.384c0 .653-.713.998-1.233.696L5 8.752V12a.5.5 0 0 1-1 0V4zm7.5.633L5.696 8l5.804 3.367V4.633z" />
+                                        </svg>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>Alt</kbd>+<kbd>]</kbd></td>
+                                <td>Next Media</td>
+                                <td>
+                                    <div class="icon-container">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                            class="bi bi-skip-end" viewBox="0 0 16 16">
+                                            <path
+                                                d="M12.5 4a.5.5 0 0 0-1 0v3.248L5.233 3.612C4.713 3.31 4 3.655 4 4.308v7.384c0 .653.713.998 1.233.696L11.5 8.752V12a.5.5 0 0 0 1 0V4zM5 4.633 10.804 8 5 11.367V4.633z" />
+                                        </svg>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>Alt</kbd>+<kbd>\</kbd></td>
+                                <td>Play / Pause Media</td>
+                                <td>
+                                    <div class="icon-container">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                            class="bi bi-play" viewBox="0 0 16 16">
+                                            <path
+                                                d="M10.804 8 5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z" />
+                                        </svg>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
