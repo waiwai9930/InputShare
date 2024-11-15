@@ -5,13 +5,12 @@ on:
     types: [created]
 
 jobs:
-  build:
+  build-win:
     strategy:
       matrix:
-        # os: [ubuntu-latest, macos-latest, windows-latest]
-        os: [windows-latest]
+        architecture: [x86_64]
         python-version: [3.10.7]
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
 
     steps:
       - name: Checkout code
@@ -37,16 +36,7 @@ jobs:
         env:
           PYTHONUNBUFFERED: 1
 
-      # - name: Archive Linux executable
-      #   if: ${{ matrix.os == 'ubuntu-latest' }}
-      #   run: zip -j output/InputShare-linux-x64.zip dist/main/
-      #   shell: bash
-      # - name: Archive MacOS executable
-      #   if: ${{ matrix.os == 'macos-latest' }}
-      #   run: zip -j output/macos_your_script.zip dist/main/
-      #   shell: bash
       - name: Archive Windows executable
-        if: ${{ matrix.os == 'windows-latest' }}
         run: Compress-Archive -Path dist/main/ -DestinationPath InputShare-win-x64.zip
         shell: pwsh
 
@@ -54,4 +44,45 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: InputShare-win-x64.zip
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  build-linux:
+    strategy:
+      matrix:
+        architecture: [x86_64, aarch64]
+        python-version: [3.10.7]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up the environment
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Install dependencies
+        run: |
+          python -m venv build_venv
+          source ./build_venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install -r requirements.txt
+
+      - name: Build executable with PyInstaller
+        run: |
+          source ./build_venv/Scripts/activate
+          ./build_venv/bin/pyinstaller --windowed --icon=ui/icon.ico --add-data "./ui/icon.ico;ui/" --add-data "./ui/icon.png;ui/" --add-data "./adb-bin/;adb-bin/" --add-data "./server/scrcpy-server;server/" --add-data "./build_venv/Lib/site-packages/customtkinter;customtkinter/" --noconfirm main.py
+        env:
+          PYTHONUNBUFFERED: 1
+
+      - name: Archive Linux executable
+        run: zip -j InputShare-linux-${{ matrix.architecture }}.zip dist/main
+        shell: bash
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: InputShare-linux-${{ matrix.architecture }}.zip
           token: ${{ secrets.GITHUB_TOKEN }}
