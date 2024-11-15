@@ -43,14 +43,14 @@ class SetClipboardEvent:
     msg_type: ControlMsgType = ControlMsgType.MSG_TYPE_SET_CLIPBOARD
     sequence: int = 0 # 8
     paste: int = 0 # 1
-    text: bytes
+    text: bytes # length: 4
 
     def __init__(self, text: str) -> None:
         self.text = bytes(text, encoding="utf-8")
 
     def serialize(self) -> bytes:
         buf = struct.pack(
-            ">BQIB",
+            ">BQBI",
             self.msg_type.value,
             self.sequence,
             self.paste,
