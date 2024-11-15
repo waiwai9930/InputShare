@@ -58,7 +58,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     client_socket = try_connect_server("localhost")
-    if not isinstance(client_socket, socket.socket):
+    if isinstance(client_socket, Exception):
         close_notification_resolver(client_socket)
         sys.exit(1)
 

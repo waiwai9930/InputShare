@@ -13,16 +13,18 @@ adb_bin_path = Path.joinpath(script_path, adb_relative_path)
 os.environ["ADBUTILS_ADB_PATH"] = str(adb_bin_path)
 ADB_BIN_PATH = str(adb_bin_path)
 
-def try_connect_device(addr: str, timeout: float=4.0) -> adbutils.AdbClient | None:
+def try_connect_device(addr: str, timeout: float=3.0) -> adbutils.AdbClient | None:
     client = adbutils.AdbClient()
     try:
         output = client.connect(addr, timeout)
         assert len(client.device_list()) > 0
         LOGGER.write(LogType.Server, output)
     except adbutils.AdbTimeout as e:
+        client.disconnect(addr)
         LOGGER.write(LogType.Error, "Connect timeout: " + str(e))
         return None
     except Exception as e:
+        client.disconnect(addr)
         LOGGER.write(LogType.Error, "Connect failed: " + str(e))
         return None
     return client

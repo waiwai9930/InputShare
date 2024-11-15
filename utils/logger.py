@@ -29,6 +29,20 @@ class Logger:
         self.file.write(complete_log_message + "\n")
         self.file.flush()
 
+def todo(msg: str | None=None):
+    global LOGGER
+    if msg is None:
+        LOGGER.write(LogType.Error, "not yet implemented")
+    else:
+        LOGGER.write(LogType.Error, "not yet implemented: " + msg)
+
+def unreachable(msg: str | None=None):
+    global LOGGER
+    if msg is None:
+        LOGGER.write(LogType.Error, "entered unreachable code")
+    else:
+        LOGGER.write(LogType.Error, "entered unreachable code: " + msg)
+
 if getattr(sys, "frozen", False):
     log_base_dir = os.path.dirname(sys.executable)
 else:

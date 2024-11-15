@@ -26,20 +26,20 @@ def test_batch_port(ip: str, start_port: int, end_port: int) -> int | None:
     selector.close()
     if port is not None: return port
 
-def scan_port(ip: str) -> int | None:
+def scan_port(ip: str) -> list[int]:
     executor = ThreadPoolExecutor(max_workers=4)
     futures: list[Future] = []
     for i in range(DEFAULT_START_PORT, DEFAULT_END_PORT, DEFAULT_STEP):
         future = executor.submit(test_batch_port, ip, i, min(DEFAULT_END_PORT, i + DEFAULT_STEP))
         futures.append(future)
 
-    target_port = None
+    target_ports = []
     for future in futures:
         try:
             result = future.result()
             if result is None: continue
-            target_port = result; break
+            target_ports.append(result)
         except Exception as e:
             LOGGER.write(LogType.Error, "Port scanning error: " + str(e))
     executor.shutdown(cancel_futures=True)
-    return target_port
+    return target_ports

@@ -1,5 +1,6 @@
 import sys
 import threading
+import adbutils
 import customtkinter as ctk
 
 from dataclasses import dataclass
@@ -8,8 +9,9 @@ from queue import Queue
 from adb_controller import try_connect_device, try_pairing
 from ui import ICON_ICO_PATH
 from utils.config_manager import CONFIG
+from utils.logger import unreachable
 from utils.scan_port import scan_port
-from utils.ip_check import get_ip_addr_part, is_valid_ip_addr_part, is_valid_ip_str
+from utils.ip_check import get_ip_from_ip_port, is_valid_ip, is_valid_ip_port
 from utils.i18n import I18N
 
 def mount_pairing_view(tabview: ctk.CTkTabview, connecting_addr_entry: ctk.CTkEntry):
@@ -20,14 +22,14 @@ def mount_pairing_view(tabview: ctk.CTkTabview, connecting_addr_entry: ctk.CTkEn
 
         addr = addr_entry.get().strip()
         pairing_code = pairing_code_entry.get().strip()
-        if not is_valid_ip_str(addr):
+        if not is_valid_ip(addr):
             error_label.configure(text=I18N(["Invalid pairing address!", "配对地址无效！"]))
             return
         ret = try_pairing(addr, pairing_code)
         if ret == False:
             error_label.configure(text=I18N(["Pairing Failed!", "配对失败！"]))
             return
-        device_ip = get_ip_addr_part(addr)
+        device_ip = get_ip_from_ip_port(addr)
         connecting_addr_entry.insert(0, device_ip)
         tabview.set(I18N(["Connecting", "连接"]))
         connecting_window.deiconify()
@@ -98,57 +100,68 @@ def mount_pairing_view(tabview: ctk.CTkTabview, connecting_addr_entry: ctk.CTkEn
 
 def mount_connecting_view(tabview: ctk.CTkTabview) -> ctk.CTkEntry:
     @dataclass
+    class ProcessOk: ip_port_str: str
+    @dataclass
     class ProcessError: msg: str
-    process_data_queue: Queue[str | ProcessError] = Queue()
 
-    def process_ip_port(addr: str, to_scan_port: bool):
-        valid_ip_str = is_valid_ip_str(addr)
-        valid_ip_addr_part = is_valid_ip_addr_part(addr)
-        if to_scan_port:
-            if not valid_ip_str and not valid_ip_addr_part:
-                process_data_queue.put(
-                    ProcessError(I18N(["Invalid connecting address!", "连接地址无效！"])))
-                return
-            # format address string into ip_part only string
-            ip_addr_part = addr if valid_ip_addr_part else get_ip_addr_part(addr)
+    process_data_queue: Queue[ProcessOk | ProcessError] = Queue()
 
-            target_port = scan_port(ip_addr_part)
-            if target_port is None:
-                process_data_queue.put(
-                    ProcessError(I18N(["Port scanning failed, please check the IP address.", "扫描端口失败，请检查 IP 地址是否正确。"])))
+    def scan_and_connect(addr: str):
+        nonlocal process_data_queue
+        valid_ip = is_valid_ip(addr)
+        valid_ip_port = is_valid_ip_port(addr)
+        if not valid_ip and not valid_ip_port:
+            process_data_queue.put(
+                ProcessError(I18N(["Invalid connecting address!", "连接地址无效！"])))
+            return
+        # format address string into ip_part only string
+        ip_addr_part = addr if valid_ip else get_ip_from_ip_port(addr)
+
+        target_ports = scan_port(ip_addr_part)
+        for port in target_ports:
+            connect_addr = f"{ip_addr_part}:{port}"
+            ret = try_connect_device(connect_addr)
+            if ret is not None:
+                process_data_queue.put(ProcessOk(connect_addr))
                 return
-            process_data_queue.put(f"{ip_addr_part}:{target_port}")
-        elif not valid_ip_str:
-            # not to_scan_port and ip-port address string is not valid
+        process_data_queue.put(
+            ProcessError(I18N(["Port scanning failed, please check the IP address.", "扫描端口失败，请检查 IP 地址是否正确。"])))
+
+    def direct_connect(addr: str):
+        nonlocal process_data_queue
+        if not is_valid_ip(addr):
             process_data_queue.put(
                 ProcessError(I18N(["Invalid connecting address!", "配对地址无效！"])))
-        else: process_data_queue.put(addr)
+            return
+        ret = try_connect_device(addr)
+        if ret is not None:
+            process_data_queue.put(ProcessOk(addr))
+            return
+        process_data_queue.put(
+            ProcessError(I18N(["Connecting failed, please retry.", "连接失败，请重试。"])))
+
+    def process_ip_port(addr: str, to_scan_port: bool):
+        if to_scan_port: scan_and_connect(addr)
+        else: direct_connect(addr)
 
     def process_callback():
         global connecting_window
-        nonlocal error_label, waiting_label
+        nonlocal process_data_queue, error_label, waiting_label
         if process_data_queue.empty():
             # wait for ip_port data processed
             connecting_window.after(func=process_callback, ms=100)
             return
 
-        connect_addr = process_data_queue.get()
-        if type(connect_addr) == ProcessError:
-            error_label.configure(text=connect_addr.msg)
+        result = process_data_queue.get()
+        if type(result) == ProcessError:
+            error_label.configure(text=result.msg)
             waiting_label.configure(text="")
-            enable_widgets()
             connecting_window.configure(cursor="arrow")
-            return
-
-        assert type(connect_addr) == str
-        # got valid ip_port string, connect
-        ret = try_connect_device(connect_addr)
-        if ret is None:
-            error_label.configure(text=I18N(["Connecting failed, please retry.", "连接失败！"]))
-            waiting_label.configure(text="")
-            return
-        CONFIG.config.device_ip1 = get_ip_addr_part(connect_addr)
-        connecting_window.destroy()
+            enable_widgets()
+        elif type(result) == ProcessOk:
+            CONFIG.config.device_ip1 = get_ip_from_ip_port(result.ip_port_str)
+            connecting_window.destroy()
+        else: unreachable("Connection result: " + str(result))
 
     def enable_widgets():
         nonlocal addr_entry, auto_scan_port, button1, button2
@@ -233,6 +246,7 @@ def open_connecting_window():
     global connecting_window
     def delete_window_callback():
         connecting_window.destroy()
+        adbutils.AdbClient().server_kill()
         sys.exit(0)
 
     connecting_window = ctk.CTk()
