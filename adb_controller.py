@@ -13,6 +13,40 @@ adb_bin_path = Path.joinpath(script_path, adb_relative_path)
 os.environ["ADBUTILS_ADB_PATH"] = str(adb_bin_path)
 ADB_BIN_PATH = str(adb_bin_path)
 
+def start_adb_server() -> bool:
+    command = f"{ADB_BIN_PATH} start-server"
+    try:
+        process = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        process.wait()
+        return True
+    except Exception as e:
+        process.terminate()
+        LOGGER.write(LogType.Error, "ADB server failed to start: " + str(e))
+        return False
+
+def try_pairing(addr: str, pairing_code: str) -> bool:
+    command = f"{ADB_BIN_PATH} pair {addr} {pairing_code}"
+    try:
+        process = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        process.wait(3)
+        _, stderr = process.communicate()
+        if stderr: raise Exception(stderr)
+        return True
+    except Exception as e:
+        process.terminate()
+        LOGGER.write(LogType.Error, "ADB failed to pair: " + str(e))
+        return False
+
 def try_connect_device(addr: str, timeout: float=3.0) -> adbutils.AdbClient | None:
     client = adbutils.AdbClient()
     try:
@@ -28,21 +62,6 @@ def try_connect_device(addr: str, timeout: float=3.0) -> adbutils.AdbClient | No
         LOGGER.write(LogType.Error, "Connect failed: " + str(e))
         return None
     return client
-
-def try_pairing(addr: str, pairing_code: str) -> bool:
-    command = f"{ADB_BIN_PATH} pair {addr} {pairing_code}"
-    try:
-        process = subprocess.Popen(
-            command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-        )
-        process.wait()
-        return True
-    except Exception as e:
-        LOGGER.write(LogType.Error, "ADB failed to pair: " + str(e))
-        return False
 
 def get_display_size(adb_client: adbutils.AdbClient) -> tuple[int, int]:
     device = adb_client.device_list()[0]

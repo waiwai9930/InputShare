@@ -2,6 +2,7 @@ import socket
 import sys
 import adbutils
 
+from adb_controller import start_adb_server
 from multiprocessing import freeze_support
 from input.controller import main_loop
 from server import ADBConnectionError, InvalidDummyByteException, server_process_factory, try_connect_server
@@ -50,6 +51,7 @@ def close_notification_resolver(errno: Exception | None):
 if __name__ == "__main__":
     freeze_support()
 
+    start_adb_server()
     open_connecting_window()
 
     server_process = server_process_factory()

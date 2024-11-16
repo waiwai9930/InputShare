@@ -22,14 +22,15 @@ def mount_pairing_view(tabview: ctk.CTkTabview, connecting_addr_entry: ctk.CTkEn
 
         addr = addr_entry.get().strip()
         pairing_code = pairing_code_entry.get().strip()
-        if not is_valid_ip(addr):
+        if not is_valid_ip_port(addr):
             error_label.configure(text=I18N(["Invalid pairing address!", "配对地址无效！"]))
             return
         ret = try_pairing(addr, pairing_code)
-        if ret == False:
+        if not ret:
             error_label.configure(text=I18N(["Pairing Failed!", "配对失败！"]))
             return
         device_ip = get_ip_from_ip_port(addr)
+        connecting_addr_entry.delete(0, ctk.END)
         connecting_addr_entry.insert(0, device_ip)
         tabview.set(I18N(["Connecting", "连接"]))
         connecting_window.deiconify()
@@ -131,7 +132,7 @@ def mount_connecting_view(tabview: ctk.CTkTabview) -> ctk.CTkEntry:
         nonlocal process_data_queue
         if not is_valid_ip(addr):
             process_data_queue.put(
-                ProcessError(I18N(["Invalid connecting address!", "配对地址无效！"])))
+                ProcessError(I18N(["Invalid connecting address!", "连接地址无效！"])))
             return
         ret = try_connect_device(addr)
         if ret is not None:
