@@ -10,6 +10,7 @@ DEFAULT_CONFIG_FILE_NAME = "config.json"
 @dataclass
 class ConfigFile:
     device_ip1: str = ""
+    scan_port: bool = False
     sync_clipboard: bool = True
     share_keyboard_only: bool = False
 

@@ -148,7 +148,8 @@ def mount_connecting_view(tabview: ctk.CTkTabview) -> ctk.CTkEntry:
 
     def process_callback():
         global connecting_window
-        nonlocal process_data_queue, error_label, waiting_label
+        nonlocal process_data_queue, auto_scan_port,\
+                 error_label, waiting_label
         if process_data_queue.empty():
             # wait for ip_port data processed
             connecting_window.after(func=process_callback, ms=100)
@@ -161,6 +162,7 @@ def mount_connecting_view(tabview: ctk.CTkTabview) -> ctk.CTkEntry:
             connecting_window.configure(cursor="arrow")
             enable_widgets()
         elif type(result) == ProcessOk:
+            CONFIG.config.scan_port = bool(auto_scan_port.get())
             CONFIG.config.device_ip1 = get_ip_from_ip_port(result.ip_port_str)
             connecting_window.destroy()
         else: unreachable("Connection result: " + str(result))
@@ -217,7 +219,7 @@ def mount_connecting_view(tabview: ctk.CTkTabview) -> ctk.CTkEntry:
     waiting_label = ctk.CTkLabel(master=frame, text="", font=normal_font)
 
     addr_entry.insert(0, CONFIG.config.device_ip1)
-    auto_scan_port.select()
+    if CONFIG.config.scan_port: auto_scan_port.select()
 
     prompt_label.grid(row=0, column=0, padx=20, pady=(10, 4), sticky="w")
     addr_entry.grid(row=1, column=0, padx=20, sticky="we")
