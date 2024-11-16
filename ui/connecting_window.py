@@ -9,7 +9,7 @@ from queue import Queue
 from adb_controller import try_connect_device, try_pairing
 from ui import ICON_ICO_PATH
 from utils.config_manager import CONFIG
-from utils.logger import unreachable
+from utils.logger import LOGGER, LogType, unreachable
 from utils.scan_port import scan_port
 from utils.ip_check import get_ip_from_ip_port, is_valid_ip, is_valid_ip_port
 from utils.i18n import I18N
@@ -125,12 +125,13 @@ def mount_connecting_view(tabview: ctk.CTkTabview) -> ctk.CTkEntry:
             if ret is not None:
                 process_data_queue.put(ProcessOk(connect_addr))
                 return
+        LOGGER.write(LogType.Error, "Scanned ports: " + str(target_ports))
         process_data_queue.put(
             ProcessError(I18N(["Port scanning failed, please check the IP address.", "扫描端口失败，请检查 IP 地址是否正确。"])))
 
     def direct_connect(addr: str):
         nonlocal process_data_queue
-        if not is_valid_ip(addr):
+        if not is_valid_ip_port(addr):
             process_data_queue.put(
                 ProcessError(I18N(["Invalid connecting address!", "连接地址无效！"])))
             return

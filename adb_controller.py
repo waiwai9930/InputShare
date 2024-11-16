@@ -29,7 +29,7 @@ def start_adb_server() -> bool:
         LOGGER.write(LogType.Error, "ADB server failed to start: " + str(e))
         return False
 
-def try_pairing(addr: str, pairing_code: str) -> bool:
+def try_pairing(addr: str, pairing_code: str, timeout=3.0) -> bool:
     command = f"{ADB_BIN_PATH} pair {addr} {pairing_code}"
     try:
         process = subprocess.Popen(
@@ -38,7 +38,7 @@ def try_pairing(addr: str, pairing_code: str) -> bool:
             stderr=subprocess.PIPE,
             text=True,
         )
-        process.wait(3)
+        process.wait(timeout)
         _, stderr = process.communicate()
         if stderr: raise Exception(stderr)
         return True
