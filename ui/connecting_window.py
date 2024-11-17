@@ -53,28 +53,23 @@ def mount_pairing_view(tabview: ctk.CTkTabview, connecting_addr_entry: ctk.CTkEn
 
     prompt_label1 = ctk.CTkLabel(
         master=frame, font=larger_font,
-        text=I18N(["Wireless debugging pairing IP address and port:", "无线调试配对 IP 地址和端口：                "]),
-    )
+        text=I18N(["Wireless debugging pairing IP address and port:", "无线调试配对 IP 地址和端口：                "]))
     prompt_label2 = ctk.CTkLabel(
         master=frame, font=larger_font,
-        text=I18N(["Wireless debugging pairing code:", "无线调试配对码："]),
-    )
+        text=I18N(["Wireless debugging pairing code:", "无线调试配对码："]))
     error_label = ctk.CTkLabel(
         master=frame,
         text="",
         text_color="red",
-        font=larger_font,
-    )
+        font=larger_font)
     addr_entry = ctk.CTkEntry(
         master=frame,
-        font=normal_font,
-    )
+        font=normal_font)
     pairing_code_entry = ctk.CTkEntry(
         master=frame,
         font=normal_font,
         validate="key",
-        validatecommand=vcmd,
-    )
+        validatecommand=vcmd)
 
     prompt_label1.grid(row=0, column=0, padx=20, pady=(10, 4), sticky="w")
     addr_entry.grid(row=1, column=0, padx=20, sticky="we")
@@ -83,21 +78,19 @@ def mount_pairing_view(tabview: ctk.CTkTabview, connecting_addr_entry: ctk.CTkEn
     error_label.grid(row=4, column=0, padx=20, pady=(10, 4), sticky="w")
 
     button_frame = ctk.CTkFrame(master=frame)
-    button1 = ctk.CTkButton(
+    skip_button = ctk.CTkButton(
         master=button_frame,
         text=I18N(["Paired? Skip >", "已配对？跳过"]),
         font=normal_font,
-        command=need_not_pairing_callback,
-    )
-    button2 = ctk.CTkButton(
+        command=need_not_pairing_callback)
+    pair_button = ctk.CTkButton(
         master=button_frame,
         text=I18N(["Pair", "配对"]),
         font=normal_font,
-        command=pair_callback,
-    )
+        command=pair_callback)
     button_frame.grid(row=6, column=0, padx=20, pady=10, sticky="we")
-    button1.pack(side=ctk.LEFT)
-    button2.pack(side=ctk.RIGHT)
+    skip_button.pack(side=ctk.LEFT)
+    pair_button.pack(side=ctk.RIGHT)
 
 def mount_connecting_view(tabview: ctk.CTkTabview) -> ctk.CTkEntry:
     @dataclass
@@ -168,13 +161,13 @@ def mount_connecting_view(tabview: ctk.CTkTabview) -> ctk.CTkEntry:
         else: unreachable("Connection result: " + str(result))
 
     def enable_widgets():
-        nonlocal addr_entry, auto_scan_port, button1, button2
-        for wid in [addr_entry, auto_scan_port, button1, button2]:
+        nonlocal addr_entry, auto_scan_port, skip_button, connect_button
+        for wid in [addr_entry, auto_scan_port, skip_button, connect_button]:
             wid.configure(state="normal")
 
     def disable_widgets():
-        nonlocal addr_entry, auto_scan_port, button1, button2
-        for wid in [addr_entry, auto_scan_port, button1, button2]:
+        nonlocal addr_entry, auto_scan_port, skip_button, connect_button
+        for wid in [addr_entry, auto_scan_port, skip_button, connect_button]:
             wid.configure(state="disabled")
 
     def connect_callback():
@@ -200,22 +193,18 @@ def mount_connecting_view(tabview: ctk.CTkTabview) -> ctk.CTkEntry:
     frame = tabview.tab(I18N(["Connecting", "连接"]))
     prompt_label = ctk.CTkLabel(
         master=frame, font=larger_font,
-        text=I18N(["Wireless debugging IP address and port:    ", "无线调试 IP 地址和端口：                       "]),
-    )
+        text=I18N(["Wireless debugging IP address and port:    ", "无线调试 IP 地址和端口：                       "]))
     addr_entry = ctk.CTkEntry(
         master=frame,
-        font=normal_font,
-    )
+        font=normal_font)
     error_label = ctk.CTkLabel(
         master=frame,
         text="",
         font=larger_font,
-        text_color="red",
-    )
+        text_color="red")
     auto_scan_port = ctk.CTkCheckBox(
         master=frame, font=normal_font,
-        text=I18N(["Auto detect port", "自动检测端口"]),
-    )
+        text=I18N(["Auto detect port", "自动检测端口"]))
     waiting_label = ctk.CTkLabel(master=frame, text="", font=normal_font)
 
     addr_entry.insert(0, CONFIG.config.device_ip1)
@@ -228,21 +217,19 @@ def mount_connecting_view(tabview: ctk.CTkTabview) -> ctk.CTkEntry:
     waiting_label.grid(row=4, column=0, padx=20, pady=2, sticky="w")
 
     button_frame = ctk.CTkFrame(master=frame)
-    button1 = ctk.CTkButton(
+    skip_button = ctk.CTkButton(
         master=button_frame,
         text=I18N(["Wired? Skip >", "有线连接？跳过"]),
         font=normal_font,
-        command=need_not_connection_callback,
-    )
-    button2 = ctk.CTkButton(
+        command=need_not_connection_callback)
+    connect_button = ctk.CTkButton(
         master=button_frame,
         text=I18N(["Connect", "连接"]),
         font=normal_font,
-        command=connect_callback,
-    )
+        command=connect_callback)
     button_frame.grid(row=5, column=0, padx=20, pady=10, sticky="we")
-    button1.pack(side=ctk.LEFT)
-    button2.pack(side=ctk.RIGHT)
+    skip_button.pack(side=ctk.LEFT)
+    connect_button.pack(side=ctk.RIGHT)
     # expose the addr_entry to mainwindow
     return addr_entry
 

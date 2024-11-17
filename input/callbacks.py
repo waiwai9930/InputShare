@@ -110,12 +110,14 @@ def callback_context_wrapper(
     send_data(mouse_init.serialize())
     last_mouse_point: tuple[int, int] | None = None
     mouse_button_state = MouseButtonStateStore()
-    movement_queue: Queue[tuple[int, int]] = Queue(maxsize=4)
+    movement_queue: Queue[tuple[int, int]] = Queue(maxsize=5)
 
     from input.controller import schedule_exit
     def mouse_movement_sender():
         nonlocal send_data
-        DEFAULT_INTERVAL_SEC = 1 / 120
+        # the most common mouse polling rate
+        DEFAULT_INTERVAL_SEC = 1 / 125
+
         INTERVAL_INCR = 1 / 30
         INTERVAL_INCR_FACTOR = 60
 
@@ -156,6 +158,7 @@ def callback_context_wrapper(
         diff_x = cur_x - last_x
         diff_y = cur_y - last_y
         speed = (diff_x ** 2 + diff_y ** 2) ** 0.5
+        # check speed to prevent divide-by-zero error
         adjusted_scale = 1 if speed == 0 else min(1, 2 / (speed ** 0.5))
         diff_x = int(diff_x * adjusted_scale)
         diff_y = int(diff_y * adjusted_scale)
