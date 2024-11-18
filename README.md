@@ -4,7 +4,8 @@
     <h1>InputShare</h1>
     <a href="README_zh.md">中文介绍</a> | 
     <a href="https://bhznjns.github.io/InputShare/">Homepage</a> | 
-    <a href="https://github.com/BHznJNs/InputShare/issues">Feedback</a>
+    <a href="https://github.com/BHznJNs/InputShare/issues">Feedback</a> |
+    <a href="https://discord.gg/GcHPRR4K">Discord</a>
     <br />
     <br />
 </div>
@@ -21,9 +22,9 @@ __InputShare__ enables you to share the keyboard and mouse of your computer with
 
 ## Screenshots
 
-| Pairing | Connecting | System Tray |
-| --- | --- | --- |
-| ![Pairing UI](./screenshots/pairing_en.png) | ![Connecting UI](./screenshots/connecting_en.png) | ![System Tray](./screenshots/tray_selections_en.png) |
+| Pairing | Connecting | Settings | System Tray |
+| --- | --- | --- | --- |
+| ![Pairing UI](./screenshots/pairing_en.png) | ![Connecting UI](./screenshots/connecting_en.png) | ![Settings](./screenshots/Settings_en.png) | ![System Tray](./screenshots/tray_selections_en.png) |
 
 ## Install
 

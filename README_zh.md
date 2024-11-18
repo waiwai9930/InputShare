@@ -21,9 +21,9 @@ __输入流转__ 能够让你的安卓设备通过有线/无线的方式和电�
 
 ## 屏幕截图
 
-| 配对界面 | 连接界面 | 系统托盘 |
-| --- | --- | --- |
-| ![配对界面](./screenshots/pairing_zh.png) | ![连接界面](./screenshots/connecting_zh.png) | ![系统托盘](./screenshots/tray_selections_zh.png) |
+| 配对界面 | 连接界面 | 软件设置 | 系统托盘 |
+| --- | --- | --- | --- |
+| ![配对界面](./screenshots/pairing_zh.png) | ![连接界面](./screenshots/connecting_zh.png) | ![软件设置](./screenshots/Settings_zh.png) | ![系统托盘](./screenshots/tray_selections_zh.png) |
 
 ## 安装
 

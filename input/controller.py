@@ -108,6 +108,7 @@ def main_loop(
         if is_redirecting:
             last_received = ReceivedClipboardText.read()
             current_clipboard_content = Clipboard.safe_paste()
+            if exit_event.is_set(): return
             if not get_config().sync_clipboard: return
             if current_clipboard_content is None: return
             if last_received is not None and\
