@@ -9,8 +9,9 @@ from input.controller import schedule_toggle as main_schedule_toggle,\
                              schedule_exit as main_schedule_exit
 from scrcpy_client.clipboard_event import SetClipboardEvent
 from ui import ICON_ICO_PATH
-from utils.config_manager import CONFIG
-from utils.i18n import I18N
+from ui.settings import open_settings_window
+from utils.config_manager import get_config
+from utils.i18n import get_i18n
 from utils.clipboard import Clipboard
 from utils.logger import LOGGER, LogType
 
@@ -35,9 +36,9 @@ def create_tray(client_socket: socket.socket):
             exit_tray()
 
     def toggle_share_keyboard_only(_, item: MenuItem):
-        CONFIG.config.share_keyboard_only = not item.checked
+        get_config().share_keyboard_only = not item.checked
     def toggle_sync_clipboard(_, item: MenuItem):
-        CONFIG.config.sync_clipboard = not item.checked
+        get_config().sync_clipboard = not item.checked
 
     def exit_tray():
         global tray
@@ -45,31 +46,35 @@ def create_tray(client_socket: socket.socket):
         assert tray is not None
         tray.stop()
 
+    i18n = get_i18n()
     tray_img = Image.open(ICON_ICO_PATH)
     tray_menu = Menu(
         MenuItem(
-            I18N(["Enable sharing", "开启键鼠共享"]),
+            i18n(["Enable sharing", "开启键鼠共享"]),
             action=main_schedule_toggle),
         MenuItem(
-            I18N(["Send clipboard text", "发送当前剪贴板文本"]),
+            i18n(["Send clipboard text", "发送当前剪贴板文本"]),
             action=send_clipboard_text),
         Menu.SEPARATOR,
         MenuItem(
-            I18N(["Share keyboard only", "仅共享键盘"]),
+            i18n(["Share keyboard only", "仅共享键盘"]),
             action=toggle_share_keyboard_only,
-            checked=lambda _: CONFIG.config.share_keyboard_only),
+            checked=lambda _: get_config().share_keyboard_only),
         MenuItem(
-            I18N(["Sync clipboard", "同步剪贴板"]),
+            i18n(["Sync clipboard", "同步剪贴板"]),
             action=toggle_sync_clipboard,
-            checked=lambda _: CONFIG.config.sync_clipboard),
+            checked=lambda _: get_config().sync_clipboard),
         Menu.SEPARATOR,
         MenuItem(
-            I18N(["Exit", "退出"]),
+            i18n(["Settings", "设置"]),
+            action=open_settings_window),
+        MenuItem(
+            i18n(["Exit", "退出"]),
             action=exit_tray),
     )
     tray = pystray.Icon(
         "InputShare",
-        title=I18N(["InputShare", "输入流转"]),
+        title=i18n(["InputShare", "输入流转"]),
         icon=tray_img,
         menu=tray_menu,
     )

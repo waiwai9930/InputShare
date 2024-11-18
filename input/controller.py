@@ -8,7 +8,7 @@ from input.edge_portal import edge_portal_thread_factory
 from server.receiver import ReceivedClipboardText
 from ui.fullscreen_mask import mask_thread_factory
 from utils.clipboard import Clipboard
-from utils.config_manager import CONFIG
+from utils.config_manager import get_config
 from utils.logger import LOGGER, LogType
 
 is_redirecting = False
@@ -96,7 +96,7 @@ def main_loop(
         nonlocal show_mask, hide_mask,\
             start_edge_portal, pause_edge_portal
         if is_redirecting:
-            if not CONFIG.config.share_keyboard_only:
+            if not get_config().share_keyboard_only:
                 show_mask(); start_edge_portal()
             LOGGER.write(LogType.Info, "Input redirecting enabled.")
         else:
@@ -108,7 +108,7 @@ def main_loop(
         if is_redirecting:
             last_received = ReceivedClipboardText.read()
             current_clipboard_content = Clipboard.safe_paste()
-            if not CONFIG.config.sync_clipboard: return
+            if not get_config().sync_clipboard: return
             if current_clipboard_content is None: return
             if last_received is not None and\
                last_received == current_clipboard_content: return

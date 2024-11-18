@@ -3,7 +3,7 @@ import customtkinter as ctk
 
 from typing import Callable
 from utils import screen_size
-from utils.i18n import I18N
+from utils.i18n import get_i18n
 from utils.logger import LogType, LOGGER
 
 show_event = threading.Event()
@@ -36,8 +36,9 @@ def check_event(root: ctk.CTk, toplevel: ctk.CTkToplevel):
     root.after(interval_ms, check_event, root, toplevel)
 
 def open_mask_window():
+    i18n = get_i18n()
     root = ctk.CTk()
-    root.wm_title(I18N(["InputShare Mask", "输入流转 —— 蒙版"]))
+    root.wm_title(i18n(["InputShare Mask", "输入流转 —— 蒙版"]))
     root.wm_attributes("-alpha", 0.01)
     root.wm_attributes("-topmost", True)
     root.wm_attributes("-fullscreen", True)
@@ -45,26 +46,26 @@ def open_mask_window():
     root.overrideredirect(True)
     root.geometry(f"{screen_width}x{screen_height}")
 
-    larger_font = I18N([
+    larger_font = i18n([
         ctk.CTkFont(family="Arial", size=18),
         ctk.CTkFont(family="Microsoft YaHei", size=18),
     ])
 
     label_toplevel = ctk.CTkToplevel(master=root)
     label_toplevel.geometry("+20+20")
-    label_toplevel.wm_title(I18N(["InputShare Shortcuts", "输入流转 —— 快捷键提示"]))
+    label_toplevel.wm_title(i18n(["InputShare Shortcuts", "输入流转 —— 快捷键提示"]))
     label_toplevel.wm_attributes('-alpha', 0.6)
     label_toplevel.wm_attributes("-topmost", True)
     label_toplevel.overrideredirect(True)
 
     label1 = ctk.CTkLabel(
         master=label_toplevel,
-        text=I18N(["Use <Ctrl>+<Alt>+q to quit", "使用 <Ctrl>+<Alt>+q 退出程序"]),
+        text=i18n(["Use <Ctrl>+<Alt>+q to quit", "使用 <Ctrl>+<Alt>+q 退出程序"]),
         font=larger_font,
     )
     label2 = ctk.CTkLabel(
         master=label_toplevel,
-        text=I18N(["Use <Ctrl>+<Alt>+s to toggle", "使用 <Ctrl>+<Alt>+s 切换控制"]),
+        text=i18n(["Use <Ctrl>+<Alt>+s to toggle", "使用 <Ctrl>+<Alt>+s 切换控制"]),
         font=larger_font,
     )
     label1.pack(padx=4, pady=4)

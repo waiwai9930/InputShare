@@ -1,9 +1,11 @@
 import atexit
 import sys, os
 import json
+import customtkinter as ctk
 
 from dataclasses import asdict, dataclass, fields
 from utils import script_abs_path
+from utils.i18n import I18n, ENGLISH_LANGUAGE
 
 DEFAULT_CONFIG_FILE_NAME = "config.json"
 
@@ -13,6 +15,11 @@ class ConfigFile:
     scan_port: bool = False
     sync_clipboard: bool = True
     share_keyboard_only: bool = False
+
+    # settings
+    theme: str = "system"
+    mouse_speed: float = 2
+    language: str = I18n.language_code() or ENGLISH_LANGUAGE
 
 class ConfigManager:
     path: str
@@ -60,4 +67,13 @@ class ConfigManager:
         config_path = os.path.join(config_base_dir, DEFAULT_CONFIG_FILE_NAME)
         return config_path
 
-CONFIG = ConfigManager()
+__config_instance: ConfigManager | None = None
+def get_config_manager() -> ConfigManager:
+    global __config_instance
+    if __config_instance is None:
+        __config_instance = ConfigManager()
+    return __config_instance
+def get_config() -> ConfigFile:
+    manager = get_config_manager()
+    return manager.config
+

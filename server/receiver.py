@@ -3,7 +3,7 @@ import threading
 
 from scrcpy_client.clipboard_event import GetClipboardEventResponse
 from utils.clipboard import Clipboard
-from utils.config_manager import CONFIG
+from utils.config_manager import get_config
 from utils.logger import LOGGER, LogType
 
 class ReceivedClipboardText:
@@ -28,7 +28,7 @@ def server_receiver_factory(client_socket: socket.socket) -> threading.Thread:
 
             # prevent duplicated clipboard content
             current_clipboard_text = Clipboard.safe_paste()
-            if not CONFIG.config.sync_clipboard: return True
+            if not get_config().sync_clipboard: return True
             if current_clipboard_text is not None and text != current_clipboard_text:
                 Clipboard.safe_copy(text)
                 ReceivedClipboardText.write(text)

@@ -12,7 +12,7 @@ from scrcpy_client.hid_event import HIDKeyboardInitEvent, KeyEmptyEvent, KeyEven
 from scrcpy_client.inject_event import InjectKeyCode
 from scrcpy_client.sdl_def import SDL_Scancode
 from input.edge_portal import edge_portal_passing_event
-from utils.config_manager import CONFIG
+from utils.config_manager import get_config
 
 CallbackResult = Exception | None
 SendDataCallback = Callable[[bytes], CallbackResult]
@@ -158,15 +158,16 @@ def callback_context_wrapper(
         diff_x = cur_x - last_x
         diff_y = cur_y - last_y
         speed = (diff_x ** 2 + diff_y ** 2) ** 0.5
+        speed_factor = get_config().mouse_speed
         # check speed to prevent divide-by-zero error
-        adjusted_scale = 1 if speed == 0 else min(1, 2 / (speed ** 0.5))
+        adjusted_scale = 1 if speed == 0 else min(1, speed_factor / (speed ** 0.5))
         diff_x = int(diff_x * adjusted_scale)
         diff_y = int(diff_y * adjusted_scale)
         return diff_x, diff_y
 
     def mouse_move_callback(cur_x: int, cur_y: int, is_redirecting: bool) -> CallbackResult:
         nonlocal last_mouse_point
-        if not is_redirecting or CONFIG.config.share_keyboard_only:
+        if not is_redirecting or get_config().share_keyboard_only:
             last_mouse_point = None
             return None
 
@@ -180,7 +181,7 @@ def callback_context_wrapper(
 
     def mouse_click_callback(_cur_x: int, _cur_y: int, button: mouse.Button, pressed: bool, is_redirecting: bool) -> CallbackResult:
         nonlocal last_mouse_point
-        if not is_redirecting or CONFIG.config.share_keyboard_only:
+        if not is_redirecting or get_config().share_keyboard_only:
             return None
 
         hid_button = HID_MouseButton.MOUSE_BUTTON_NONE
@@ -199,7 +200,7 @@ def callback_context_wrapper(
         return send_data(mouse_move_event.serialize())
     
     def mouse_scroll_callback(_cur_x: int, _cur_y: int, _dx: int, dy: int, is_redirecting: bool) -> CallbackResult:
-        if not is_redirecting or CONFIG.config.share_keyboard_only:
+        if not is_redirecting or get_config().share_keyboard_only:
             return None
         mouse_scroll_event = MouseScrollEvent(dy)
         return send_data(mouse_scroll_event.serialize())
