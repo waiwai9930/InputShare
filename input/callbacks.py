@@ -119,7 +119,6 @@ def callback_context_wrapper(
         nonlocal movement_queue, wakeup_counter
 
         def send_wakeup_signal() -> CallbackResult:
-            print("send wakeup signal")
             key_down = InjectKeyCode(AKeyCode.AKEYCODE_WAKEUP, AKeyEventAction.AKEY_EVENT_ACTION_DOWN)
             key_up   = InjectKeyCode(AKeyCode.AKEYCODE_WAKEUP, AKeyEventAction.AKEY_EVENT_ACTION_UP)
             for key in [key_down, key_up]:

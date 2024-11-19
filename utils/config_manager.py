@@ -18,7 +18,7 @@ class ConfigFile:
     # settings
     theme: str = "system"
     mouse_speed: float = 2
-    keep_wakeup: bool = True
+    keep_wakeup: bool = False
     language: str = I18n.language_code() or ENGLISH_LANGUAGE
 
 class ConfigManager:
