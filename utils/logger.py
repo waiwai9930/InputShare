@@ -16,7 +16,7 @@ class Logger:
     }
 
     def __init__(self, path: str) -> None:
-        self.file = open(path, "w+")
+        self.file = open(path, "w+", encoding="utf-8")
         self.file.write("")
 
     def __del__(self):

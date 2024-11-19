@@ -27,11 +27,11 @@ class TimeCounter:
     def count(self):
         if self.__timer is None:
             self.__count = 1
-            self.__timer = time.time()
+            self.__timer = time.perf_counter()
             return
 
         self.__count += 1
-        current_sec = time.time()
+        current_sec = time.perf_counter()
         if current_sec - self.__timer >= self.interval_sec:
             self.callback(self.__count)
             self.__count = 0

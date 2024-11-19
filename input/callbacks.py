@@ -29,17 +29,17 @@ def callback_context_wrapper(
     MouseMoveCallback, MouseClickCallback, MouseScrollCallback,
 ]:
     def send_data(data: bytes) -> CallbackResult:
-        nonlocal client_socket
-        try:
-            client_socket.sendall(data)
-        except Exception as e:
-            return e
+        nonlocal client_socket, wakeup_counter
+        wakeup_counter = 0
+        try: client_socket.sendall(data)
+        except Exception as e: return e
         return None
 
     keyboard_init = HIDKeyboardInitEvent()
     send_data(keyboard_init.serialize())
     keymod_state = KeymodStateStore()
     key_list: list[SDL_Scancode] = []
+    manual_device_sleep = False
 
     def customized_shortcuts(k: SDL_Scancode | HIDKeymod | AKeyCode, is_redirecting: bool) -> list[bytes] | None:
         if is_redirecting: return None
@@ -69,9 +69,7 @@ def callback_context_wrapper(
         shortcut_data = customized_shortcuts(generic_key, is_redirecting)
         if shortcut_data is not None:
             for data in shortcut_data:
-                res = send_data(data)
-                if res is not None:
-                    return res
+                if (res := send_data(data)) is not None: return res
             return None
 
         if isinstance(generic_key, HIDKeymod):
@@ -79,6 +77,9 @@ def callback_context_wrapper(
 
         if not is_redirecting: return None
         if isinstance(generic_key, AKeyCode):
+            nonlocal manual_device_sleep
+            if generic_key == AKeyCode.AKEYCODE_SOFT_SLEEP: manual_device_sleep = True
+            if generic_key == AKeyCode.AKEYCODE_WAKEUP:     manual_device_sleep = False
             inject_key_code = InjectKeyCode(generic_key, AKeyEventAction.AKEY_EVENT_ACTION_DOWN)
             return send_data(inject_key_code.serialize())
         if isinstance(generic_key, SDL_Scancode) and generic_key not in key_list:
@@ -111,40 +112,67 @@ def callback_context_wrapper(
     last_mouse_point: tuple[int, int] | None = None
     mouse_button_state = MouseButtonStateStore()
     movement_queue: Queue[tuple[int, int]] = Queue(maxsize=5)
+    wakeup_counter = 0
 
-    from input.controller import schedule_exit
     def mouse_movement_sender():
-        nonlocal send_data
+        from input.controller import schedule_exit
+        nonlocal movement_queue, wakeup_counter
+
+        def send_wakeup_signal() -> CallbackResult:
+            print("send wakeup signal")
+            key_down = InjectKeyCode(AKeyCode.AKEYCODE_WAKEUP, AKeyEventAction.AKEY_EVENT_ACTION_DOWN)
+            key_up   = InjectKeyCode(AKeyCode.AKEYCODE_WAKEUP, AKeyEventAction.AKEY_EVENT_ACTION_UP)
+            for key in [key_down, key_up]:
+                res = send_data(key.serialize())
+                if res is not None: return res
+
         # the most common mouse polling rate
         DEFAULT_INTERVAL_SEC = 1 / 125
-
-        INTERVAL_INCR = 1 / 30
-        INTERVAL_INCR_FACTOR = 60
+        NO_MOVE_INTERVAL_SEC = 1 / 30
+        # the time factor that start to decrease `interval_sec`
+        NO_MOVE_FACTOR_SEC = 5
+        # send wakeup signal every X times `wakeup_counter` increases
+        WAKEUP_COUNT_MODULO = int((1 / NO_MOVE_INTERVAL_SEC) * 2)
 
         interval_sec = DEFAULT_INTERVAL_SEC
-        no_move_counter = 0
-        last_call_time = time.perf_counter()
+        no_move_timer = None
+        start_time = time.perf_counter()
         while True:
-            call_time_diff = time.perf_counter() - last_call_time
-            last_call_time = time.perf_counter()
-            if call_time_diff < interval_sec:
-                time.sleep(interval_sec - call_time_diff)
+            # --- keep same call interval ---
+            current_time = time.perf_counter()
+            elapsed_time = current_time - start_time
+            if elapsed_time < interval_sec:
+                # prevent high CPU usage
+                time.sleep(interval_sec)
+                continue
+            start_time += interval_sec
+            # --- keep same call interval ---
 
-            if movement_queue.empty():
-                no_move_counter += 1
-                if no_move_counter > INTERVAL_INCR_FACTOR:
-                    interval_sec = INTERVAL_INCR
-                event = MouseMoveEvent(0, 0, mouse_button_state)
+            if not movement_queue.empty():
+                # if queue is not empty, send the movement event
+                no_move_timer = None
+                interval_sec = DEFAULT_INTERVAL_SEC
+                dx, dy = movement_queue.get()
+                event = MouseMoveEvent(dx, dy, mouse_button_state)
                 res = send_data(event.serialize())
                 if res is not None: schedule_exit(res); break
                 continue
 
-            no_move_counter = 0
-            interval_sec = DEFAULT_INTERVAL_SEC
-            x, y = movement_queue.get()
-            event = MouseMoveEvent(x, y, mouse_button_state)
-            res = send_data(event.serialize())
-            if res is not None: schedule_exit(res); break
+            if no_move_timer is None: no_move_timer = current_time
+            if current_time - no_move_timer > NO_MOVE_FACTOR_SEC:
+                interval_sec = NO_MOVE_INTERVAL_SEC
+                if not get_config().keep_wakeup: continue
+                wakeup_counter += 1
+                if wakeup_counter % WAKEUP_COUNT_MODULO or manual_device_sleep: continue
+                if (res := send_wakeup_signal()) is not None:
+                    schedule_exit(res); break
+                continue
+            # when there is no mouse movement within `NO_MOVE_FACTOR_SEC` seconds,
+            # send zero movement mouse event
+            event = MouseMoveEvent(0, 0, mouse_button_state)
+            if (res := send_data(event.serialize())) is not None:
+                schedule_exit(res); break
+
     threading.Thread(target=mouse_movement_sender, daemon=True).start()
 
     def compute_mouse_pointer_diff(cur_x: int, cur_y: int) -> tuple[int, int] | None:
@@ -172,7 +200,7 @@ def callback_context_wrapper(
             return None
 
         if edge_portal_passing_event.is_set():
-            last_mouse_point = None
+            last_mouse_point = (cur_x, cur_y)
             edge_portal_passing_event.clear()
             return None
         res = compute_mouse_pointer_diff(cur_x, cur_y)

@@ -55,6 +55,11 @@ def mount_elements(root: ctk.CTk):
             font=larger_font,
             anchor="w",
             text=i18n(["Mouse speed: ", "鼠标移动速度："]))
+        info_label = ctk.CTkLabel(
+            master=speed_frame,
+            font=smaller_font,
+            anchor="w",
+            text=i18n(["Mouse movement speed in your Android device.", "鼠标在你的安卓设备上的移动速度。"]))
         speed_slider_frame = ctk.CTkFrame(master=speed_frame)
         low_label = ctk.CTkLabel(
             master=speed_slider_frame,
@@ -66,15 +71,36 @@ def mount_elements(root: ctk.CTk):
             font=smaller_font)
         speed_slider = ctk.CTkSlider(
             master=speed_slider_frame,
-            from_=1, to=4,
+            from_=1, to=5,
             variable=speed_var,
             number_of_steps=10)
         speed_frame.pack(fill="x", pady=(10, 4))
-        speed_label.pack(fill="x", padx=20, pady=(0, 6))
+        speed_label.pack(fill="x", padx=20)
+        info_label.pack(fill="x", padx=20)
         speed_slider_frame.pack(fill="x", padx=(16, 16), pady=4)
-        low_label.pack(side=ctk.LEFT, padx=(10, 0))
+        low_label.pack(side=ctk.LEFT, padx=(20, 0))
         speed_slider.pack(side=ctk.LEFT, expand=True)
-        high_label.pack(side=ctk.LEFT, padx=(0, 10))
+        high_label.pack(side=ctk.LEFT, padx=(0, 20))
+
+    def mouse_keep_wakeup_section():
+        nonlocal settings_scroll_frame, smaller_font, normal_font, larger_font, keep_wakeup_var
+        keep_wakeup_frame = ctk.CTkFrame(master=settings_scroll_frame)
+        keep_wakeup_label = ctk.CTkLabel(
+            master=keep_wakeup_frame,
+            font=larger_font,
+            text=i18n(["Keep Screen On: ", "保持设备屏幕常亮："]))
+        check_box = ctk.CTkCheckBox(
+            master=keep_wakeup_frame,
+            text="",
+            variable=keep_wakeup_var)
+        info_label = ctk.CTkLabel(
+            master=keep_wakeup_frame,
+            font=smaller_font,
+            text=i18n(["When enabled, the device screen will stay on and prevent auto-sleep.", "启用后，设备屏幕将持续亮屏，防止自动休眠。"]))
+        keep_wakeup_frame.pack(fill="x", pady=(10, 4))
+        keep_wakeup_label.grid(row=0, column=0, padx=(20, 0))
+        check_box.grid(row=0, column=1)
+        info_label.grid(row=1, column=0, columnspan=2, padx=20)
 
     def mount_language_section():
         nonlocal settings_scroll_frame, smaller_font, normal_font, larger_font, language_var
@@ -91,7 +117,7 @@ def mount_elements(root: ctk.CTk):
         english_radio = ctk.CTkRadioButton(
             master=language_frame,
             text="English",
-            font=normal_font,
+            font=ctk.CTkFont(family="Arial", size=16),
             variable=language_var, value=ENGLISH_LANGUAGE)
         language_frame.pack(fill="x", pady=(10, 20))
         language_label.grid(row=0, padx=20, pady=(0, 6), sticky="w")
@@ -103,25 +129,29 @@ def mount_elements(root: ctk.CTk):
         root.destroy()
 
     def confirm():
-        nonlocal root, theme_var, speed_var, language_var
-        get_config().theme = theme_var.get()
-        get_config().mouse_speed = speed_var.get()
-        get_config().language = language_var.get()
+        nonlocal root, config, theme_var, speed_var, language_var
+        config.theme = theme_var.get()
+        config.mouse_speed = speed_var.get()
+        config.keep_wakeup = keep_wakeup_var.get()
+        config.language = language_var.get()
         root.destroy()
 
     i18n = get_i18n()
+    config = get_config()
     smaller_font = i18n([ctk.CTkFont(family="Arial", size=12), ctk.CTkFont(family="Microsoft YaHei", size=12)])
     normal_font = i18n([ctk.CTkFont(family="Arial", size=16), ctk.CTkFont(family="Microsoft YaHei", size=16)])
     larger_font = i18n([ctk.CTkFont(family="Arial", size=18), ctk.CTkFont(family="Microsoft YaHei", size=18)])
 
     settings_scroll_frame = ctk.CTkScrollableFrame(master=root, height=320)
     settings_scroll_frame.pack(fill="x", expand=True)
-    theme_var = ctk.StringVar(master=settings_scroll_frame, value=get_config().theme)
-    speed_var = ctk.DoubleVar(master=settings_scroll_frame, value=get_config().mouse_speed)
+    theme_var = ctk.StringVar(master=settings_scroll_frame, value=config.theme)
+    speed_var = ctk.DoubleVar(master=settings_scroll_frame, value=config.mouse_speed)
+    keep_wakeup_var = ctk.BooleanVar(value=config.keep_wakeup)
     language_var = ctk.StringVar(master=settings_scroll_frame, value=i18n([ENGLISH_LANGUAGE, CHINESE_LANGUAGE]))
 
     mouse_theme_section()
     mount_speed_section()
+    mouse_keep_wakeup_section()
     mount_language_section()
 
     button_frame = ctk.CTkFrame(master=root)

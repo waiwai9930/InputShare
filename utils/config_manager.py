@@ -1,7 +1,6 @@
 import atexit
 import sys, os
 import json
-import customtkinter as ctk
 
 from dataclasses import asdict, dataclass, fields
 from utils import script_abs_path
@@ -19,6 +18,7 @@ class ConfigFile:
     # settings
     theme: str = "system"
     mouse_speed: float = 2
+    keep_wakeup: bool = True
     language: str = I18n.language_code() or ENGLISH_LANGUAGE
 
 class ConfigManager:

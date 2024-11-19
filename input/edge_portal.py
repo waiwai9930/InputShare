@@ -35,7 +35,7 @@ def portal_loop(interval_sec: float):
         time.sleep(interval_sec)
 
 def create_edge_portal():
-    interval_sec = 1 / 120
+    interval_sec = 1 / 250
     while not close_event.is_set():
         start_event.wait()
         portal_loop(interval_sec)
