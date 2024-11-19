@@ -27,7 +27,7 @@ __输入流转__ 能够让你的安卓设备通过有线/无线的方式和电�
 
 ## 安装
 
-请前往[发布界面][https://github.com/BHznJNs/InputShare/releases]下载最新版本的压缩包，解压，运行其中的 `.exe` 可执行文件。
+请前往[发布界面](https://github.com/BHznJNs/InputShare/releases)下载最新版本的压缩包，解压，运行其中的 `.exe` 可执行文件。
 
 ## 使用方法
 

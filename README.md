@@ -28,7 +28,7 @@ __InputShare__ enables you to share the keyboard and mouse of your computer with
 
 ## Install
 
-Go to the [release page][https://github.com/BHznJNs/InputShare/releases] and download the latest compressed package, uncompress it and the executable is in it.
+Go to the [release page](https://github.com/BHznJNs/InputShare/releases) and download the latest compressed package, uncompress it and the executable is in it.
 
 ## Usage
 
