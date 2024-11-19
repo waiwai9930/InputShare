@@ -20,4 +20,5 @@ def is_valid_ip(ip_str: str) -> bool:
 # "192.168.2.1:80"
 def is_valid_ip_port(ip_port_str: str) -> bool:
     ip_part = get_ip_from_ip_port(ip_port_str)
+    if ip_part == ip_port_str: return False
     return is_valid_ip(ip_part)

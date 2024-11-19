@@ -41,7 +41,7 @@ class HIDKeyboardInputEvent:
         buf += self.data
         return buf
 
-def KeyEvent(keymod: KeymodStateStore, keys: list[SDL_Scancode]):
+def KeyEvent(keymod: KeymodStateStore, keys: list[SDL_Scancode]) -> HIDKeyboardInputEvent:
     # [_, _, _, _, _, _, _, _]
     # length: 8
     # 0 -> mod key
@@ -57,7 +57,7 @@ def KeyEvent(keymod: KeymodStateStore, keys: list[SDL_Scancode]):
     keyboard_event = HIDKeyboardInputEvent(data)
     return keyboard_event
 
-def KeyEmptyEvent():
+def KeyEmptyEvent() -> HIDKeyboardInputEvent:
     data = [0] * HIDKeyboardInputEvent.size
     keyboard_event = HIDKeyboardInputEvent(data)
     return keyboard_event
