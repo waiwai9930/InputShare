@@ -72,17 +72,17 @@ def callback_context_wrapper(
                 if (res := send_data(data)) is not None: return res
             return None
 
-        if isinstance(generic_key, HIDKeymod):
+        if type(generic_key) == HIDKeymod:
             keymod_state.keydown(generic_key)
 
         if not is_redirecting: return None
-        if isinstance(generic_key, AKeyCode):
+        if type(generic_key) == AKeyCode:
             nonlocal manual_device_sleep
             if generic_key == AKeyCode.AKEYCODE_SOFT_SLEEP: manual_device_sleep = True
             if generic_key == AKeyCode.AKEYCODE_WAKEUP:     manual_device_sleep = False
             inject_key_code = InjectKeyCode(generic_key, AKeyEventAction.AKEY_EVENT_ACTION_DOWN)
             return send_data(inject_key_code.serialize())
-        if isinstance(generic_key, SDL_Scancode) and generic_key not in key_list:
+        if type(generic_key) == SDL_Scancode and generic_key not in key_list:
             key_list.append(generic_key)
             if len(key_list) > HID_KEYBOARD_MAX_KEYS:
                 key_to_remove = key_list[0]
@@ -93,14 +93,14 @@ def callback_context_wrapper(
     def keyboard_release_callback(k: keyboard.Key | keyboard.KeyCode, is_redirecting: bool) -> CallbackResult:
         if k not in key_scancode_map: return None
         generic_key = key_scancode_map[k]
-        if isinstance(generic_key, HIDKeymod):
+        if type(generic_key) == HIDKeymod:
             keymod_state.keyup(generic_key)
 
         if not is_redirecting: return None
-        if isinstance(generic_key, AKeyCode):
+        if type(generic_key) == AKeyCode:
             inject_key_code = InjectKeyCode(generic_key, AKeyEventAction.AKEY_EVENT_ACTION_UP)
             return send_data(inject_key_code.serialize())
-        if isinstance(generic_key, SDL_Scancode) and generic_key in key_list:
+        if type(generic_key) == SDL_Scancode and generic_key in key_list:
             key_list.remove(generic_key)
         key_event = KeyEvent(keymod_state, key_list)
         return send_data(key_event.serialize())

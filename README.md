@@ -55,8 +55,8 @@ The shortcuts following are available after connection:
 
 | Shortcut | Description |
 | --- | --- |
-| `<Ctrl>+<Alt>+s` | toggle the control between your computer and your Android device |
-| `<Ctrl>+<Alt>+q` | quit the program |
+| `<Ctrl>+<Alt>+s` | Toggle the control between your computer and your Android device |
+| `<Ctrl>+<Alt>+q` | Quit the program |
 | `F1` | Multi-task switching |
 | `F2` | Return to Home |
 | `F3` | Back |
