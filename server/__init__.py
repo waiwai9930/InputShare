@@ -34,7 +34,7 @@ def deploy_reporter_server() -> Exception | None:
     primary_device = device_list[0]
     primary_device.forward(f"tcp:{reporter_receiver.SERVER_PORT}", f"tcp:{reporter_receiver.SERVER_PORT}")
 
-    package_path   = primary_device.shell("pm path " + reporter_receiver.PACKAGE_NAME)
+    package_path    = primary_device.shell("pm path " + reporter_receiver.PACKAGE_NAME)
     package_version = primary_device.shell(f"dumpsys package {reporter_receiver.PACKAGE_NAME} | grep versionName")
     assert type(package_path) == str and type(package_version) == str
     parsed_version = package_version.split("=")[1] if package_version else ""
