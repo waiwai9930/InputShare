@@ -14,7 +14,7 @@ __InputShare__ enables you to share the keyboard and mouse of your computer with
 
 ## Features
 
-- __Seamless Switching__: Quickly switch keyboard and mouse input between the PC and Android device with hotkey.
+- __Seamless Switching__: Quickly switch keyboard and mouse input between the PC and Android device via hotkey and edge toggling.
 - __Wired / Wireless Connection__: Supports both wired and wireless connections for flexible input sharing.
 - __Wide Compatibility__: Compatible with various Android devices, not a specific brand.
 - __Clipboard Sync__: Seamlessly sync clipboard content between your computer and Android device.
