@@ -10,11 +10,20 @@ from utils.logger import LogType, LOGGER
 script_path = Path(__file__).resolve().parent
 adb_relative_path = "adb-bin/adb.exe"
 adb_bin_path = Path.joinpath(script_path, adb_relative_path)
+__adb_client_instance: adbutils.AdbClient | None = None
 os.environ["ADBUTILS_ADB_PATH"] = str(adb_bin_path)
 ADB_BIN_PATH = str(adb_bin_path)
+ADB_SERVER_PORT = 5038
+
+def get_adb_client() -> adbutils.AdbClient:
+    global __adb_client_instance
+    if __adb_client_instance is None:
+        # use non-default port to prevent conflict with Android Studio
+        __adb_client_instance = adbutils.AdbClient(port=ADB_SERVER_PORT)
+    return __adb_client_instance
 
 def start_adb_server() -> bool:
-    command = f"{ADB_BIN_PATH} start-server"
+    command = f"{ADB_BIN_PATH} -P {ADB_SERVER_PORT} start-server"
     try:
         process = subprocess.Popen(
             command,
@@ -30,7 +39,7 @@ def start_adb_server() -> bool:
         return False
 
 def try_pairing(addr: str, pairing_code: str, timeout=3.0) -> bool:
-    command = f"{ADB_BIN_PATH} pair {addr} {pairing_code}"
+    command = f"{ADB_BIN_PATH} -P {ADB_SERVER_PORT} pair {addr} {pairing_code}"
     try:
         process = subprocess.Popen(
             command,
@@ -48,7 +57,7 @@ def try_pairing(addr: str, pairing_code: str, timeout=3.0) -> bool:
         return False
 
 def try_connect_device(addr: str, timeout: float=3.0) -> adbutils.AdbClient | None:
-    client = adbutils.AdbClient()
+    client = get_adb_client()
     try:
         output = client.connect(addr, timeout)
         assert len(client.device_list()) > 0

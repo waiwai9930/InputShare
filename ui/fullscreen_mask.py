@@ -57,6 +57,7 @@ def open_mask_window():
     label_toplevel.wm_attributes('-alpha', 0.6)
     label_toplevel.wm_attributes("-topmost", True)
     label_toplevel.overrideredirect(True)
+    label_toplevel.configure(cursor="none")
 
     label1 = ctk.CTkLabel(
         master=label_toplevel,

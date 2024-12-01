@@ -1,12 +1,11 @@
 import sys
 import threading
-import adbutils
 import customtkinter as ctk
 
 from dataclasses import dataclass
 from queue import Queue
 
-from adb_controller import try_connect_device, try_pairing
+from adb_controller import get_adb_client, try_connect_device, try_pairing
 from ui import ICON_ICO_PATH
 from utils.config_manager import get_config, get_config_manager
 from utils.logger import LOGGER, LogType, unreachable
@@ -239,7 +238,7 @@ def open_connecting_window():
     global connecting_window
     def delete_window_callback():
         connecting_window.destroy()
-        adbutils.AdbClient().server_kill()
+        get_adb_client().server_kill()
         sys.exit(0)
 
     connecting_window = ctk.CTk()

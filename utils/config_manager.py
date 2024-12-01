@@ -3,6 +3,7 @@ import sys, os
 import json
 
 from dataclasses import asdict, dataclass, fields
+from server.reporter_receiver import DevicePosition
 from utils import script_abs_path
 from utils.i18n import I18n, ENGLISH_LANGUAGE
 
@@ -18,6 +19,9 @@ class ConfigFile:
     # settings
     theme: str = "system"
     mouse_speed: float = 2
+    edge_toggling: bool = False
+    device_position: str = DevicePosition.RIGHT
+    trigger_margin: int = 80
     keep_wakeup: bool = False
     language: str = I18n.language_code() or ENGLISH_LANGUAGE
 

@@ -1,69 +1,49 @@
 import socket
 import subprocess
-import sys
-import time
-
-from pathlib import Path
-from adbutils import AdbClient, AdbDevice
-from adb_controller import ADB_BIN_PATH
-from utils import script_abs_path
+from adb_controller import get_adb_client
+from server import scrcpy_receiver, reporter_receiver
+from utils.config_manager import get_config
 from utils.logger import LOGGER, LogType
 
-SERVER_PORT = 1234
-
-class ADBConnectionError(Exception): pass
-
-def push_server(device: AdbDevice):
-    server_relative_path = "scrcpy-server"
-    target_path = "/data/local/tmp/scrcpy-server-manual.jar"
-    script_path = script_abs_path(__file__)
-    server_binary_path = Path.joinpath(script_path, server_relative_path)
-    device.push(str(server_binary_path), target_path)
-
-def server_process_factory() -> subprocess.Popen | Exception:
-    adb_client = AdbClient()
+def deploy_scrcpy_server() -> tuple[subprocess.Popen, socket.socket] | Exception:
+    adb_client = get_adb_client()
     device_list = adb_client.device_list()
     if len(device_list) == 0:
-        return ADBConnectionError()
+        return scrcpy_receiver.ADBConnectionError()
 
     primary_device = device_list[0]
-    push_server(primary_device)
-    primary_device.forward(f"tcp:{SERVER_PORT}", "localabstract:scrcpy")
+    scrcpy_receiver.push_server(primary_device)
+    primary_device.forward(f"tcp:{scrcpy_receiver.SERVER_PORT}", "localabstract:scrcpy")
 
-    command = "CLASSPATH=/data/local/tmp/scrcpy-server-manual.jar \
-app_process / com.genymobile.scrcpy.Server 2.7 \
-tunnel_forward=true video=false audio=false control=true \
-cleanup=false raw_stream=true send_dummy_byte=true max_size=4096"
-    try:
-        process = subprocess.Popen(
-            [ADB_BIN_PATH, "shell", command],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            creationflags=subprocess.CREATE_NO_WINDOW,
-        )
-        output = process.stdout.readline() # type: ignore
-    except Exception as e:
-        LOGGER.write(LogType.Error, "Failed to start subprocess: " + str(e))
-        return e
-    LOGGER.write(LogType.Server, output)
-    time.sleep(1)
-    return process
+    server_process = scrcpy_receiver.server_process_factory()
+    if isinstance(server_process, Exception):
+        return server_process
 
-class InvalidDummyByteException(Exception): pass
-
-def try_connect_server(host: str, port: int=SERVER_PORT) -> socket.socket | Exception:
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.connect((host, port))
-
-    client_socket.settimeout(3)
-    try:
-        dummy = client_socket.recv(4)
-        client_socket.settimeout(None)
-    except socket.timeout as e: return e
-    except Exception as e: return e
-
-    LOGGER.write(LogType.Info, "dummy byte: " + str(dummy))
-    if len(dummy) == 1 and dummy[0] == 0x00:
+    client_socket = scrcpy_receiver.try_connect_server("localhost")
+    if isinstance(client_socket, Exception):
         return client_socket
-    return InvalidDummyByteException()
+
+    return server_process, client_socket
+
+def deploy_reporter_server() -> Exception | None:
+    adb_client = get_adb_client()
+    device_list = adb_client.device_list()
+    if len(device_list) == 0:
+        return scrcpy_receiver.ADBConnectionError()
+
+    primary_device = device_list[0]
+    primary_device.forward(f"tcp:{reporter_receiver.SERVER_PORT}", f"tcp:{reporter_receiver.SERVER_PORT}")
+
+    package_path   = primary_device.shell("pm path " + reporter_receiver.PACKAGE_NAME)
+    package_version = primary_device.shell(f"dumpsys package {reporter_receiver.PACKAGE_NAME} | grep versionName")
+    assert type(package_path) == str and type(package_version) == str
+    parsed_version = package_version.split("=")[1] if package_version else ""
+    not_installed  = len(package_path) == 0
+    is_outdated    = parsed_version != reporter_receiver.PACKAGE_VERSION
+    if not_installed or is_outdated:
+        if not_installed: LOGGER.write(LogType.Server, "Reporter not installed, installing...")
+        elif is_outdated: LOGGER.write(LogType.Server, "Reporter outdated, updating...")
+        if (res := reporter_receiver.install_server(primary_device)) is not None:
+            return res
+
+    return reporter_receiver.start_server(primary_device)

@@ -5,7 +5,7 @@ from scrcpy_client.clipboard_event import GetClipboardEvent, SetClipboardEvent
 from scrcpy_client.hid_event import KeyEmptyEvent
 from input.callbacks import KeyEventCallback, MouseClickCallback, MouseMoveCallback, MouseScrollCallback, SendDataCallback
 from input.edge_portal import edge_portal_thread_factory
-from server.receiver import ReceivedClipboardText
+from server.scrcpy_receiver import ReceivedClipboardText
 from ui.fullscreen_mask import mask_thread_factory
 from utils.clipboard import Clipboard
 from utils.config_manager import get_config
@@ -90,7 +90,7 @@ def main_loop(
     mouse_click_callback: MouseClickCallback,
     mouse_scroll_callback: MouseScrollCallback,
 ) -> Exception | None:
-    global is_redirecting, keyboard_listener, main_errno
+    global is_redirecting, keyboard_listener, main_errno, toggle_event
 
     def toggle_redirecting_state(is_redirecting: bool):
         nonlocal show_mask, hide_mask,\
