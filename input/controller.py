@@ -127,10 +127,8 @@ def main_loop(
     )
     mouse_listener.start()
     while not exit_event.is_set() and main_errno is None:
-        res = toggle_redirecting_state(is_redirecting)
-        if res is not None:
-            main_errno = res
-            break
+        if (res := toggle_redirecting_state(is_redirecting)) is not None:
+            main_errno = res; break
 
         keyboard_listener = keyboard.Listener(
             suppress=is_redirecting,

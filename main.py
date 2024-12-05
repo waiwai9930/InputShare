@@ -22,34 +22,28 @@ def close_notification_resolver(errno: Exception | None):
         case scrcpy_receiver.ADBConnectionError():
             close_notification = Notification(
                 i18n(["ConnectionError", "连接错误"]),
-                i18n(["Wired connection failed, please check if the device is connected correctly.", "有线连接失败，请检查是否正确连接设备。"]),
-            )
+                i18n(["Wired connection failed, please check if the device is connected correctly.", "有线连接失败，请检查是否正确连接设备。"]))
         case scrcpy_receiver.InvalidDummyByteException():
             close_notification = Notification(
                 i18n(["NetworkError", "网络错误"]),
-                i18n(["Connection with device failed, please retry.", "设备连接失败，请重试。"])
-            )
+                i18n(["Connection with device failed, please retry.", "设备连接失败，请重试。"]))
         case AdbInstallError():
             close_notification = Notification(
                 i18n(["NetworkError", "网络错误"]),
-                i18n(["Android client installation failed, please retry.", "安卓客户端安装失败，请重试。"])
-            )
+                i18n(["Android client installation failed, please retry.", "安卓客户端安装失败，请重试。"]))
         case socket.timeout | TimeoutError():
             close_notification = Notification(
                 i18n(["NetworkError", "网络错误"]),
-                i18n(["Connection with device timeout, please retry.", "设备连接超时，请重试。"]),
-            )
+                i18n(["Connection with device timeout, please retry.", "设备连接超时，请重试。"]))
         case ConnectionAbortedError() | ConnectionResetError():
             close_notification = Notification(
                 i18n(["NetworkError", "网络错误"]),
-                i18n(["Unexpected connection aborted.", "连接意外中断。"]),
-            )
+                i18n(["Unexpected connection aborted.", "连接意外中断。"]))
         case _:
             error_name = errno.__class__.__name__
             close_notification = Notification(
                 i18n(["Error", "错误"]),
-                i18n([f"Unknown error: {error_name}", f"未知错误：{error_name}"]),
-            )
+                i18n([f"Unknown error: {error_name}", f"未知错误：{error_name}"]))
     get_adb_client().server_kill()
     LOGGER.write(LogType.Info, "Terminated with: " + str(close_notification))
     send_notification(close_notification)
