@@ -3,12 +3,12 @@ import sys
 from typing import Callable
 
 from adbutils import AdbInstallError
-from adb_controller import get_adb_client, start_adb_server
 from multiprocessing import freeze_support
 from server import deploy_reporter_server, deploy_scrcpy_server, scrcpy_receiver, reporter_receiver
 from input.callbacks import callback_context_wrapper
 from ui.connecting_window import open_connecting_window
 from ui.tray import tray_thread_factory
+from utils.adb_controller import get_adb_client, start_adb_server
 from utils.config_manager import get_config
 from utils.i18n import get_i18n
 from utils.logger import LogType, LOGGER
@@ -45,7 +45,8 @@ def close_notification_resolver(errno: Exception | None):
                 i18n(["Error", "错误"]),
                 i18n([f"Unknown error: {error_name}", f"未知错误：{error_name}"]))
     get_adb_client().server_kill()
-    LOGGER.write(LogType.Info, "Terminated with: " + str(close_notification))
+    LOGGER.write(LogType.Adb, "ADB server killed.")
+    LOGGER.write(LogType.Info, "Program terminated with: " + str(close_notification))
     send_notification(close_notification)
 
 if __name__ == "__main__":

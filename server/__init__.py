@@ -1,8 +1,7 @@
 import socket
 import subprocess
-from adb_controller import get_adb_client
 from server import scrcpy_receiver, reporter_receiver
-from utils.config_manager import get_config
+from utils.adb_controller import get_adb_client
 from utils.logger import LOGGER, LogType
 
 def deploy_scrcpy_server() -> tuple[subprocess.Popen, socket.socket] | Exception:

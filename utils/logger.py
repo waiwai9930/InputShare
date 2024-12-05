@@ -5,13 +5,15 @@ from utils import script_abs_path
 class LogType(Enum):
     Info    = 0
     Error   = 1
-    Server  = 2
+    Adb     = 2
+    Server  = 3
 
 class Logger:
     DEFAULT_LOG_FILE_NAME = "InputShare-debug.log"
     LOG_TYPE_NAME_MAP = {
         LogType.Info  : "Into",
         LogType.Error : "Error",
+        LogType.Adb   : "ADB",
         LogType.Server: "Server",
     }
 

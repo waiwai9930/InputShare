@@ -4,13 +4,11 @@ import customtkinter as ctk
 
 from dataclasses import dataclass
 from queue import Queue
-
-from adb_controller import get_adb_client, try_connect_device, try_pairing
 from ui import ICON_ICO_PATH
+from utils.adb_controller import get_adb_client, try_connect_device, try_pairing
 from utils.config_manager import get_config, get_config_manager
 from utils.logger import LOGGER, LogType, unreachable
-from utils.scan_port import scan_port
-from utils.ip_check import get_ip_from_ip_port, is_valid_ip, is_valid_ip_port
+from utils.network import get_ip_from_ip_port, is_valid_ip, is_valid_ip_port, scan_port
 from utils.i18n import get_i18n
 
 i18n = get_i18n()
@@ -239,6 +237,7 @@ def open_connecting_window():
     def delete_window_callback():
         connecting_window.destroy()
         get_adb_client().server_kill()
+        LOGGER.write(LogType.Adb, "ADB server killed.")
         sys.exit(0)
 
     connecting_window = ctk.CTk()
