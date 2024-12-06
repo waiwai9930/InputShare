@@ -52,4 +52,5 @@ __对于无线连接：__
 
 - [快捷键](./docs/shortcuts_zh.md)
 - [常见问题](./docs/faqs_zh.md)
+- [已知缺陷](./docs/limitations_zh.md)
 - [开发](./docs/development_zh.md)

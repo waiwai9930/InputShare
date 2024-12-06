@@ -162,8 +162,8 @@ def mount_elements(root: ctk.CTk):
         info_label = ctk.CTkLabel(
             master=keep_wakeup_frame,
             font=smaller_font,
-            text=i18n(["When enabled, the device screen will stay on and prevent auto-sleep.",
-                       "启用后，设备屏幕将持续亮屏，防止自动休眠。"]))
+            text=i18n(["When enabled, the Android device screen will stay on and prevent auto-sleep.",
+                       "启用后，安卓设备屏幕将持续亮屏，防止自动休眠。"]))
         keep_wakeup_frame.pack(fill="x", pady=(20, 0))
         keep_wakeup_label.grid(row=0, column=0, padx=(20, 0), sticky="w")
         check_box.grid(row=0, column=1)

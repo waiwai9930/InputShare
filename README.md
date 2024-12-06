@@ -53,4 +53,5 @@ For wireless connection:
 
 - [Shortcuts](./docs/shortcuts_en.md)
 - [FAQs](./docs/faqs_en.md)
+- [Limitations](./docs/limitations_en.md)
 - [Development](./docs/development_en.md)
