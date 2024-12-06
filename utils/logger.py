@@ -11,7 +11,7 @@ class LogType(Enum):
 class Logger:
     DEFAULT_LOG_FILE_NAME = "InputShare-debug.log"
     LOG_TYPE_NAME_MAP = {
-        LogType.Info  : "Into",
+        LogType.Info  : "Info",
         LogType.Error : "Error",
         LogType.Adb   : "ADB",
         LogType.Server: "Server",

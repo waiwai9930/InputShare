@@ -60,7 +60,8 @@ def mount_elements(root: ctk.CTk):
             master=speed_frame,
             font=smaller_font,
             anchor="w",
-            text=i18n(["Mouse movement speed in your Android device.", "鼠标在你的安卓设备上的移动速度。"]))
+            text=i18n(["Mouse movement speed in your Android device.",
+                       "鼠标在你的安卓设备上的移动速度。"]))
         speed_slider_frame = ctk.CTkFrame(master=speed_frame)
         low_label = ctk.CTkLabel(
             master=speed_slider_frame,
@@ -98,7 +99,8 @@ def mount_elements(root: ctk.CTk):
         edge_toggling_info_label = ctk.CTkLabel(
             master=edge_toggling_frame,
             font=smaller_font,
-            text=i18n(["When enabled, the control will be toggled when the mouse reaches the screen edge.", "启用后，当鼠标移至屏幕边缘时会自动切换控制。"]))
+            text=i18n(["When enabled, the control will be toggled when the mouse reaches the screen edge.",
+                       "启用后，当鼠标移至屏幕边缘时会自动切换控制。"]))
         
         device_position_label = ctk.CTkLabel(
             master=edge_toggling_frame,
@@ -130,7 +132,8 @@ def mount_elements(root: ctk.CTk):
         trigger_margin_info_label = ctk.CTkLabel(
             master=edge_toggling_frame,
             font=smaller_font,
-            text=i18n(["Prevents triggers when the mouse reaches the corners. Larger values reduce accidents.", "避免鼠标触及屏幕角落时触发操作。更大的值可以避免误操作。"]))
+            text=i18n(["Prevents triggers when the mouse reaches the corners. Larger values reduce accidents.",
+                       "避免鼠标触及屏幕角落时触发切换。更大的值可以避免误操作。"]))
 
         edge_toggling_frame.pack(fill="x", pady=(20, 0))
         edge_toggling_label.grid(row=0, column=0, padx=(20, 0), sticky="w")
@@ -145,7 +148,7 @@ def mount_elements(root: ctk.CTk):
         trigger_margin_entry.grid(row=5, column=1, pady=(6, 0), sticky="w")
         trigger_margin_info_label.grid(row=6, column=0, columnspan=2, padx=20, sticky="w")
 
-    def mouse_keep_wakeup_section():
+    def keep_wakeup_section():
         nonlocal settings_scroll_frame, smaller_font, normal_font, larger_font, keep_wakeup_var
         keep_wakeup_frame = ctk.CTkFrame(master=settings_scroll_frame)
         keep_wakeup_label = ctk.CTkLabel(
@@ -159,7 +162,8 @@ def mount_elements(root: ctk.CTk):
         info_label = ctk.CTkLabel(
             master=keep_wakeup_frame,
             font=smaller_font,
-            text=i18n(["When enabled, the device screen will stay on and prevent auto-sleep.", "启用后，设备屏幕将持续亮屏，防止自动休眠。"]))
+            text=i18n(["When enabled, the device screen will stay on and prevent auto-sleep.",
+                       "启用后，设备屏幕将持续亮屏，防止自动休眠。"]))
         keep_wakeup_frame.pack(fill="x", pady=(20, 0))
         keep_wakeup_label.grid(row=0, column=0, padx=(20, 0), sticky="w")
         check_box.grid(row=0, column=1)
@@ -221,14 +225,15 @@ def mount_elements(root: ctk.CTk):
     mouse_theme_section()
     mount_speed_section()
     edge_toggling_section()
-    mouse_keep_wakeup_section()
+    keep_wakeup_section()
     mount_language_section()
 
     # action buttons section
     button_frame = ctk.CTkFrame(master=root)
     tips_label = ctk.CTkLabel(
         master=button_frame,
-        text=i18n(["Some settings require a restart to take effect.", "部分设置需要重启应用后生效。"]),
+        text=i18n(["Some settings require a restart to take effect.",
+                   "部分设置需要重启应用后生效。"]),
         anchor="e",
         font=smaller_font)
     cancel_button = ctk.CTkButton(
