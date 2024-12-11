@@ -1,4 +1,4 @@
-## Shortcuts
+# Shortcuts
 
 The shortcuts following are available after connection:
 

@@ -1,4 +1,4 @@
-## Development
+# Development
 
 Clone this repo:
 
@@ -21,7 +21,7 @@ python main.py
 
 If you want to build this project by yourself, go on:
 
-### Build
+## Build
 
 Install the pyinstaller:
 

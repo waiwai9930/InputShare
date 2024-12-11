@@ -6,6 +6,10 @@
 
 **解决办法**：目前程序内提供了“保持设备屏幕常亮”设置，开启后可以防止安卓端设备熄屏，从而避免此问题。
 
+## 我在共享键鼠后，安卓设备上的鼠标飘忽不定，如何解决？
+
+你可以尝试通过你的鼠标驱动（如罗技的 G Hub、雷蛇的雷云等）设置你的鼠标的 __“回报率”__（一些地方叫作 __”轮询率“__）到 __125Hz__ 或者相近的数值，情况应该会有很大改善。
+
 ## 与 Bonjour 冲突
 
 一些同类软件，如 [barrier](https://github.com/debauchee/barrier) 和 [deskflow](https://github.com/deskflow/deskflow)，会使用 [Bonjour](https://developer.apple.com/bonjour/) 来简化网络连接。

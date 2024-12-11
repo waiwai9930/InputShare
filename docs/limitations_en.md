@@ -6,6 +6,10 @@ After the program successfully connects, if either the computer or Android devic
 
 **Solution**: The program currently offers a "Keep Screen On" setting, which can prevent the Android device from turning off the screen, thus mitigating this limitation.
 
+## After sharing the keyboard and mouse, the mouse cursor on my Android device becomes erratic. How can I fix this?
+
+You can try adjusting the "report rate" (also referred to as "polling rate" in some cases) of your mouse through its driver software (e.g., Logitech G Hub, Razer Synapse, etc.) to 125Hz or a similar value. This should significantly improve the situation.
+
 ## Conflict with Bonjour
 
 Some similar software, such as [barrier](https://github.com/debauchee/barrier) and [deskflow](https://github.com/deskflow/deskflow), use [Bonjour](https://developer.apple.com/bonjour/) to simplify network connections. However, based on feedback from some users, when running barrier and starting Bonjour on the computer, and then using this software, the connection success rate of this software is significantly reduced.
