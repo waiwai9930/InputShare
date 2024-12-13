@@ -5,8 +5,8 @@ The shortcuts following are available after connection:
 | Shortcut | Description |
 | --- | --- |
 | `<Ctrl>+<Alt>+s` | Toggle the control between your computer and your Android device |
-| `<Ctrl>+<Alt>+q` | Quit the program |
-| `F1` | Multi-task switching |
+| `<Ctrl>+<Alt>+q` | Quit the Program |
+| `F1` | Multi-task Switching |
 | `F2` | Return to Home |
 | `F3` | Back |
 | `F4` | Previous Media |
@@ -18,6 +18,8 @@ The shortcuts following are available after connection:
 | `F10` | Brightness Up |
 | `F11` | Screen Sleep |
 | `F12` | Wake Up |
+| Mouse side button `X1` | Back |
+| Mouse side button `X2` | Open Notification |
 
 The shortcuts following are available after connection and not sharing:
 

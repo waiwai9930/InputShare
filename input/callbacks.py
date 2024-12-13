@@ -212,6 +212,7 @@ def callback_context_wrapper(
             return None
 
         hid_button = HID_MouseButton.MOUSE_BUTTON_NONE
+        keyevent_action = AKeyEventAction.AKEY_EVENT_ACTION_DOWN if pressed else AKeyEventAction.AKEY_EVENT_ACTION_UP
         match button:
             case mouse.Button.left:
                 hid_button = HID_MouseButton.MOUSE_BUTTON_LEFT
@@ -219,13 +220,18 @@ def callback_context_wrapper(
                 hid_button = HID_MouseButton.MOUSE_BUTTON_RIGHT
             case mouse.Button.middle:
                 hid_button = HID_MouseButton.MOUSE_BUTTON_MIDDLE
-        if pressed:
-            mouse_button_state.mouse_down(hid_button)
-        else:
-            mouse_button_state.mouse_up(hid_button)
+            case mouse.Button.x1:
+                keycode = InjectKeyCode(AKeyCode.AKEYCODE_BACK, keyevent_action)
+                return send_data(keycode.serialize())
+            case mouse.Button.x2:
+                keycode = InjectKeyCode(AKeyCode.AKEYCODE_NOTIFICATION, keyevent_action)
+                return send_data(keycode.serialize())
+
+        if pressed: mouse_button_state.mouse_down(hid_button)
+        else: mouse_button_state.mouse_up(hid_button)
         mouse_move_event = MouseClickEvent(mouse_button_state)
         return send_data(mouse_move_event.serialize())
-    
+
     def mouse_scroll_callback(_cur_x: int, _cur_y: int, _dx: int, dy: int, is_redirecting: bool) -> CallbackResult:
         if not is_redirecting or get_config().share_keyboard_only:
             return None
