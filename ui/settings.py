@@ -73,9 +73,9 @@ def mount_elements(root: ctk.CTk):
             font=smaller_font)
         speed_slider = ctk.CTkSlider(
             master=speed_slider_frame,
-            from_=1, to=5,
+            from_=1, to=6,
             variable=speed_var,
-            number_of_steps=10)
+            number_of_steps=25)
         speed_frame.pack(fill="x", pady=(20, 0))
         speed_label.pack(fill="x", padx=20)
         info_label.pack(fill="x", padx=20)

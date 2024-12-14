@@ -1,8 +1,8 @@
 import socket
 import threading
 import time
+import queue
 
-from queue import Queue
 from typing import Callable
 from pynput import mouse, keyboard
 from scrcpy_client import key_scancode_map
@@ -111,7 +111,7 @@ def callback_context_wrapper(
     send_data(mouse_init.serialize())
     last_mouse_point: tuple[int, int] | None = None
     mouse_button_state = MouseButtonStateStore()
-    movement_queue: Queue[tuple[int, int]] = Queue(maxsize=5)
+    movement_queue: queue.Queue[tuple[int, int]] = queue.Queue(maxsize=5)
     wakeup_counter = 0
 
     def mouse_movement_sender():
@@ -187,7 +187,8 @@ def callback_context_wrapper(
         speed = (diff_x ** 2 + diff_y ** 2) ** 0.5
         speed_factor = get_config().mouse_speed
         # check speed to prevent divide-by-zero error
-        adjusted_scale = 1 if speed == 0 else min(1, speed_factor / (speed ** 0.5))
+        min_scale = max(1, speed_factor / 2.5)
+        adjusted_scale = 1 if speed == 0 else min(min_scale, speed_factor / (speed ** 0.6))
         diff_x = int(diff_x * adjusted_scale)
         diff_y = int(diff_y * adjusted_scale)
         return diff_x, diff_y
@@ -204,7 +205,8 @@ def callback_context_wrapper(
             return None
         res = compute_mouse_pointer_diff(cur_x, cur_y)
         if res is None: return None
-        movement_queue.put(res)
+        try: movement_queue.put(res, block=False)
+        except queue.Full: movement_queue.get() # if the queue is full, remove the oldest element
 
     def mouse_click_callback(_cur_x: int, _cur_y: int, button: mouse.Button, pressed: bool, is_redirecting: bool) -> CallbackResult:
         nonlocal last_mouse_point
