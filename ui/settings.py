@@ -110,12 +110,12 @@ def mount_elements(root: ctk.CTk):
             master=edge_toggling_frame,
             font=normal_font,
             text=i18n(["Left side", "电脑左侧"]),
-            variable=device_position_var, value=DevicePosition.LEFT)
+            variable=device_position_var, value=DevicePosition.TOP)
         device_position_right_radio = ctk.CTkRadioButton(
             master=edge_toggling_frame,
             font=normal_font,
             text=i18n(["Right side", "电脑右侧"]),
-            variable=device_position_var, value=DevicePosition.RIGHT)
+            variable=device_position_var, value=DevicePosition.DOWN)
         
         validate_entry = lambda text: len(text) == 0 or text.isdigit()
         vcmd = (edge_toggling_frame.register(validate_entry), "%P")
