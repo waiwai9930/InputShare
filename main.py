@@ -16,7 +16,9 @@ from utils.notification import Notification, send_notification
 
 def close_notification_resolver(errno: Exception | None):
     close_notification = None
-    i18n = get_i18n()
+    
+    # user禁用无线连接弹窗
+    # i18n = get_i18n()
     match errno:
         case None: pass
         case scrcpy_receiver.ADBConnectionError():
